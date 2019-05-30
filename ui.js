@@ -1,4 +1,4 @@
-// Everything what has something to do with producing visual output or handling user input is in this file 
+// Everything what has something to do with producing visual output or handling user input is in this file
 
 // returns new Ui class for given space
 function uiOf(game) {
@@ -10,17 +10,30 @@ function uiOf(game) {
   let _cacheCtx
   let _frames = 0
   let _target = null
+
+  function setupCanvasHDPI(canvas, W, H) {
+    // Get the device pixel ratio, falling back to 1.
+    var dpr = window.devicePixelRatio || 1;
+    // size * the device pixel ratio.
+    canvas.width = W * dpr;
+    canvas.height = H * dpr;
+    var ctx = canvas.getContext('2d', { alpha: false, powerPreference: 'low-power' });
+    // Scale all drawing operations by the dpr, so you
+    // don't have to worry about the difference.
+    ctx.scale(dpr, dpr);
+    canvas.style.width = CNS +'px'
+    canvas.style.height = CNS +'px'
+    return ctx
+  }
   return new class Ui {
     on(canvas) {
-      canvas.width = CNS
-      canvas.height = CNS
       _canvas = canvas
-      _ctx = canvas.getContext('2d', { alpha: false })
+      _ctx = setupCanvasHDPI(_canvas, CNS, CNS)
 
       _cacheCanvas = document.createElement('canvas')
       _cacheCanvas.width = canvas.width
       _cacheCanvas.height = canvas.height
-      _cacheCtx = _cacheCanvas.getContext('2d')
+      _cacheCtx = _cacheCanvas.getContext('2d', { willReadFrequently: true })
 
       // prepare background
       _cacheCtx.filter = "brightness(120%) contrast(20%) blur(2px)"
@@ -112,10 +125,10 @@ function uiOf(game) {
         // end
         if (this._oneMoreFrame) {
           this._oneMoreFrame = false
-        }  
+        }
         game.invalidated = false
       }
-      // render always: 
+      // render always:
       let p = new Hex(-9, 7)
       drawLoader(t, game._activePlayerIndex == 0 ? p : p.revert())
 
