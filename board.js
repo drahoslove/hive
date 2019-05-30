@@ -166,7 +166,7 @@ class Space {
       }
 
       // animate
-      let ms = 100
+      let ms = 120
       if (!path) {
         path = [bug.pos, dest]
         ms *= 2
@@ -184,20 +184,18 @@ class Space {
     }
   }
 
-  doInTime(n, doStep) {
-    let i = 0
-    const move = () => {
-      i += 10
-      if (i < n) {
-        setTimeout(move, 10)
-      }
+  doInTime(duration, doStep) {
+    const start = Date.now()
+    const interval = setInterval(() => {
       this.animating = true
-      doStep(i/n)
-      if (i === n) {
-        this.animating = false
-      }
-    }
-    move()
+      const sofar = Date.now() - start
+      doStep(sofar/duration)
+    }, 10)
+    setTimeout(() => {
+      clearInterval(interval)
+      doStep(1)
+      this.animating = false
+    }, duration)
   }
 
   // positions of all occupied tiles
