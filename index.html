@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Hive</title>
+<script src="./bugs.js"></script>
+<script src="./board.js"></script>
+<script src="./game.js"></script>
+<script src="./ui.js"></script>
+<style>
+body {
+  margin: 3rem auto;
+  background: #DFFDA4 url('https://o00o.cz/2008/o/domecek/content-bg.gif') repeat
+}
+canvas {
+  border: 1px #aaa solid;
+  display: block;
+  margin: 0 auto;
+}
+</style>
+<script>
+const game = new Game(['#111', '#eee'], 5)
+
+const autoMove = () => {
+  !game.selected 
+    ? game.onClick(rand(game.activePlayer().hand.size()+1)
+        ? game.activePlayer().hand.__getRandomBugPos()
+        : game.space.__randomBugPos(game.activePlayer().color)
+      )
+    : game.onClick(game.__randomLandingPos())
+ 
+  // console.clear()
+  // console.log(String(game.space))
+}
+
+if (window.location.href.endsWith("autoplay")) {
+  const timer = setInterval(autoMove, 50)
+  setTimeout(() => {clearInterval(timer)}, 5*60*1000)  
+}
+
+// autoMove()
+// autoMove()
+// autoMove()
+// autoMove()
+
+console.log(String(game.space))
+
+window.onload = () => {
+  const canvas = document.getElementById('canvas')
+  const ui = uiOf(game).on(canvas)
+  // ui.off(canvas)
+  // setTimeout(()=>ui.on(canvas), 1500)
+}
+
+
+</script>
+</head>
+<body>
+  <canvas id="canvas" width="800" height="800"></canvas>
+</body>
+</html>
