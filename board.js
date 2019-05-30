@@ -37,6 +37,10 @@ class Hex {
     return this.toCube().distance(hex.toCube())
   }
 
+  directionTo(hex) {
+    return this.toCube().directionTo(hex.toCube()).toHex()
+  }
+
   neighborhood() {
     return Hex.directions.map(dir => this.add(dir))
   }
@@ -105,6 +109,10 @@ class Cube {
     return (Math.abs(this.x - x) + Math.abs(this.y - y) + Math.abs(this.z - z)) / 2
   }
 
+  directionTo({x, y, z}) {
+    return new Cube(Math.sign(x - this.x), Math.sign(y - this.y), Math.sign(z - this.z))
+  }
+
   neighborhood() {
     return Cube.directions.map(dir => this.add(dir))
   }
@@ -150,7 +158,9 @@ class Space {
   }
 
   putAt(bug, dest) {
-    let path = this.findPath(bug.pos, dest)
+    let path = bug.name === "Grasshopper"
+      ? [bug.pos, dest]
+      : this.findPath(bug.pos, dest)
     const tile = this.at(dest)
     if (tile) {
       tile.push(bug)

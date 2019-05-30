@@ -73,7 +73,7 @@ function uiOf(game) {
     }
 
     onFrame = (t) => {
-      if (_frames++ % 1 === 0) // 30fps
+      if (_frames++ % 2 === 0) // 30fps
         this.redraw(t)
       if (!this.stop)
         requestAnimationFrame(this.onFrame)

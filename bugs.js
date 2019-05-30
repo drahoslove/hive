@@ -42,8 +42,23 @@ class Beatle extends Bug {
 class Grasshopper extends Bug {
   // has to jump over 1 or more bugs in line
   // can fit into slit
-  canGo(space) {
-    return false
+  canGo(hex, space) {
+    const cPos = this.pos.toCube()
+    const cDest = hex.toCube()
+
+    if (cPos.x !== cDest.x && cPos.y !== cDest.y && cPos.z !== cDest.z) {
+      return false // not in row
+    }
+    if (cPos.distance(cDest) <= 1) {
+      return false // noone to jump over
+    }
+    const dir = cPos.directionTo(cDest)
+    for (let seg = cPos; !seg.eq(cDest); seg = seg.add(dir)) {
+      if (space.at(seg.toHex()).length === 0) {
+        return false // has gap
+      }
+    }
+    return true
   }
 }
 
