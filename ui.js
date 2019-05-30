@@ -11,29 +11,18 @@ function uiOf(game) {
   let _frames = 0
   let _target = null
 
-  function setupCanvasHDPI(canvas, W, H) {
-    // Get the device pixel ratio, falling back to 1.
-    var dpr = window.devicePixelRatio || 1;
-    // size * the device pixel ratio.
-    canvas.width = W * dpr;
-    canvas.height = H * dpr;
-    var ctx = canvas.getContext('2d', { alpha: false, powerPreference: 'low-power' });
-    // Scale all drawing operations by the dpr, so you
-    // don't have to worry about the difference.
-    ctx.scale(dpr, dpr);
-    canvas.style.width = CNS +'px'
-    canvas.style.height = CNS +'px'
-    return ctx
-  }
-  return new class Ui {
-    on(canvas) {
-      _canvas = canvas
-      _ctx = setupCanvasHDPI(_canvas, CNS, CNS)
 
-      _cacheCanvas = document.createElement('canvas')
-      _cacheCanvas.width = canvas.width
-      _cacheCanvas.height = canvas.height
-      _cacheCtx = _cacheCanvas.getContext('2d', { willReadFrequently: true })
+  return new class Ui {
+    async on(canvas) {
+      _canvas = canvas
+      _ctx = setupCanvasHDPI(_canvas, CNS, CNS, { alpha: false })
+
+      _cacheCanvas = document.createElement('canvas') // _canvas.cloneNode()
+      game.space.each((tile, hex) => drawTile(tile, hex))
+
+      _cacheCanvas.with = _canvas.with
+      _cacheCanvas.height = _canvas.height
+      _cacheCtx = setupCanvasHDPI(_cacheCanvas, CNS, CNS, { _willReadFrequently: true })
 
       // prepare background
       _cacheCtx.filter = "brightness(120%) contrast(20%) blur(2px)"
@@ -66,10 +55,21 @@ function uiOf(game) {
       } else {
         _canvas.style.cursor = 'default'
       }
+      // store last hovered tile pos
       if (_target != target) {
         _target = target
         game.invalidated = true
       }
+    }
+
+    startAnimation() {
+      this.stop = false
+      game.invalidated = true
+			requestAnimationFrame(this.onFrame)
+		}
+
+    stopAnimation() {
+      this.stop = true
     }
 
     onFrame = (t) => {
@@ -79,25 +79,10 @@ function uiOf(game) {
         requestAnimationFrame(this.onFrame)
     }
 
-    stopAnimation() {
-      this.stop = true
-    }
-
-    startAnimation() {
-      this.stop = false
-      game.invalidated = true
-      this.onFrame(0)
-    }
-
-    background() {
-      _ctx.clearRect(0, 0, _canvas.width, _canvas.height)
-      _ctx.drawImage(_cacheCanvas, 0, 0, _canvas.width, _canvas.height)
-    }
-
     redraw(t) {
       if (game.invalidated || game.space.animating || this._oneMoreFrame) {
         // backgrond
-        this.background()
+        drawBackground()
 
         // bugs
         game.space.each(drawBugsOftile)
@@ -137,6 +122,29 @@ function uiOf(game) {
       }
     }
   }
+
+  // canvas related functions
+
+  function setupCanvasHDPI(canvas, w, h, options) {
+    let ratio = window.devicePixelRatio || 1
+    if (ratio > 2) {
+      ratio /= 2 // it would be too much pixels to render for mobiles with dpr 3 or more
+    }
+    canvas.width = w * ratio;
+    canvas.height = h * ratio;
+    canvas.style.width = w +'px'
+    canvas.style.height = h +'px'
+
+    let ctx = canvas.getContext('2d', options);
+    ctx.scale(ratio, ratio)
+    return ctx
+  }
+
+  function drawBackground() {
+    _ctx.clearRect(0, 0, CNS, CNS)
+    _ctx.drawImage(_cacheCanvas, 0, 0, CNS, CNS)
+  }
+
 
   function hexToScreen({q, r}) {
     // let x = S/2 * (           3/2 * q                   )
