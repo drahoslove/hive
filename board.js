@@ -158,11 +158,11 @@ class Space {
   }
 
   putAt(bug, dest) {
-    let path = bug.name === "Grasshopper"
-      ? [bug.pos, dest]
-      : this.findPath(bug.pos, dest)
     const tile = this.at(dest)
     if (tile) {
+      let path = bug.name === "Grasshopper"
+        ? [bug.pos, dest]
+        : this.findPath(bug.pos, dest)
       tile.push(bug)
       const oldTile = this.at(bug.pos)
       if (oldTile && oldTile.length) {
@@ -176,7 +176,7 @@ class Space {
       }
 
       // animate
-      let ms = 120
+      let ms = 150
       if (!path) {
         path = [bug.pos, dest]
         ms *= 2

@@ -10,6 +10,7 @@ function uiOf(game) {
   let _cacheCtx
   let _frames = 0
   let _target = null
+  let _drawQue = []
 
 
   return new class Ui {
@@ -107,6 +108,11 @@ function uiOf(game) {
           })
         }
 
+        // call deffered drawing stuff
+        while(_drawQue.length > 0) {
+          _drawQue.shift()()
+        }
+
         // end
         if (this._oneMoreFrame) {
           this._oneMoreFrame = false
@@ -189,9 +195,14 @@ function uiOf(game) {
 
   function drawBugsOftile(tile, hex) {
     const offset = new Hex(+0.0, -0.2)
-    tile.forEach((b, i) =>
-      drawBug(b, b.pos.add(offset.scale(i)))
-    )
+    tile.forEach((b, i) => {
+      if (i === 0) { // bottom most draw normally
+        drawBug(b, b.pos.add(offset.scale(i)))
+      } else {
+        // deffer top layer
+        _drawQue.push(() => drawBug(b, b.pos.add(offset.scale(i))))
+      }
+    })
   }
 
   function drawBug(bug, pos) {
