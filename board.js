@@ -159,10 +159,11 @@ class Space {
 
   putAt(bug, dest) {
     const tile = this.at(dest)
+    let ms = 150
     if (tile) {
       let path = bug.name === "Grasshopper"
         ? [bug.pos, dest]
-        : this.findPath(bug.pos, dest)
+        : this.findPath(bug.pos, dest) || [bug.pos, dest] 
       tile.push(bug)
       const oldTile = this.at(bug.pos)
       if (oldTile && oldTile.length) {
@@ -171,16 +172,19 @@ class Space {
           oldTile.push(b)
           // throw Error(`Tried to move bug ${bug.toString()} from tile ${oldTile} but it is not is not ontop`)
         }
+        // movement speed
+        ms = 150 // Ant and Spider
+        if(bug.name === "Queen")
+          ms *= 2
+        if(bug.name === "Beatle")
+          ms *= 3
+        if(bug.name === "Grasshopper")
+          ms *= bug.pos.distance(dest) / 2
       } else {
         this._stones++
       }
 
       // animate
-      let ms = 150
-      if (!path) {
-        path = [bug.pos, dest]
-        ms *= 2
-      }
       const jumps = path.length-1
       const duration = ms*jumps
       this.doInTime(
