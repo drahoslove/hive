@@ -159,7 +159,7 @@ class Space {
 
   putAt(bug, dest) {
     const tile = this.at(dest)
-    let ms = 150
+    let ms = 250
     if (tile) {
       let path = bug.name === "Grasshopper"
         ? [bug.pos, dest]

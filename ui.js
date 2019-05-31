@@ -10,7 +10,7 @@ function uiOf(game) {
   let _cacheCtx
   let _frames = 0
   let _target = null
-  let _drawQue = []
+  let _drawQue = new PriorityQueue()
 
 
   return new class Ui {
@@ -88,11 +88,6 @@ function uiOf(game) {
         // bugs
         game.space.each(drawBugsOftile)
         game.players.forEach(({hand}) => hand.each(b => drawBug(b)))
-        // _target && game.activePlayer().hand.each(b => {
-        //   if(b && b.pos.eq(_target)) {
-        //     drawBug(b)
-        //   }
-        // })
 
         // outlines
         game.space.articulations().forEach(pos => {
@@ -109,8 +104,8 @@ function uiOf(game) {
         }
 
         // call deffered drawing stuff
-        while(_drawQue.length > 0) {
-          _drawQue.shift()()
+        while(_drawQue.len() > 0) {
+          _drawQue.pop()()
         }
 
         // end
@@ -196,11 +191,15 @@ function uiOf(game) {
   function drawBugsOftile(tile, hex) {
     const offset = new Hex(+0.0, -0.2)
     tile.forEach((b, i) => {
-      if (i === 0) { // bottom most draw normally
+      const isMoving = !hex.eq(b.pos)
+      if (i === 0 && !isMoving) { // bottom most and the not moving ones draw normally
         drawBug(b, b.pos.add(offset.scale(i)))
       } else {
-        // deffer top layer
-        _drawQue.push(() => drawBug(b, b.pos.add(offset.scale(i))))
+        // deffer top layers
+        _drawQue.push(
+          () => drawBug(b, b.pos.add(offset.scale(i))),
+          isMoving ? 2 : 1 // moving on top
+        )
       }
     })
   }
