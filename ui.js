@@ -56,17 +56,12 @@ function uiOf(game) {
       if (game.isClickable(target)) {
         _canvas.style.cursor = 'pointer'
         // store last hovered tile pos
-        if (String(_target) === String(target)) {
-          game.invalidated = true
-        }
         _target = target
       } else {
         _canvas.style.cursor = 'default'
-        if (String(_target) === String(target)) {
-          game.invalidated = true
-        }
         _target = null
       }
+      game.invalidated = true
     }
 
     startAnimation() {
@@ -106,7 +101,7 @@ function uiOf(game) {
           })
           // path TODO - only right for ant, spider and queen
           _target && game.selected && (game.selected.pathTo(game.space, _target) || []).forEach((pos, i) => {
-            i > 0 && drawDot(pos, H_LANDING)
+            i > 0 && _drawQue.push(() => drawDot(pos, H_LANDING), 3)
           })
         }
 
@@ -255,7 +250,7 @@ function uiOf(game) {
       !game.space.animating &&
       game.isClickable(bug.pos)
     ) {
-      _drawQue.push(() => drawOutline(pos, H_CLICKABLE), 3)
+      _drawQue.push(() => drawOutline(pos, H_CLICKABLE), 0)
     }
   }
 

@@ -242,11 +242,17 @@ class Space {
     })
   }
 
-  // positions of all empt tiles wich are in neighborhood of given pos
+  // positions of all empty tiles wich are in neighborhood of given pos
+  // and have common occupied neighbor tile (is accesible without detaching from hive while moving)
   posOfWays(hex) {
+    const commonNeigbors = this.posOfNeighbors(hex).map(String)
     return hex.neighborhood().filter((pos) => {
       const tile = this.at(pos)
-      return tile && tile.length === 0
+      if (tile && tile.length === 0) {
+        if (this.posOfNeighbors(pos).map(String).some(p => commonNeigbors.includes(p))) {
+          return true
+        }
+      }
     })
   }
 
@@ -323,15 +329,18 @@ class Space {
       if (current.eq(goal)) {
         break 
       }
-      this.posOfWays(current).filter((pos) => this.isNextToHive(pos)).forEach(next => {
-        let newCost = costSoFar[current] + 1 + this.posOfWays(next).length // add cost (same for each edge)
-        if (!(next in costSoFar) || newCost < costSoFar[next]) {
-          costSoFar[next] = newCost
-          let priority = newCost + next.distance(goal) // heuristic - use just distance from goal
-          frontier.push(next, priority)
-          cameFrom[next] = current
-        }
-      })
+      this.posOfWays(current)
+        .filter(pos => this.isNextToHive(pos))
+        .filter(pos => !this.isNarrow(current, pos))
+        .forEach(next => {
+          let newCost = costSoFar[current] + 1 + this.posOfWays(next).length // add cost (same for each edge)
+          if (!(next in costSoFar) || newCost < costSoFar[next]) {
+            costSoFar[next] = newCost
+            let priority = newCost + next.distance(goal) // heuristic - use just distance from goal
+            frontier.push(next, priority)
+            cameFrom[next] = current
+          }
+        })
     }
 
     // assemble path from cameFrom

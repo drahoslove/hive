@@ -23,11 +23,6 @@ class Bug {
   }
 }
 
-const isNarrowSegment = (space) => (pos, i, path) => {
-  if (i === 0) { return }
-  return space.isNarrow(path[i-1], pos)
-}
-
 class Queen extends Bug {
   speed = 0.6
   // only one tile per turn
@@ -93,7 +88,7 @@ class Spider extends Bug {
   // exactly 3 spaces per turn, no backtracks
   pathTo(space, dest) {
     const path = space.findPath(this.pos, dest)
-    if (path && path.length-1 === 3 && !path.some(isNarrowSegment(space))) {
+    if (path && path.length-1 === 3) {
       return path
     }
     return null
@@ -105,7 +100,7 @@ class Ant extends Bug {
   // nywhere
   pathTo(space, dest) {
     let path = space.findPath(this.pos, dest)
-    if (path && !path.some(isNarrowSegment(space))) {
+    if (path) {
       return path
     }
     return null
