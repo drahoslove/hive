@@ -66,7 +66,7 @@ class Game {
         bug = null
         this.landings = []
       } else
-      if (this.space.isHiveBridge(bug.pos)) {
+      if (tile.length === 1 && this.space.isHiveBridge(bug.pos)) {
         bug = null
         console.error('cant move this, will break hive into two')
       } else
