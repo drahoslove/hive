@@ -430,7 +430,7 @@ class Hand {
   }
 
   __getRandomBugPos() {
-    if(this._hand.filter(v => v === null).length === 3 && this._hand[0]) {
+    if(this.used() === 3 && this._hand.some((bug) => bug && bug.name === 'Queen')) {
       return this._hand[0].pos // queen must be used in 4th move
     }
     const indexes = this._hand.reduce(
@@ -447,6 +447,10 @@ class Hand {
 
   size() {
     return this._hand.filter(bug => bug).length
+  }
+
+  used() {
+    return this._hand.filter(bug => bug === null).length
   }
 
   each(callback) {

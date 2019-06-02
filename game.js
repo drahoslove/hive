@@ -30,14 +30,22 @@ class Game {
 
   isClickable(hex) {
     // selectable inhand bug
-    if (this.activePlayer().hand.find(hex)) {
+    let handBug = this.activePlayer().hand.find(hex)
+    if (handBug) {
+      if (this.hasToPlaceQueenNow()) { // 3 placed
+        return handBug.name === 'Queen' 
+      }
       return true
     }
     // selectable inspace bug
     let tile = this.space.at(hex)
     if (tile && tile.length) {
       let bug = tile[tile.length-1]
-      if (bug.color === this.activePlayer().color) {
+      if (
+        bug.color === this.activePlayer().color &&
+        this.isQueenPlaced() &&
+        !(tile.length === 1 && this.space.isHiveBridge(bug.pos))
+      ) {
         return true
       }
     }
@@ -52,8 +60,11 @@ class Game {
 
     // hand?
     if (bug = this.activePlayer().hand.find(hex)) {
-      this.selected = bug
+      if (this.hasToPlaceQueenNow() && bug.name !== 'Queen') {
+        return
+      }
       this.landings = this.space.possibleLandings(bug)
+      this.selected = bug
       return
     }
 
@@ -104,6 +115,15 @@ class Game {
       }
     })
     return !holding
+  }
+
+  hasToPlaceQueenNow() {
+    if (this.activePlayer().hand.used() === 3) { // exactly 3 placed
+      if (!this.isQueenPlaced()) {
+        return true
+      }
+    }
+    return false
   }
 
   switchPlayers() {

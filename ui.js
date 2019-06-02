@@ -12,6 +12,8 @@ function uiOf(game) {
   let _target = null
   let _drawQue = new PriorityQueue()
 
+  const H_CLICKABLE = 150
+  const H_LANDING = H_CLICKABLE + 35
 
   return new class Ui {
     async on(canvas) {
@@ -53,12 +55,13 @@ function uiOf(game) {
       let target = eventToHex(event)
       if(game.isClickable(target)) {
         _canvas.style.cursor = 'pointer'
+        // store last hovered tile pos
+        _target = target
       } else {
         _canvas.style.cursor = 'default'
+        _target = null
       }
-      // store last hovered tile pos
       if (_target != target) {
-        _target = target
         game.invalidated = true
       }
     }
@@ -87,19 +90,20 @@ function uiOf(game) {
 
         // bugs
         game.space.each(drawBugsOftile)
-        game.players.forEach(({hand}) => hand.each(b => drawBug(b)))
+        game.players.forEach(({hand}) => hand.each(b => drawBug(b, undefined, true)))
 
         // outlines
-        game.space.articulations().forEach(pos => {
-          drawOutlined(pos, '#ba3')
-        })
+        // game.space.articulations().forEach(pos => {
+        //   drawOutline(pos, 0)
+        // })
         if(game.selected) {
-          drawOutlined(game.selected.pos, '#b3a')
+          drawOutline(game.selected.pos, H_CLICKABLE)
           game.landings.forEach(pos => {
-            drawOutlined(pos, '#3ba')
+            drawOutline(pos, H_LANDING)
           })
-          _target &&  (game.space.findPath(game.selected.pos, _target) || []).forEach(pos => {
-            drawOutlined(pos, '#b3a')
+          // path TODO - only right for ant, spider and queen
+          _target && (game.space.findPath(game.selected.pos, _target) || []).forEach((pos, i) => {
+            i > 0 && drawDot(pos, H_LANDING)
           })
         }
 
@@ -191,27 +195,29 @@ function uiOf(game) {
   function drawBugsOftile(tile, hex) {
     const offset = new Hex(+0.0, -0.2)
     tile.forEach((b, i) => {
+      const isTop = i === tile.length - 1
+      const draw = () => drawBug(b, b.pos.add(offset.scale(i)), isTop)
       const isMoving = !hex.eq(b.pos)
       if (i === 0 && !isMoving) { // bottom most and the not moving ones draw normally
-        drawBug(b, b.pos.add(offset.scale(i)))
+        draw()
       } else {
         // deffer top layers
         _drawQue.push(
-          () => drawBug(b, b.pos.add(offset.scale(i))),
+          draw,
           isMoving ? 2 : 1 // moving on top
         )
       }
     })
   }
 
-  function drawBug(bug, pos) {
-    let {x, y} = hexToScreen(pos || bug.pos)
+  function drawBug(bug, pos=bug.pos, isTop) {
+    let {x, y} = hexToScreen(pos)
 
     let r = S/2
 
     if (
-      _target && bug.pos.eq(_target) && game.isClickable(_target) ||
-      game.selected && bug.pos.eq(game.selected.pos)
+      _target && bug.pos.eq(_target) && game.isClickable(_target) || // hover
+      game.selected && bug.pos.eq(game.selected.pos) // selected
     ) {
       r *= 1.25
     }
@@ -239,26 +245,47 @@ function uiOf(game) {
       _ctx.fillStyle = '#888'
       _ctx.fillText(txt, x-w/2, y)
     }
+
+    
+    if (
+      isTop &&
+      !game.space.animating &&
+      game.isClickable(bug.pos)
+    ) {
+      _drawQue.push(() => drawOutline(pos, H_CLICKABLE), 3)
+    }
   }
 
-  function drawOutlined(pos, style) {
+
+  function drawDot(pos, hue) {
+    let r = S/6
+
+    const {x, y} = hexToScreen(pos)
+    hexPath(_ctx, x, y, r-2)
+    _ctx.strokeStyle = `hsla(${hue}, 80%, 50%, 1)`
+    _ctx.lineWidth = 2
+    _ctx.lineCap = 'round'
+    _ctx.stroke()
+  }
+
+  function drawOutline(pos, hue) {
     let r = S/2
 
+    const dimm = hue === H_CLICKABLE && game.selected && !game.selected.pos.eq(pos.round())
+
     if (
-      game.selected && pos.eq(game.selected.pos)
+      _target && pos.round().eq(_target) && game.isClickable(_target) || // hover
+      game.selected && pos.round().eq(game.selected.pos) // selected
     ) {
       r *= 1.25
     }
     const {x, y} = hexToScreen(pos)
     _ctx.beginPath()
-    hexPath(_ctx, x, y, r-2.5)
-    _ctx.strokeStyle = style
-    _ctx.lineWidth = 5
+    hexPath(_ctx, x, y, r-3.5)
+    _ctx.strokeStyle = `hsla(${hue}, 80%, 50%, ${dimm ? 0.5 : 1})`
+    _ctx.lineWidth = 4
     _ctx.lineCap = 'round'
-    _ctx.setLineDash([4, 8]);
     _ctx.stroke()
-    _ctx.setLineDash([]);
-
   }
 
   function drawLoader(t, pos) {
