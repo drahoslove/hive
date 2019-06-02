@@ -53,16 +53,19 @@ function uiOf(game) {
 
     mouseMove = (event) => {
       let target = eventToHex(event)
-      if(game.isClickable(target)) {
+      if (game.isClickable(target)) {
         _canvas.style.cursor = 'pointer'
         // store last hovered tile pos
+        if (String(_target) === String(target)) {
+          game.invalidated = true
+        }
         _target = target
       } else {
         _canvas.style.cursor = 'default'
+        if (String(_target) === String(target)) {
+          game.invalidated = true
+        }
         _target = null
-      }
-      if (_target != target) {
-        game.invalidated = true
       }
     }
 
@@ -102,7 +105,7 @@ function uiOf(game) {
             drawOutline(pos, H_LANDING)
           })
           // path TODO - only right for ant, spider and queen
-          _target && (game.space.findPath(game.selected.pos, _target) || []).forEach((pos, i) => {
+          _target && game.selected && (game.selected.pathTo(game.space, _target) || []).forEach((pos, i) => {
             i > 0 && drawDot(pos, H_LANDING)
           })
         }
@@ -282,7 +285,7 @@ function uiOf(game) {
     const {x, y} = hexToScreen(pos)
     _ctx.beginPath()
     hexPath(_ctx, x, y, r-3.5)
-    _ctx.strokeStyle = `hsla(${hue}, 80%, 50%, ${dimm ? 0.5 : 1})`
+    _ctx.strokeStyle = `hsla(${hue}, 80%, 50%, ${dimm ? 0.25 : 1})`
     _ctx.lineWidth = 4
     _ctx.lineCap = 'round'
     _ctx.stroke()
