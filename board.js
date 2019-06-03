@@ -244,21 +244,21 @@ class Space {
   }
 
   // positions of all occupied tiles which are in neighborhood of given pos
-  posOfNeighbors(hex) {
+  posOfNeighbors(hex, except) {
     return hex.neighborhood().filter((pos) => {
       const tile = this.at(pos)
-      return tile && tile.length > 0
+      return tile && tile.length > 0 && !(except && pos.eq(except))
     })
   }
 
   // positions of all empty tiles wich are in neighborhood of given pos
   // and have common occupied neighbor tile (is accesible without detaching from hive while moving)
-  posOfWays(hex) {
-    const commonNeigbors = this.posOfNeighbors(hex).map(String)
+  posOfWays(hex, except) {
+    const commonNeigbors = this.posOfNeighbors(hex, except).map(String)
     return hex.neighborhood().filter((pos) => {
       const tile = this.at(pos)
-      if (tile && tile.length === 0) {
-        if (this.posOfNeighbors(pos).map(String).some(p => commonNeigbors.includes(p))) {
+      if (tile && (tile.length === 0 || tile.length === 1 && except && pos.eq(except))) {
+        if (this.posOfNeighbors(pos, except).map(String).some(p => commonNeigbors.includes(p))) {
           return true
         }
       }
@@ -271,9 +271,9 @@ class Space {
   }
   
   isNextToHive(hex, except) { // is empty but has occupied neighbor tile
-    return this.at(hex).length === 0 && hex.neighborhood().some(hex => {
-      const tile = this.at(hex)
-      return tile && tile.length > 0 && !(except && hex.eq(except))
+    return this.at(hex).length === 0 && hex.neighborhood().some(pos => {
+      const tile = this.at(pos)
+      return tile && tile.length > 0 && !(except && pos.eq(except))
     })
   }
 
@@ -282,8 +282,10 @@ class Space {
     return this.articulations().some(cut => cut.eq(hex))
   }
 
-  isNarrow (from, to) {
-    return this.posOfNeighbors(from).filter(nfrom => this.posOfNeighbors(to).some(nto => nto.eq(nfrom))).length === 2
+  isNarrow (from, to, except) {
+    return this.posOfNeighbors(from, except)
+      .filter(nfrom => this.posOfNeighbors(to, except).some(nto => nto.eq(nfrom)))
+      .length === 2
   } // share 2 common neighbors
 
 
@@ -338,11 +340,11 @@ class Space {
       if (current.eq(goal)) {
         break 
       }
-      this.posOfWays(current)
+      this.posOfWays(current, start)
         .filter(pos => this.isNextToHive(pos))
-        .filter(pos => !this.isNarrow(current, pos))
+        .filter(pos => !this.isNarrow(current, pos, start))
         .forEach(next => {
-          let newCost = costSoFar[current] + 1 + this.posOfWays(next).length // add cost (same for each edge)
+          let newCost = costSoFar[current] + 1 + this.posOfWays(next, start).length // add cost (same for each edge)
           if (!(next in costSoFar) || newCost < costSoFar[next]) {
             costSoFar[next] = newCost
             let priority = newCost + next.distance(goal) // heuristic - use just distance from goal
@@ -393,17 +395,18 @@ class Space {
 
   toString() {
     let str = ''
+    let clr
     this._grid.forEach((row, i) => {
       str += '  '.repeat(Math.abs(this._radius - i))
       row.forEach(tile => {
         let st = ' '
         if(tile.length) {
           st = tile[0].constructor.name[0]
-          if(tile[0].color === 'white') {
+          if(!clr) clr = tile[0].color
+          if(tile[0].color === clr) {
             st = st.toLowerCase()
           }
         }
-
 
         str += `(${st}) `
       })
@@ -411,6 +414,9 @@ class Space {
     })
     return str
   }
+}
+Space.fromString = function(string) {
+  return new Space()
 }
 
 // Hand represents storage of stones which are not placed yet.

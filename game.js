@@ -108,6 +108,7 @@ class Game {
     this.selected = null
     this.landings = []
     this.switchPlayers()
+    console.log(String(this.space))
   }
 
   isQueenPlaced() {

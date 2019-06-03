@@ -39,8 +39,6 @@ if (window.location.href.endsWith("autoplay")) {
   setTimeout(() => {clearInterval(timer)}, 5*60*1000)  
 }
 
-console.log(String(game.space))
-
 window.onload = () => {
   const canvas = document.getElementById('hiveCanvas')
   const ui = uiOf(game).on(canvas)
