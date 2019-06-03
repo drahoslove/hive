@@ -214,8 +214,8 @@ function uiOf(game) {
     let r = S/2
 
     if (
-      _target && bug.pos.eq(_target) && game.isClickable(_target) || // hover
-      game.selected && bug.pos.eq(game.selected.pos) // selected
+      _target && bug.pos.eq(_target) && isTop || // hover
+      game.selected === bug // selected
     ) {
       r *= 1.25
     }
@@ -247,7 +247,6 @@ function uiOf(game) {
     
     if (
       isTop &&
-      !game.space.animating &&
       game.isClickable(bug.pos)
     ) {
       _drawQue.push(() => drawOutline(pos, H_CLICKABLE), 0)

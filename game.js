@@ -29,6 +29,9 @@ class Game {
   }
 
   isClickable(hex) {
+    if (this.space.animating) {
+      return false
+    }
     // selectable inhand bug
     let handBug = this.activePlayer().hand.find(hex)
     if (handBug) {

@@ -169,7 +169,7 @@ class Space {
         const b = oldTile.pop()
         if (b !== bug) {
           oldTile.push(b)
-          // throw Error(`Tried to move bug ${bug.toString()} from tile ${oldTile} but it is not is not ontop`)
+          throw Error(`Tried to move bug ${bug.toString()} from tile ${oldTile} but it is not is not ontop`)
         }
         // movement speed
         ms = 200 / bug.speed
@@ -179,13 +179,17 @@ class Space {
         this._stones++
       }
 
+      if(!path) {
+        throw Error(`No path found for bug (${bug}) to get to tile (${tile}) at dest (${dest})`)
+      }
+
       // animate
       const jumps = path.length-1
       const duration = ms*jumps
       this.doInTime(
         duration,
         (t) => {
-          // t = ease(t)
+          t = ease(t)
           let i = Math.floor(t * jumps) // path segment index
           const diff = i === jumps ? new Hex(0,0) : path[i+1].sub(path[i])
           bug.pos = path[i].add(diff.scale((t*duration % ms)/ms))
@@ -199,12 +203,14 @@ class Space {
     const interval = setInterval(() => {
       this.animating = true
       const sofar = Date.now() - start
-      doStep(sofar/duration)
+      doStep(Math.min(sofar/duration, 1))
     }, 10)
     setTimeout(() => {
       clearInterval(interval)
       doStep(1)
-      this.animating = false
+      setTimeout(() => {
+        this.animating = false
+      }, 10)
     }, duration)
   }
 
