@@ -227,14 +227,26 @@ function uiOf(game) {
     }
 
     { // stone
-      _ctx.beginPath()
       hexPath(_ctx, x, y, r)
-      _ctx.fillStyle = bug.color
-      _ctx.strokeStyle = '#888'
-      _ctx.lineWidth = 2
-      _ctx.lineJoin = 'round'
+      let grad = _ctx.createLinearGradient(x-r, y-r, x+r, y+r);
+      grad.addColorStop(0, bug.color === game.players[1].color ? '#fff' : '#666');
+      grad.addColorStop(1, bug.color === game.players[1].color ? '#999' : '#000');
+
+      _ctx.fillStyle = grad
       _ctx.fill()
+
+      _ctx.lineWidth = 1
+      _ctx.lineJoin = 'round'
+      _ctx.strokeStyle = '#888'
       _ctx.stroke()
+
+      _ctx.beginPath()
+      _ctx.moveTo(x, y+r)
+      _ctx.arc(x, y, r*SQRT3_2-2, 0, Math.PI*2)
+      _ctx.closePath()
+      _ctx.fillStyle = bug.color
+      _ctx.fill()
+
     }
 
     { // text
