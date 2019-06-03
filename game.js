@@ -6,6 +6,7 @@ class Game {
     this.landings = []
     this.invalidated = true
     this.players = colors.map((color, i) => ({
+      name: `Player${"AB"[i]}`,
       color,
       hand: new Hand(Game.basicBugPack.map(Bug => new Bug(color)), !i),
     }))

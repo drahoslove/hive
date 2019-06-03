@@ -15,6 +15,9 @@ function uiOf(game) {
   const H_CLICKABLE = 150
   const H_LANDING = H_CLICKABLE + 35
 
+  const SQRT3_2 = Math.sqrt(3)/2
+  const SQRT2_3 = Math.sqrt(2)/3
+
   return new class Ui {
     async on(canvas) {
       _canvas = canvas
@@ -116,9 +119,12 @@ function uiOf(game) {
         }
         game.invalidated = false
       }
+
       // render always:
-      let p = new Hex(-9, 7)
-      drawLoader(t, game._activePlayerIndex == 0 ? p : p.revert())
+      let p1 = new Hex(-10, 5)
+      let p2 = p1.rotate(-1)
+      drawLoader(t, p1, game.players[0])
+      drawLoader(t, p2, game.players[1])
 
       if (game.invalidated || game.space.animating) {
         this._oneMoreFrame = true
@@ -151,8 +157,8 @@ function uiOf(game) {
 
   function hexToScreen({q, r}) {
     // let x = S/2 * (           3/2 * q                   )
-    // let y = S/2 * (Math.sqrt(3)/2 * q + Math.sqrt(3) * r)
-    let x = S/2 * (Math.sqrt(3) * q + Math.sqrt(3)/2 * r)
+    // let y = S/2 * (SQRT3_2 * q + Math.sqrt(3) * r)
+    let x = S/2 * (Math.sqrt(3) * q + SQRT3_2 * r)
     let y = S/2 * (                              3/2 * r)
     x += CNS/2
     y += CNS/2
@@ -285,34 +291,88 @@ function uiOf(game) {
     _ctx.stroke()
   }
 
-  function drawLoader(t, pos) {
+  function drawLoader(t, pos, player) {
     t /= 4000
     const a = (t%1 * Math.PI*4) - Math.PI/2
     const b = (t/2%1 * Math.PI*4) - Math.PI/2
-    const {x, y} = hexToScreen(pos)
-    s = S/1.618
-    _ctx.clearRect(x-s/2, y-s/2, s, s)
-    _ctx.beginPath()
-    _ctx.arc(x, y, S/5, a, b, a<b)
-    _ctx.strokeStyle = '#888'
-    _ctx.lineCap = 'round'
-    _ctx.lineWidth = 12
-    _ctx.stroke()
+    let {x, y} = hexToScreen(pos)
+    x += S*1.618
 
-    hexPath(_ctx, x, y, s/4)
-    _ctx.fillStyle = game.activePlayer().color
-    _ctx.lineCap = 'round'
-    _ctx.fill()
+    const name = player.name.length < 15
+       ? player.name
+       : player.name.substr(0, 13) + '…'
+
+    _ctx.font = 'normal 16px monospace'
+    const w = _ctx.measureText(name).width
+    
+    const s = S*SQRT3_2
+    _ctx.clearRect(x-s*.6, y-s*.6, s*2 + (w-s)*.6, s*2*.6)
+
+
+    // circle
+    if (player === game.activePlayer()) {
+      _ctx.beginPath()
+      _ctx.arc(x, y, S/3.5, a, b, a<b)
+      _ctx.strokeStyle = `hsla(${(t*100)%360}, 25%, 50%, 1)`
+      _ctx.lineCap = 'round'
+      _ctx.lineWidth = 12
+      _ctx.stroke()    
+    }
+
+
+
+    // hex:
+    {
+
+      hexPath(_ctx, x, y, s/2 - 0.5)
+      _ctx.strokeStyle = player.color
+      _ctx.lineCap = 'round'
+      _ctx.lineWidth = 7
+      _ctx.stroke()
+
+      hexPath(_ctx, x, y, s/2 + 2.5)
+      _ctx.strokeStyle = '#888'
+      _ctx.lineCap = 'round'
+      _ctx.lineWidth = 2
+      _ctx.stroke()
+
+      let r = s/2 - 12
+      _ctx.beginPath()
+      _ctx.moveTo(x, y-r)
+      _ctx.lineTo(x+w, y-r)
+      _ctx.lineTo(x+SQRT3_2*r+w, y - SQRT2_3 * r)
+      _ctx.lineTo(x+SQRT3_2*r+w, y + SQRT2_3 * r)
+      _ctx.lineTo(x+w, y+r)
+      _ctx.lineTo(x, y+r)
+      _ctx.lineTo(x-SQRT3_2*r,  y + SQRT2_3 * r)
+      _ctx.lineTo(x-SQRT3_2*r,  y - SQRT2_3 * r)
+      _ctx.closePath()
+      _ctx.fillStyle = player.color
+      // _ctx.fillStyle = '#888'
+      _ctx.lineCap = 'round'
+      _ctx.fill()
+      _ctx.stroke()
+    }
+
+    // name:
+    {
+      _ctx.textBaseline = 'middle'
+      _ctx.font = 'normal 16px monospace'
+      _ctx.fillStyle = '#888'
+      // _ctx.fillStyle = player.color
+      _ctx.fillText(name, x, y)
+    }
+
   }
 
   function hexPath(ctx, x, y, r) {
     ctx.beginPath()
     ctx.moveTo(x, y-r)
-    ctx.lineTo(x+Math.sqrt(3)/2*r, y - Math.sqrt(2)/3 * r)
-    ctx.lineTo(x+Math.sqrt(3)/2*r, y + Math.sqrt(2)/3 * r)
+    ctx.lineTo(x+SQRT3_2*r, y - SQRT2_3 * r)
+    ctx.lineTo(x+SQRT3_2*r, y + SQRT2_3 * r)
     ctx.lineTo(x, y+r)
-    ctx.lineTo(x-Math.sqrt(3)/2*r,  y + Math.sqrt(2)/3 * r)
-    ctx.lineTo(x-Math.sqrt(3)/2*r,  y - Math.sqrt(2)/3 * r)
+    ctx.lineTo(x-SQRT3_2*r,  y + SQRT2_3 * r)
+    ctx.lineTo(x-SQRT3_2*r,  y - SQRT2_3 * r)
     ctx.closePath()
   }
 }

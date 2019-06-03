@@ -33,6 +33,10 @@ class Hex {
     return this.scale(-1)
   }
 
+  rotate(n) {
+    return this.toCube().rotate(n).toHex()
+  }
+
   distance(hex) {
     return this.toCube().distance(hex.toCube())
   }
@@ -103,6 +107,16 @@ class Cube {
 
   revert() {
     return this.scale(-1)
+  }
+
+  rotate(n) {
+    n += 6
+    n %= 6
+    let c = this
+    while(n--) {
+      c = new Cube(-c.z, -c.x, -c.y)
+    }
+    return c
   }
 
   distance({x, y, z}) {
@@ -433,7 +447,7 @@ class Hand {
       bug.pos = new Hex(
        // -5 + i,
        // -3 -(i-i%2)/2 - i%2,
-       -2 + i,
+       +8 - i,
        -7 + offset, 
       )
       if (revert) {
