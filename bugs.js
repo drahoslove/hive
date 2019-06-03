@@ -28,7 +28,8 @@ class Queen extends Bug {
   speed = 0.6
   // only one tile per turn
   canGo(hex, space) {
-    return this.pos.distance(hex) === 1 && !space.isNarrow(this.pos, hex)
+    return space.posOfWays(this.pos).find(pos => pos.eq(hex)) &&
+      !space.isNarrow(this.pos, hex)
   }
 
 }
@@ -59,7 +60,7 @@ class Beatle extends Bug {
 
 class Grasshopper extends Bug {
   ease = t => t<.5 ? 4*t*t*t : (t-1)*(2*t-2)*(2*t-2)+1 // in out cubic
-  speed = 2.2
+  speed = 2
   // has to jump over 1 or more bugs in line
   // can fit into slit
   pathTo(space, dest) {
@@ -88,7 +89,7 @@ class Grasshopper extends Bug {
 
 class Spider extends Bug {
   ease = t => 1-(--t)*t*t*t // ease out quart
-  speed = 0.7
+  speed = 0.5
   // exactly 3 spaces per turn, no backtracks
   pathTo(space, dest) {
     const path = space.findPath(this.pos, dest)
