@@ -21,6 +21,7 @@ class Bug {
       return null
     }
   }
+  ease = t => t // linear
 }
 
 class Queen extends Bug {
@@ -56,6 +57,7 @@ class Beatle extends Bug {
 }
 
 class Grasshopper extends Bug {
+  ease = t => t<.5 ? 2*t*t : -1+(4-2*t)*t // in out quad
   speed = 2
   // has to jump over 1 or more bugs in line
   // can fit into slit
@@ -84,6 +86,7 @@ class Grasshopper extends Bug {
 }
 
 class Spider extends Bug {
+  ease = t => 1-(--t)*t*t*t // ease out quart
   speed = 1
   // exactly 3 spaces per turn, no backtracks
   pathTo(space, dest) {
@@ -96,6 +99,7 @@ class Spider extends Bug {
 }
 
 class Ant extends Bug {
+  ease = t => t // linear
   speed = 1
   // nywhere
   pathTo(space, dest) {

@@ -160,20 +160,22 @@ class Space {
   putAt(bug, dest) {
     const tile = this.at(dest)
     let ms = 250
+    let ease = t => t*t
     if (tile) {
-      let path = bug.pathTo(this, dest) || [bug.pos, dest] 
+      let path = bug.pathTo(this, dest)
       tile.push(bug)
       const oldTile = this.at(bug.pos)
-      if (oldTile && oldTile.length) {
+      if (oldTile && oldTile.length) { // moving
         const b = oldTile.pop()
         if (b !== bug) {
           oldTile.push(b)
           // throw Error(`Tried to move bug ${bug.toString()} from tile ${oldTile} but it is not is not ontop`)
         }
         // movement speed
-        ms = 150 / bug.speed
-        
-      } else {
+        ms = 200 / bug.speed
+        ease = bug.ease
+      } else { // placing
+        path = [bug.pos, dest]
         this._stones++
       }
 
@@ -183,6 +185,7 @@ class Space {
       this.doInTime(
         duration,
         (t) => {
+          // t = ease(t)
           let i = Math.floor(t * jumps) // path segment index
           const diff = i === jumps ? new Hex(0,0) : path[i+1].sub(path[i])
           bug.pos = path[i].add(diff.scale((t*duration % ms)/ms))
