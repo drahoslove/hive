@@ -145,6 +145,13 @@ class Space {
     }
   }
 
+  atTop(pos) {
+    const tile = this.at(pos)
+    if(tile && tile.length > 0) {
+      return tile[tile.length-1]
+    }
+  }
+
   each(callback) {
     this._grid.forEach((row, i) => {
       row.forEach((tile, j) => {
@@ -266,8 +273,8 @@ class Space {
   }
 
   isEnemyOf(hex, color) {
-    const tile = this.at(hex)
-    return tile && tile.length && tile[tile.length-1].color !== color
+    const topBug = this.atTop(hex) 
+    return topBug && topBug.color !== color
   }
   
   isNextToHive(hex, except) { // is empty but has occupied neighbor tile
@@ -386,10 +393,9 @@ class Space {
   }
 
   __randomBugPos(color) {
-    const positions = this.hivePositions().filter(pos => {
-      const tile = this.at(pos)
-      return color === tile[tile.length-1].color 
-    })
+    const positions = this.hivePositions()
+      .filter(pos => color === (this.atTop(pos)||{}).color)
+      .filter(pos => !this.isHiveBridge(pos) || this.at(pos).length > 1)
     return positions[rand(positions.length)] || new Hex(0, 0)
   }
 
