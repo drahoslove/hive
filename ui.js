@@ -3,7 +3,8 @@
 // returns new Ui class for given space
 function uiOf(game) {
   const S = 64 // size of stone from point to point
-  const CNS = 685
+  const CNW = 685
+  const CNH = 685 + 67
   let _ctx
   let _canvas
   let _cacheCanvas
@@ -21,14 +22,14 @@ function uiOf(game) {
   return new class Ui {
     async on(canvas) {
       _canvas = canvas
-      _ctx = setupCanvasHDPI(_canvas, CNS, CNS, { alpha: false })
+      _ctx = setupCanvasHDPI(_canvas, CNW, CNH, { alpha: true })
 
       _cacheCanvas = document.createElement('canvas') // _canvas.cloneNode()
       game.space.each((tile, hex) => drawTile(tile, hex))
 
       _cacheCanvas.with = _canvas.with
       _cacheCanvas.height = _canvas.height
-      _cacheCtx = setupCanvasHDPI(_cacheCanvas, CNS, CNS, { _willReadFrequently: true })
+      _cacheCtx = setupCanvasHDPI(_cacheCanvas, CNW, CNH, { _willReadFrequently: true })
 
       // prepare background
       _cacheCtx.filter = "brightness(120%) contrast(20%) blur(2px)"
@@ -150,8 +151,8 @@ function uiOf(game) {
   }
 
   function drawBackground() {
-    _ctx.clearRect(0, 0, CNS, CNS)
-    _ctx.drawImage(_cacheCanvas, 0, 0, CNS, CNS)
+    _ctx.clearRect(0, 0, CNW, CNH)
+    _ctx.drawImage(_cacheCanvas, 0, 0, CNW, CNH)
   }
 
 
@@ -160,14 +161,14 @@ function uiOf(game) {
     // let y = S/2 * (SQRT3_2 * q + Math.sqrt(3) * r)
     let x = S/2 * (Math.sqrt(3) * q + SQRT3_2 * r)
     let y = S/2 * (                              3/2 * r)
-    x += CNS/2
-    y += CNS/2
+    x += CNW/2
+    y += CNH/2
     return {x, y}
   }
 
   function screenToHex({x, y}) {
-    x -= CNS/2
-    y -= CNS/2
+    x -= CNW/2
+    y -= CNH/2
     // let q = ( 2/3 * x                     ) / (S/2)
     // let r = (-1/3 * x + Math.sqrt(3)/3 * y) / (S/2)
     let q = (Math.sqrt(3)/3 * x - 1/3 * y) / (S/2)

@@ -2,21 +2,25 @@
 <html>
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=1024">
+<meta name="viewport" content="width=device-width">
 <title>Hive</title>
 <script src="./bugs.js"></script>
 <script src="./board.js"></script>
 <script src="./game.js"></script>
 <script src="./ui.js"></script>
 <style>
+body, html {
+  height: 100%;
+  margin: 0;
+}
 body {
-  margin: 3rem auto;
-  background: #DFFDA4 url('https://o00o.cz/2008/o/domecek/content-bg.gif') repeat
+  background: #DFFDA4 url('https://o00o.cz/2008/o/domecek/content-bg.gif') repeat;
+  display: flex;
 }
 canvas {
-  border: 1px #888 solid;
+  padding-bottom: 1rem; 
   display: block;
-  margin: 0 auto;
+  margin: auto;
   -webkit-tap-highlight-color: transparent; /* prevents blue blinking on touchsceen in chrome */
 }
 </style>
@@ -41,6 +45,9 @@ if (window.location.href.endsWith("autoplay")) {
 }
 
 window.onload = () => {
+  if (window.location !== window.parent.location) {
+    document.body.style.background = 'none'
+  }
   const canvas = document.getElementById('hiveCanvas')
   const ui = uiOf(game).on(canvas)
   // ui.off(canvas)
