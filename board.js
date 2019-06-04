@@ -264,6 +264,10 @@ class Space {
     )
   }
 
+  posOfSurroundings(hex) {
+    return hex.neighborhood().filter((pos) => Boolean(this.at(pos)))
+  }
+
   // positions of all occupied tiles which are in neighborhood of given pos
   posOfNeighbors(hex, except) {
     return hex.neighborhood().filter((pos) => {
@@ -303,11 +307,15 @@ class Space {
     return this.articulations().some(cut => cut.eq(hex))
   }
 
+  // share 2 common neighbors
   isNarrow (from, to, except) {
     return this.posOfNeighbors(from, except)
-      .filter(nfrom => this.posOfNeighbors(to, except).some(nto => nto.eq(nfrom)))
+      .filter(nfrom =>
+        this.posOfNeighbors(to, except)
+          .some(nto => nto.eq(nfrom))
+      )
       .length === 2
-  } // share 2 common neighbors
+  }
 
 
   // Unbreakable 'core' of the hive

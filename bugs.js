@@ -41,19 +41,21 @@ class Beatle extends Bug {
   // can jump on top of other
   // can fit into slit (but only when descending)
   reachablePlaces(space) {
-    return [
-      ...space.posOfNeighbors(this.pos),
-      ...space.posOfWays(this.pos),
-    ].filter(p => this.canGo(p, space))
+    return space.posOfSurroundings(this.pos)
+      .filter(p => this.canGo(p, space))
   }
 
   canGo(hex, space) {
     const currentTile = space.at(this.pos)
     const destTile = space.at(hex)
     if (currentTile && (currentTile.length-1 !== destTile.length)) { 
-      return this.pos.distance(hex) === 1 // can go to narrow spaces when changing elevation
+      return true // can go to narrow spaces when changing elevation
     } else {
-      return this.pos.distance(hex) === 1 && !space.isNarrow(this.pos, hex) // same as Queen
+      return (
+        currentTile && currentTile.length > 1 || // can move freely when not grounded
+        // TODO make isNarrow work in various elevations to be consistent
+        destTile && space.isNextToHive(hex, this.pos) && !space.isNarrow(this.pos, hex) // same as Queen
+      )
     }
   }
 }
