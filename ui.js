@@ -109,11 +109,6 @@ function uiOf(game) {
           })
         }
 
-        // call deffered drawing stuff
-        while(_drawQue.len() > 0) {
-          _drawQue.pop()()
-        }
-
         // end
         if (this._oneMoreFrame) {
           this._oneMoreFrame = false
@@ -126,6 +121,12 @@ function uiOf(game) {
       let p2 = p1.rotate(-1)
       drawLoader(t, p1, game.players[0])
       drawLoader(t, p2, game.players[1])
+
+      // call deffered drawing stuff
+      while(_drawQue.len() > 0) {
+        _drawQue.pop()()
+      }
+
 
       if (game.invalidated || game.space.animating) {
         this._oneMoreFrame = true
@@ -157,10 +158,10 @@ function uiOf(game) {
 
 
   function hexToScreen({q, r}) {
-    // let x = S/2 * (           3/2 * q                   )
+    // let x = S/2 * (    3/2 * q                   )
     // let y = S/2 * (SQRT3_2 * q + Math.sqrt(3) * r)
     let x = S/2 * (Math.sqrt(3) * q + SQRT3_2 * r)
-    let y = S/2 * (                              3/2 * r)
+    let y = S/2 * (                       3/2 * r)
     x += CNW/2
     y += CNH/2
     return {x, y}
@@ -238,7 +239,7 @@ function uiOf(game) {
 
       _ctx.lineWidth = 1
       _ctx.lineJoin = 'round'
-      _ctx.strokeStyle = '#888'
+      _ctx.strokeStyle = '#808080'
       _ctx.stroke()
 
       _ctx.beginPath()
@@ -259,7 +260,7 @@ function uiOf(game) {
         _ctx.fontWeigh = "bold"
       }
       const w = _ctx.measureText(txt).width
-      _ctx.fillStyle = '#888'
+      _ctx.fillStyle = '#808080'
       _ctx.fillText(txt, x-w/2, y)
     }
 
@@ -304,79 +305,82 @@ function uiOf(game) {
     _ctx.stroke()
   }
 
+
   function drawLoader(t, pos, player) {
-    t /= 4000
+    t /= 2000
     const a = (t%1 * Math.PI*4) - Math.PI/2
     const b = (t/2%1 * Math.PI*4) - Math.PI/2
     let {x, y} = hexToScreen(pos)
-    x += S*1.618
 
-    const name = player.name.length < 15
+    const txtLim = 10
+    const name = player.name.length <= txtLim
        ? player.name
-       : player.name.substr(0, 13) + '…'
+       : player.name.substr(0, txtLim-1) + '…'
 
     _ctx.font = 'normal 16px monospace'
-    const w = _ctx.measureText(name).width
-    
+    const txtW = _ctx.measureText(name).width
+    const txtOfst = 6
     const s = S*SQRT3_2
-    _ctx.clearRect(x-s*.6, y-s*.6, s*2 + (w-s)*.6, s*2*.6)
-
+    const r = s/3
+    x += s*2
+    _ctx.clearRect(x - r -4, y - r -4, r*2 + txtW+txtOfst+ 8, r*2 +8)
 
     // circle
     if (player === game.activePlayer()) {
       _ctx.beginPath()
-      _ctx.arc(x, y, S/3.5, a, b, a<b)
-      _ctx.strokeStyle = `hsla(${(t*100)%360}, 25%, 50%, 1)`
+      _ctx.arc(x, y, r*SQRT2_3 +2, a, b, a<b)
+      _ctx.strokeStyle = `hsla(${(t*200)%360}, 25%, 50%, 1)`
       _ctx.lineCap = 'round'
-      _ctx.lineWidth = 12
+      _ctx.lineWidth = 10
       _ctx.stroke()    
     }
-
-
 
     // hex:
     {
 
-      hexPath(_ctx, x, y, s/2 - 0.5)
+      hexPath(_ctx, x, y, r - 0.5)
       _ctx.strokeStyle = player.color
       _ctx.lineCap = 'round'
       _ctx.lineWidth = 7
       _ctx.stroke()
 
-      hexPath(_ctx, x, y, s/2 + 2.5)
-      _ctx.strokeStyle = '#888'
+      hexPath(_ctx, x, y, r + 2.5)
+      _ctx.strokeStyle = '#808080'
       _ctx.lineCap = 'round'
-      _ctx.lineWidth = 2
+      _ctx.lineWidth = 1
       _ctx.stroke()
 
-      let r = s/2 - 12
-      _ctx.beginPath()
-      _ctx.moveTo(x, y-r)
-      _ctx.lineTo(x+w, y-r)
-      _ctx.lineTo(x+SQRT3_2*r+w, y - SQRT2_3 * r)
-      _ctx.lineTo(x+SQRT3_2*r+w, y + SQRT2_3 * r)
-      _ctx.lineTo(x+w, y+r)
-      _ctx.lineTo(x, y+r)
-      _ctx.lineTo(x-SQRT3_2*r,  y + SQRT2_3 * r)
-      _ctx.lineTo(x-SQRT3_2*r,  y - SQRT2_3 * r)
-      _ctx.closePath()
-      _ctx.fillStyle = player.color
-      // _ctx.fillStyle = '#888'
-      _ctx.lineCap = 'round'
-      _ctx.fill()
-      _ctx.stroke()
+      x += txtOfst + r
+      // { // name label
+      //   let r = s/2 - 12
+      //   _ctx.beginPath()
+      //   _ctx.moveTo(x, y-r)
+      //   _ctx.lineTo(x+txtW, y-r)
+      //   _ctx.lineTo(x+SQRT3_2*r+txtW, y - SQRT2_3 * r)
+      //   _ctx.lineTo(x+SQRT3_2*r+txtW, y + SQRT2_3 * r)
+      //   _ctx.lineTo(x+txtW, y+r)
+      //   _ctx.lineTo(x, y+r)
+      //   _ctx.lineTo(x-SQRT3_2*r,  y + SQRT2_3 * r)
+      //   _ctx.lineTo(x-SQRT3_2*r,  y - SQRT2_3 * r)
+      //   _ctx.closePath()
+      //   _ctx.fillStyle = player.color
+      //   // _ctx.fillStyle = '#808080'
+      //   _ctx.lineCap = 'round'
+      //   _ctx.fill()
+      //   _ctx.stroke()
+      // }
     }
-
-    // name:
+    // name text:
     {
       _ctx.textBaseline = 'middle'
-      _ctx.font = 'normal 16px monospace'
-      _ctx.fillStyle = '#888'
+      _ctx.font = 'bold 15px monospace'
+      _ctx.fillStyle = '#808080'
       // _ctx.fillStyle = player.color
       _ctx.fillText(name, x, y)
     }
 
   }
+
 
   function hexPath(ctx, x, y, r) {
     ctx.beginPath()
