@@ -14,19 +14,20 @@ body {
   background: #DFFDA4 url('https://o00o.cz/2008/o/domecek/content-bg.gif') repeat
 }
 canvas {
-  border: 1px #aaa solid;	
+  border: 1px #888 solid;
   display: block;
   margin: 0 auto;
   -webkit-tap-highlight-color: transparent; /* prevents blue blinking on touchsceen in chrome */
 }
 </style>
 <script>
-const game = new Game(['#111', '#eee'], 5)
+const game = new Game(['#112', '#eed'], 5)
 
 if (window.location.href.endsWith("autoplay")) {
   const autoMove = () => {
     !game.selected 
-      ? game.onClick(rand(game.activePlayer().hand.size()+1)
+      ? game.onClick(
+        rand(game.activePlayer().hand.size()+1)
           ? game.activePlayer().hand.__getRandomBugPos()
           : game.space.__randomBugPos(game.activePlayer().color)
         )
@@ -35,8 +36,8 @@ if (window.location.href.endsWith("autoplay")) {
     // console.clear()
     // console.log(String(game.space))
   }
-  const timer = setInterval(autoMove, 50)
-  setTimeout(() => {clearInterval(timer)}, 5*60*1000)  
+  const timer = setInterval(autoMove, 150)
+  setTimeout(() => {clearInterval(timer)}, 5*60*1000)
 }
 
 window.onload = () => {
