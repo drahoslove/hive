@@ -42,7 +42,6 @@ export default function uiOf(game) {
 
       canvas.addEventListener('mousemove', this.mouseMove)
       canvas.addEventListener('mousedown', this.mouseClick)
-      canvas.addEventListener('mouseup', this.mouseClick)
       document.addEventListener('keypress', this.keyPress)
       this.startAnimation()
       return this
@@ -53,7 +52,6 @@ export default function uiOf(game) {
       canvas = canvas || _canvas
       canvas.removeEventListener('mousemove', this.mouseMove)
       canvas.removeEventListener('mousedown', this.mouseClick)
-      canvas.removeEventListener('mouseup', this.mouseClick)
       document.removeEventListener('keypress', this.keyPress)
       return this
     }
