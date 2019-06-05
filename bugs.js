@@ -28,8 +28,7 @@ class Queen extends Bug {
   speed = 0.6
   // only one tile per turn
   canGo(hex, space) {
-    return space.posOfWays(this.pos).find(pos => pos.eq(hex)) &&
-      !space.isNarrow(this.pos, hex)
+    return space.posOfWays(this.pos).find(pos => pos.eq(hex))
   }
 
 }
@@ -48,19 +47,14 @@ class Beatle extends Bug {
   canGo(hex, space) {
     const currentTile = space.at(this.pos)
     const destTile = space.at(hex)
-    if (!currentTile) {
+    if (!currentTile || !destTile) {
       return false
     }
     const sameElevation = currentTile.length-1 === destTile.length
     if (!sameElevation) { 
       return true // can go to narrow spaces when changing elevation
     } else {
-      return (
-        currentTile.length > 1 || // can move freely when not grounded
-        // TODO make isNarrow work in various elevations to be consistent
-        space.posOfWays(this.pos).find(pos => pos.eq(hex)) &&
-          !space.isNarrow(this.pos, hex) // same as Queen
-      )
+      return space.posOfWays(this.pos, this.pos, currentTile.length-1).find(pos => pos.eq(hex))
     }
   }
 }

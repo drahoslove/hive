@@ -274,6 +274,7 @@ class Space {
     )
   }
 
+  // return all surrounding on board positions of hex (all 6 except outside of space)
   posOfSurroundings(hex) {
     return hex.neighborhood().filter((pos) => Boolean(this.at(pos)))
   }
@@ -286,39 +287,38 @@ class Space {
     })
   }
 
-  // positions of all empty tiles wich are in neighborhood of given pos
-  // and have common occupied neighbor tile (is accesible without detaching from hive while moving)
-  // posOfWays(hex, except) {
-  //   const commonNeigbors = this.posOfNeighbors(hex, except).map(String)
-  //   return hex.neighborhood().filter((pos) => {
-  //     const tile = this.at(pos)
-  //     if (tile && (tile.length === 0 || tile.length === 1 && except && pos.eq(except))) {
-  //       if (this.posOfNeighbors(pos, except).map(String).some(p => commonNeigbors.includes(p))) {
-  //         return true
-  //       }
-  //     }
-  //   })
-  // }
-
-  posOfWays(hex, except) {
+  // positions of all empty (ongiven level) tiles wich are in neighborhood of given pos
+  // and is accesible without detaching from hive while moving
+  // (has one common neighbor or is on higher elevation)
+  posOfWays(hex, except, elevation=0) {
     return hex.neighborhood().filter((pos) => {
       const dir = hex.directionTo(pos)
       const left = hex.add(dir.rotate(-1))
       const right = hex.add(dir.rotate(+1))
 
       const currentTile = this.at(hex)
-      if(!currentTile) {
+      const destTile = this.at(pos)
+      if(!currentTile || !destTile) {
         return false
       }
-      const destTile = this.at(pos)
-      const leftTile = this.at(left)
-      const rightTile = this.at(right)
-      const elevation = currentTile.length-1
-      if (destTile && destTile.length === elevation) { // empty
-        return true
-        return [leftTile, rightTile].filter((tile) => {
-          return tile && tile.length <= elevation
-        }).length === 1 // exactly one from the two must be occupied
+
+      if (destTile.length === elevation) { // dest is empty (on that level)
+        // count empty side tiles
+        const emptySides = [left, right].filter((sidePos) => {
+          const sideTile = this.at(sidePos)
+          if (!sideTile) {
+            return true // outside of space is not a way but certainly is empty
+          }
+          return except && sidePos.eq(except)
+            ? sideTile.length-1 <= elevation
+            : sideTile.length <= elevation
+          
+        }).length
+        if (elevation === 0) {
+          return emptySides === 1 // exactly one of the two sides must be empty on ground
+        } else {
+          return emptySides >= 1 // dont need occupied side bug when on top
+        }
       }
     })
   }
@@ -339,17 +339,6 @@ class Space {
   isHiveBridge(hex) {
     return this.articulations().some(cut => cut.eq(hex))
   }
-
-  // share 2 common neighbors
-  isNarrow (from, to, except) {
-    return this.posOfNeighbors(from, except)
-      .filter(nfrom =>
-        this.posOfNeighbors(to, except)
-          .some(nto => nto.eq(nfrom))
-      )
-      .length === 2
-  }
-
 
   // Unbreakable 'core' of the hive
   articulations() {
@@ -403,8 +392,7 @@ class Space {
         break 
       }
       this.posOfWays(current, start)
-        .filter(pos => this.isNextToHive(pos))
-        .filter(pos => !this.isNarrow(current, pos, start))
+        // .filter(pos => this.isNextToHive(pos))
         .forEach(next => {
           let newCost = costSoFar[current] + 1 + this.posOfWays(next, start).length // add cost (same for each edge)
           if (!(next in costSoFar) || newCost < costSoFar[next]) {
