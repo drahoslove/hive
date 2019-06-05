@@ -1,6 +1,7 @@
 // class carring state of the game and prviding commands for game interaction
 class Game {
   constructor(colors, size=6) {
+    this.state = 'play'
     this.space = new Space(size)
     this.selected = null
     this.landings = []
@@ -18,6 +19,10 @@ class Game {
     if (this.space.animating) {
       return
     }
+    if (this.state === 'end') {
+      return
+    }
+
     this.invalidated = true
     if (this.selected && this.landings.some(x => x.eq(hex))) {
       this.play(hex)
@@ -59,7 +64,7 @@ class Game {
     }
   }
 
-  trySelect(hex) {  
+  trySelect(hex) {   // TODO use isClickable func tokeep it DRY
     let bug = null
 
     // hand?
@@ -98,37 +103,47 @@ class Game {
     this.selected = bug
   }
 
+  // place or move selected bug
   play(hex) {
     const bug = this.selected
-    this.activePlayer().hand.each((b, i, hand) => {
-      if (bug === b) {
-        hand.takeBugAt(i)
-      }
-    })
+    this.activePlayer().hand.takeBug(bug)
     this.space.putAt(bug, hex)
     this.selected = null
     this.landings = []
+    this.checkEnd() && (this.state = 'end')
     this.switchPlayers()
     console.log(String(this.space))
   }
 
-  isQueenPlaced() {
-    let holding = false
-    this.activePlayer().hand.each(bug => {
-      if(bug.name === 'Queen') {
-        holding = true
-      }
+  checkEnd () {
+    const dead = this.players.map(player => {
+      const queen = this.space.findBug(({name, color}) =>
+        name === 'Queen' && color === player.color
+      )
+      return queen && this.space.posOfNeighbors(queen.pos).length === 6
     })
-    return !holding
+    if (dead[0] && dead[1]) {
+      setTimeout(() => alert('tie'), 200)
+      return true 
+    }
+    if (dead[this._activePlayerIndex]) {
+      setTimeout(() => alert('A won'), 200)
+      return true
+    }
+    if (dead[+!this._activePlayerIndex]) {
+      setTimeout(() => alert('B won'), 200)
+      return true
+    }
+    console.log('end?', dead)
+  }
+
+  isQueenPlaced() {
+    return !this.activePlayer().hand.findBug(({name}) => name === 'Queen')
   }
 
   hasToPlaceQueenNow() {
-    if (this.activePlayer().hand.used() === 3) { // exactly 3 placed
-      if (!this.isQueenPlaced()) {
-        return true
-      }
-    }
-    return false
+    return this.activePlayer().hand.used() === 3 && // exactly 3 placed
+      !this.isQueenPlaced()
   }
 
   switchPlayers() {

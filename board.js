@@ -236,9 +236,7 @@ class Space {
     setTimeout(() => {
       clearInterval(interval)
       doStep(1)
-      setTimeout(() => {
-        this.animating = false
-      }, 10)
+      this.animating = false
     }, duration)
   }
 
@@ -486,10 +484,13 @@ class Hand {
     return this._hand.filter(Boolean).find(check)
   }
 
-  takeBugAt(i) {
-    const bug = this._hand[i]
-    this._hand[i] = null
-    return bug
+  // remove bug from hand (if possible)
+  takeBug(bug) {
+    this.each((b, i) => {
+      if (b === bug) {
+        this._hand[i] = null
+      }
+    })
   }
 
   __getRandomBugPos() {

@@ -5,6 +5,13 @@ function uiOf(game) {
   const S = 64 // size of stone from point to point
   const CNW = 685
   const CNH = 685 + 67
+
+  const HUE_CLICKABLE = 150
+  const HUE_LANDING = HUE_CLICKABLE + 35
+
+  const SQRT3_2 = Math.sqrt(3)/2
+  const SQRT2_3 = Math.sqrt(2)/3
+
   let _ctx
   let _canvas
   let _cacheCanvas
@@ -12,12 +19,6 @@ function uiOf(game) {
   let _frames = 0
   let _target = null
   let _drawQue = new PriorityQueue()
-
-  const H_CLICKABLE = 150
-  const H_LANDING = H_CLICKABLE + 35
-
-  const SQRT3_2 = Math.sqrt(3)/2
-  const SQRT2_3 = Math.sqrt(2)/3
 
   return new class Ui {
     async on(canvas) {
@@ -116,17 +117,13 @@ function uiOf(game) {
         game.players.forEach(({hand}) => hand.each(b => drawBug(b, undefined, true)))
 
         // outlines
-        // game.space.articulations().forEach(pos => {
-        //   drawOutline(pos, 0)
-        // })
         if(game.selected) {
-          drawOutline(game.selected.pos, H_CLICKABLE)
+          drawOutline(game.selected.pos, HUE_CLICKABLE)
           game.landings.forEach(pos => {
-            drawOutline(pos, H_LANDING)
+            drawOutline(pos, HUE_LANDING)
           })
-          // path TODO - only right for ant, spider and queen
           _target && game.selected && (game.selected.pathTo(game.space, _target) || []).forEach((pos, i) => {
-            i > 0 && _drawQue.push(() => drawDot(pos, H_LANDING), 3)
+            i > 0 && _drawQue.push(() => drawDot(pos, HUE_LANDING), 3)
           })
         }
 
@@ -290,7 +287,7 @@ function uiOf(game) {
       isTop &&
       game.isClickable(bug.pos)
     ) {
-      _drawQue.push(() => drawOutline(pos, H_CLICKABLE), 0)
+      _drawQue.push(() => drawOutline(pos, HUE_CLICKABLE), 0)
     }
   }
 
@@ -309,7 +306,7 @@ function uiOf(game) {
   function drawOutline(pos, hue) {
     let r = S/2
 
-    const dimm = hue === H_CLICKABLE && game.selected && !game.selected.pos.eq(pos.round())
+    const dimm = hue === HUE_CLICKABLE && game.selected && !game.selected.pos.eq(pos.round())
 
     if (
       _target && pos.round().eq(_target) && game.isClickable(_target) || // hover
