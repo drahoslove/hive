@@ -110,6 +110,7 @@ class Cube {
   }
 
   rotate(n) {
+    n %= 6
     n += 6
     n %= 6
     let c = this
@@ -165,6 +166,15 @@ class Space {
       return tile[tile.length-1]
     }
   }
+
+  bugByKey(key, color) {
+    return this.hivePositions().map(hex => this.atTop(hex)).find(bug =>
+      bug.name[0].toLowerCase() === key &&
+      bug.color === color &&
+      !this.isHiveBridge(bug.pos)
+    )
+  }
+
 
   each(callback) {
     this._grid.forEach((row, i) => {
@@ -278,14 +288,37 @@ class Space {
 
   // positions of all empty tiles wich are in neighborhood of given pos
   // and have common occupied neighbor tile (is accesible without detaching from hive while moving)
+  // posOfWays(hex, except) {
+  //   const commonNeigbors = this.posOfNeighbors(hex, except).map(String)
+  //   return hex.neighborhood().filter((pos) => {
+  //     const tile = this.at(pos)
+  //     if (tile && (tile.length === 0 || tile.length === 1 && except && pos.eq(except))) {
+  //       if (this.posOfNeighbors(pos, except).map(String).some(p => commonNeigbors.includes(p))) {
+  //         return true
+  //       }
+  //     }
+  //   })
+  // }
+
   posOfWays(hex, except) {
-    const commonNeigbors = this.posOfNeighbors(hex, except).map(String)
     return hex.neighborhood().filter((pos) => {
-      const tile = this.at(pos)
-      if (tile && (tile.length === 0 || tile.length === 1 && except && pos.eq(except))) {
-        if (this.posOfNeighbors(pos, except).map(String).some(p => commonNeigbors.includes(p))) {
-          return true
-        }
+      const dir = hex.directionTo(pos)
+      const left = hex.add(dir.rotate(-1))
+      const right = hex.add(dir.rotate(+1))
+
+      const currentTile = this.at(hex)
+      if(!currentTile) {
+        return false
+      }
+      const destTile = this.at(pos)
+      const leftTile = this.at(left)
+      const rightTile = this.at(right)
+      const elevation = currentTile.length-1
+      if (destTile && destTile.length === elevation) { // empty
+        return true
+        return [leftTile, rightTile].filter((tile) => {
+          return tile && tile.length <= elevation
+        }).length === 1 // exactly one from the two must be occupied
       }
     })
   }
@@ -462,6 +495,10 @@ class Hand {
         bug.pos = bug.pos.revert()
       }
     })
+  }
+
+  bugByKey(key) {
+    return this._hand.find(bug => bug && bug.name[0].toLowerCase() === key)
   }
 
   find(hex) {

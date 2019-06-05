@@ -35,9 +35,10 @@ function uiOf(game) {
       _cacheCtx.filter = "brightness(120%) contrast(20%) blur(2px)"
       game.space.each((tile, hex) => drawTile(tile, hex, _cacheCtx))
 
-      _canvas.addEventListener('mousemove', this.mouseMove)
-      _canvas.addEventListener('mousedown', this.mouseClick)
+      canvas.addEventListener('mousemove', this.mouseMove)
+      canvas.addEventListener('mousedown', this.mouseClick)
       canvas.addEventListener('mouseup', this.mouseClick)
+      document.addEventListener('keypress', this.keyPress)
       this.startAnimation()
       return this
     }
@@ -48,6 +49,7 @@ function uiOf(game) {
       canvas.removeEventListener('mousemove', this.mouseMove)
       canvas.removeEventListener('mousedown', this.mouseClick)
       canvas.removeEventListener('mouseup', this.mouseClick)
+      document.removeEventListener('keypress', this.keyPress)
       return this
     }
 
@@ -66,6 +68,17 @@ function uiOf(game) {
         _target = null
       }
       game.invalidated = true
+    }
+
+    keyPress = (event) => {
+      const handBug = game.activePlayer().hand.bugByKey(event.key)
+      if (handBug) {
+        return game.onClick(handBug.pos)
+      }
+      const spaceBug = game.space.bugByKey(event.key, game.activePlayer().color)
+      if (spaceBug) {
+        return game.onClick(spaceBug.pos)
+      }
     }
 
     startAnimation() {

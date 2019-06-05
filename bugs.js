@@ -48,13 +48,18 @@ class Beatle extends Bug {
   canGo(hex, space) {
     const currentTile = space.at(this.pos)
     const destTile = space.at(hex)
-    if (currentTile && (currentTile.length-1 !== destTile.length)) { 
+    if (!currentTile) {
+      return false
+    }
+    const sameElevation = currentTile.length-1 === destTile.length
+    if (!sameElevation) { 
       return true // can go to narrow spaces when changing elevation
     } else {
       return (
-        currentTile && currentTile.length > 1 || // can move freely when not grounded
+        currentTile.length > 1 || // can move freely when not grounded
         // TODO make isNarrow work in various elevations to be consistent
-        destTile && space.isNextToHive(hex, this.pos) && !space.isNarrow(this.pos, hex) // same as Queen
+        space.posOfWays(this.pos).find(pos => pos.eq(hex)) &&
+          !space.isNarrow(this.pos, hex) // same as Queen
       )
     }
   }
