@@ -71,11 +71,19 @@ function uiOf(game) {
     }
 
     keyPress = (event) => {
-      const handBug = game.activePlayer().hand.bugByKey(event.key)
+      const handBug = game.activePlayer().hand.findBug((bug) =>
+        bug.name[0].toLowerCase() === event.key
+      )
       if (handBug) {
         return game.onClick(handBug.pos)
       }
-      const spaceBug = game.space.bugByKey(event.key, game.activePlayer().color)
+
+      const spaceBug = game.space.findBug((bug) =>
+        bug.name[0].toLowerCase() === event.key &&
+          bug.color === game.activePlayer().color &&
+          bug !== game.selected &&
+          !game.space.isHiveBridge(bug.pos)
+      )
       if (spaceBug) {
         return game.onClick(spaceBug.pos)
       }

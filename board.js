@@ -137,6 +137,7 @@ Cube.directions = [
   new Cube(-1, +1, 0), new Cube(-1, 0, +1), new Cube(0, -1, +1), 
 ]
 
+
 // Space represent board-less plane for stones to be placed on
 // state os space is represented by internal grid, wich is 2d array of tiles
 class Space {
@@ -167,12 +168,8 @@ class Space {
     }
   }
 
-  bugByKey(key, color) {
-    return this.hivePositions().map(hex => this.atTop(hex)).find(bug =>
-      bug.name[0].toLowerCase() === key &&
-      bug.color === color &&
-      !this.isHiveBridge(bug.pos)
-    )
+  findBug(check) {
+    return this.hivePositions().map(hex => this.atTop(hex)).find(check)
   }
 
 
@@ -216,7 +213,7 @@ class Space {
 
       // animate
       const jumps = path.length-1
-      const duration = ms*jumps
+      const duration = ms*jumps * 1
       this.doInTime(
         duration,
         (t) => {
@@ -392,9 +389,8 @@ class Space {
         break 
       }
       this.posOfWays(current, start)
-        // .filter(pos => this.isNextToHive(pos))
         .forEach(next => {
-          let newCost = costSoFar[current] + 1 + this.posOfWays(next, start).length // add cost (same for each edge)
+          let newCost = costSoFar[current] + 1 + this.posOfWays(next).length // add cost (same for each edge)
           if (!(next in costSoFar) || newCost < costSoFar[next]) {
             costSoFar[next] = newCost
             let priority = newCost + next.distance(goal) // heuristic - use just distance from goal
@@ -468,6 +464,7 @@ Space.fromString = function(string) {
   return new Space()
 }
 
+
 // Hand represents storage of stones which are not placed yet.
 class Hand {
   constructor(bugs, revert, offset=0) {
@@ -485,12 +482,8 @@ class Hand {
     })
   }
 
-  bugByKey(key) {
-    return this._hand.find(bug => bug && bug.name[0].toLowerCase() === key)
-  }
-
-  find(hex) {
-    return this._hand.find(bug => bug && hex.eq(bug.pos))
+  findBug(check) {
+    return this._hand.filter(Boolean).find(check)
   }
 
   takeBugAt(i) {

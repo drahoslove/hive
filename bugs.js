@@ -89,8 +89,11 @@ class Grasshopper extends Bug {
 }
 
 class Spider extends Bug {
-  ease = t => 1-(--t)*t*t*t // ease out quart
-  speed = 0.5
+  ease = t => t // linear
+  // ease = t => t<.5 ? 2*t*t : -1+(4-2*t)*t // ease in out quad
+  // ease = t => t<.5 ? 4*t*t*t : (t-1)*(2*t-2)*(2*t-2)+1  // ease in out cubic
+  // ease = t => 1-(--t)*t*t*t // ease out quart
+  speed = 1.2
   // exactly 3 spaces per turn, no backtracks
   pathTo(space, dest) {
     const path = space.findPath(this.pos, dest)
@@ -103,7 +106,7 @@ class Spider extends Bug {
 
 class Ant extends Bug {
   ease = t => t // linear
-  speed = 1.2
+  speed = 1.5
   // nywhere
   pathTo(space, dest) {
     let path = space.findPath(this.pos, dest)

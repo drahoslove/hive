@@ -34,7 +34,7 @@ class Game {
       return false
     }
     // selectable inhand bug
-    let handBug = this.activePlayer().hand.find(hex)
+    let handBug = this.activePlayer().hand.findBug(bug => bug.pos.eq(hex))
     if (handBug) {
       if (this.hasToPlaceQueenNow()) { // 3 placed
         return handBug.name === 'Queen' 
@@ -63,7 +63,7 @@ class Game {
     let bug = null
 
     // hand?
-    if (bug = this.activePlayer().hand.find(hex)) {
+    if (bug = this.activePlayer().hand.findBug(bug => bug.pos.eq(hex))) {
       if (this.hasToPlaceQueenNow() && bug.name !== 'Queen') {
         return
       }
