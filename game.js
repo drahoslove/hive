@@ -1,5 +1,16 @@
+import { rand } from './common.js'
+import { Hand, Space } from './board.js'
+import {
+  Bug,
+  Queen,
+  Spider,
+  Beatle,
+  Ant,
+  Grasshopper,
+} from './bugs.js'
+
 // class carring state of the game and prviding commands for game interaction
-class Game {
+export default class Game {
   constructor(colors, size=6) {
     this.state = 'play'
     this.space = new Space(size)
@@ -167,7 +178,3 @@ Game.basicBugPack =  [
   Ant, Ant, Ant,
   Grasshopper, Grasshopper, Grasshopper,
 ]
-
-function rand(n) {
-  return Math.floor(Math.random()*n)
-}

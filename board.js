@@ -1,5 +1,7 @@
+import { PriorityQueue, rand } from './common.js'
+
 // Axial coordinates
-class Hex {
+export class Hex {
   constructor(q, r) {
     this.q = q
     this.r = r
@@ -59,7 +61,7 @@ Hex.directions = [
 ]
 
 // Cubic coordinates
-class Cube {
+export class Cube {
   constructor(x, y, z) {
     this.x = x
     this.y = y
@@ -140,7 +142,7 @@ Cube.directions = [
 
 // Space represent board-less plane for stones to be placed on
 // state os space is represented by internal grid, wich is 2d array of tiles
-class Space {
+export class Space {
   constructor(radius) {
     const len = radius*2 + 1
     this._stones = 0
@@ -210,6 +212,8 @@ class Space {
       if(!path) {
         throw Error(`No path found for bug (${bug}) to get to tile (${tile}) at dest (${dest})`)
       }
+
+      
 
       // animate
       const jumps = path.length-1
@@ -464,7 +468,7 @@ Space.fromString = function(string) {
 
 
 // Hand represents storage of stones which are not placed yet.
-class Hand {
+export class Hand {
   constructor(bugs, revert, offset=0) {
     this._hand = [...bugs]
     bugs.forEach((bug, i) => {
@@ -522,31 +526,3 @@ class Hand {
   }
 }
 
-
-class PriorityQueue {
-  constructor () {
-    this._que = []
-  }
-
-  // lover prio to lover index
-  push(item, priority) {
-    if (!this._que.some(([_, prio], i) => {
-      if (prio > priority) {
-        this._que.splice(i, 0, [item, priority])
-        return true
-      }
-    })) {
-      this._que.push([item, priority])
-    }
-  }
-
-  // lover prio first
-  pop() {
-    let [item, _] = this._que.shift()
-    return item
-  }
-
-  len() {
-    return this._que.length
-  }
-}

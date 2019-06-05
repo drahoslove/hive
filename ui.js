@@ -1,7 +1,11 @@
 // Everything what has something to do with producing visual output or handling user input is in this file
 
+import { PriorityQueue } from './common.js'
+import { Hex } from './board.js'
+
+
 // returns new Ui class for given space
-function uiOf(game) {
+export default function uiOf(game) {
   const S = 64 // size of stone from point to point
   const CNW = 685
   const CNH = 685 + 67

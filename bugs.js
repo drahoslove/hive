@@ -1,4 +1,4 @@
-class Bug {
+export class Bug {
   speed = 1
   constructor(color) {
     this.name = this.constructor.name
@@ -24,7 +24,7 @@ class Bug {
   ease = t => t // linear
 }
 
-class Queen extends Bug {
+export class Queen extends Bug {
   speed = 0.6
   // only one tile per turn
   canGo(hex, space) {
@@ -33,7 +33,7 @@ class Queen extends Bug {
 
 }
 
-class Beatle extends Bug {
+export class Beatle extends Bug {
   speed = 0.3
   ease = t => t <.5 ? 2*t*t : -1+(4-2*t)*t // in out quad
   // only one tile per turn
@@ -59,7 +59,7 @@ class Beatle extends Bug {
   }
 }
 
-class Grasshopper extends Bug {
+export class Grasshopper extends Bug {
   ease = t => t<.5 ? 4*t*t*t : (t-1)*(2*t-2)*(2*t-2)+1 // in out cubic
   speed = 2
   // has to jump over 1 or more bugs in line
@@ -88,7 +88,7 @@ class Grasshopper extends Bug {
   }
 }
 
-class Spider extends Bug {
+export class Spider extends Bug {
   ease = t => t // linear
   // ease = t => t<.5 ? 2*t*t : -1+(4-2*t)*t // ease in out quad
   // ease = t => t<.5 ? 4*t*t*t : (t-1)*(2*t-2)*(2*t-2)+1  // ease in out cubic
@@ -104,7 +104,7 @@ class Spider extends Bug {
   }
 }
 
-class Ant extends Bug {
+export class Ant extends Bug {
   ease = t => t // linear
   speed = 1.5
   // nywhere

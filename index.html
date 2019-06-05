@@ -4,10 +4,6 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width">
 <title>Hive</title>
-<script src="./bugs.js"></script>
-<script src="./board.js"></script>
-<script src="./game.js"></script>
-<script src="./ui.js"></script>
 <style>
 body, html {
   height: 100%;
@@ -24,7 +20,11 @@ canvas {
   -webkit-tap-highlight-color: transparent; /* prevents blue blinking on touchsceen in chrome */
 }
 </style>
-<script>
+<script type="module">
+import Game from './game.js'
+import uiOf from './ui.js'
+import { rand } from './common.js'
+
 const game = new Game(['#112', '#eed'], 5)
 
 if (window.location.href.endsWith("autoplay")) {
@@ -58,6 +58,6 @@ window.onload = () => {
 </script>
 </head>
 <body>
-  <canvas id="hiveCanvas" width="685" height="685"></canvas>
+  <canvas id="hiveCanvas" width="685" height="auto"></canvas>
 </body>
 </html>
