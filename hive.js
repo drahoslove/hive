@@ -2,6 +2,8 @@ import Game from './game.js'
 import uiOf from './ui.js'
 import { rand } from './common.js'
 
+console.log("Hive loaded")
+
 const game = new Game(['#112', '#eed'], 5)
 
 if (window.location.href.endsWith("autoplay")) {
@@ -21,12 +23,11 @@ if (window.location.href.endsWith("autoplay")) {
   setTimeout(() => {clearInterval(timer)}, 5*60*1000)
 }
 
-window.onload = () => {
-  if (window.location !== window.parent.location) {
-    document.body.style.background = 'none'
-  }
-  const canvas = document.getElementById('hiveCanvas')
-  const ui = uiOf(game).on(canvas)
-  // ui.off(canvas)
-  // setTimeout(()=>ui.on(canvas), 1500)
+if (window.location !== window.parent.location) {
+  document.body.style.background = 'none'
 }
+const canvas = document.getElementById('hiveCanvas')
+const ui = uiOf(game).on(canvas)
+// ui.off(canvas)
+// setTimeout(()=>ui.on(canvas), 1500)
+
