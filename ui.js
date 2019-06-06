@@ -33,7 +33,7 @@ export default function uiOf(game) {
       _ctx = setupCanvasHDPI(_canvas, CNW, CNH, { alpha: true })
 
       _cacheCanvas = document.createElement('canvas') // _canvas.cloneNode()
-      game.space.each((tile, hex) => drawTile(tile, hex))
+      // game.space.each((tile, hex) => drawTile(tile, hex))
 
       _cacheCanvas.with = _canvas.with
       _cacheCanvas.height = _canvas.height
