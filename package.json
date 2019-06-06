@@ -4,17 +4,16 @@
   "description": "",
   "main": "hive.js",
   "dependencies": {
-    "webpack": "^4.33.0"
-  },
-  "devDependencies": {
+    "@babel/polyfill": "^7.4.4",
+    "@babel/preset-env": "^7.4.5",
     "@babel/core": "^7.4.5",
-    "@babel/plugin-proposal-class-properties": "^7.4.4",
     "babel-loader": "^8.0.6",
     "http-server": "^0.11.1",
-    "webpack-cli": "^3.3.2"
+    "webpack-cli": "^3.3.2",
+    "webpack": "^4.33.0"
   },
   "scripts": {
-    "build": "webpack --mode development --module-bind js=babel-loader --entry ./hive.js -o ./main.js",
+    "build": "webpack --mode development --module-bind js=babel-loader --entry ./hive.js -o ./hive-bundle.js",
     "start": "npm run build -- --watch",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -27,5 +26,20 @@
   "bugs": {
     "url": "https://github.com/drahoslove/hive/issues"
   },
-  "homepage": "https://drahoslove.github.io/hive"
+  "homepage": "https://drahoslove.github.io/hive",
+  "babel": {
+    "presets": [
+      [
+        "@babel/preset-env",
+        {
+          "useBuiltIns": "usage",
+          "debug": true
+        }
+      ]
+    ],
+    "plugins": []
+  },
+  "browserslist": [
+    "> .05% in CZ and not ie <= 9"
+  ]
 }
