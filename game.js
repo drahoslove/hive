@@ -53,7 +53,7 @@ export default class Game {
     let handBug = this.activePlayer().hand.findBug(bug => bug.pos.eq(hex))
     if (handBug) {
       if (this.hasToPlaceQueenNow()) { // 3 placed
-        return handBug.name === 'Queen' 
+        return handBug.name === 'Queen'
       }
       return true
     }
@@ -135,7 +135,7 @@ export default class Game {
     })
     if (dead[0] && dead[1]) {
       setTimeout(() => alert('tie'), 200)
-      return true 
+      return true
     }
     if (dead[this._activePlayerIndex]) {
       setTimeout(() => alert('A won'), 200)
@@ -145,7 +145,6 @@ export default class Game {
       setTimeout(() => alert('B won'), 200)
       return true
     }
-    console.log('end?', dead)
   }
 
   isQueenPlaced() {

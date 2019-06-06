@@ -1,9 +1,11 @@
+
 export class Bug {
-  speed = 1
   constructor(color) {
     this.name = this.constructor.name
     this.color = color
     this.pos = null
+    this.speed = 1
+    this.ease = t => t // linear
   }
   toString() {
     return `${this.color} ${this.name}: ${this.pos}`
@@ -21,12 +23,14 @@ export class Bug {
       return null
     }
   }
-  ease = t => t // linear
 }
 
 // only one tile per turn
 export class Queen extends Bug {
-  speed = 0.6
+  constructor(...props) {
+    super(...props)
+    this.speed = 0.6
+  }
   canGo(hex, space) {
     return space.posOfWays(this.pos).find(pos => pos.eq(hex))
   }
@@ -36,8 +40,11 @@ export class Queen extends Bug {
 // can jump on top of other
 // can fit into slit (but only when descending)
 export class Beatle extends Bug {
-  speed = 0.3
-  ease = t => t <.5 ? 2*t*t : -1+(4-2*t)*t // in out quad
+  constructor(...props) {
+    super(...props)
+    this.speed = 0.3
+    this.ease = t => t <.5 ? 2*t*t : -1+(4-2*t)*t // in out quad
+  }
 
   reachablePlaces(space) {
     return space.posOfSurroundings(this.pos)
@@ -51,7 +58,7 @@ export class Beatle extends Bug {
       return false
     }
     const sameElevation = currentTile.length-1 === destTile.length
-    if (!sameElevation) { 
+    if (!sameElevation) {
       return true // can go to narrow spaces when changing elevation
     } else {
       return space.posOfWays(this.pos, this.pos, currentTile.length-1).find(pos => pos.eq(hex))
@@ -62,8 +69,11 @@ export class Beatle extends Bug {
 // has to jump over 1 or more bugs in line
 // can fit into slit
 export class Grasshopper extends Bug {
-  ease = t => t<.5 ? 4*t*t*t : (t-1)*(2*t-2)*(2*t-2)+1 // in out cubic
-  speed = 2
+  constructor(...props) {
+    super(...props)
+    this.ease = t => t<.5 ? 4*t*t*t : (t-1)*(2*t-2)*(2*t-2)+1 // in out cubic
+    this.speed = 2
+  }
 
   pathTo(space, dest) {
     const cPos = this.pos.toCube()
@@ -91,8 +101,11 @@ export class Grasshopper extends Bug {
 
 // exactly 3 spaces per turn, no backtracks
 export class Spider extends Bug {
-  ease = t => t // linear
-  speed = 1.2
+  constructor(...props) {
+    super(...props)
+    this.ease = t => t // linear
+    this.speed = 1.2
+  }
 
   pathTo(space, dest) {
     const path = space.findPath(this.pos, dest)
@@ -105,8 +118,11 @@ export class Spider extends Bug {
 
 // anywhere
 export class Ant extends Bug {
-  ease = t => t // linear
-  speed = 1.5
+  constructor(...props) {
+    super(...props)
+    this.ease = t => t // linear
+    this.speed = 1.5
+  }
 
   pathTo(space, dest) {
     let path = space.findPath(this.pos, dest)

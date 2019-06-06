@@ -25,6 +25,9 @@ export default function uiOf(game) {
   let _drawQue = new PriorityQueue()
 
   return new class Ui {
+    constructor() {
+
+    }
     async on(canvas) {
       _canvas = canvas
       _ctx = setupCanvasHDPI(_canvas, CNW, CNH, { alpha: true })
@@ -56,11 +59,11 @@ export default function uiOf(game) {
       return this
     }
 
-    mouseClick = (event) => {
+    mouseClick(event) {
       game.onClick(eventToHex(event))
     }
 
-    mouseMove = (event) => {
+    mouseMove(event) {
       let target = eventToHex(event)
       if (game.isClickable(target)) {
         _canvas.style.cursor = 'pointer'
@@ -73,7 +76,7 @@ export default function uiOf(game) {
       game.invalidated = true
     }
 
-    keyPress = (event) => {
+    keyPress(event) {
       const handBug = game.activePlayer().hand.findBug((bug) =>
         bug.name[0].toLowerCase() === event.key
       )
@@ -95,18 +98,18 @@ export default function uiOf(game) {
     startAnimation() {
       this.stop = false
       game.invalidated = true
-			requestAnimationFrame(this.onFrame)
+			requestAnimationFrame(this.onFrame.bind(this))
 		}
 
     stopAnimation() {
       this.stop = true
     }
 
-    onFrame = (t) => {
+    onFrame(t) {
       if (_frames++ % 2 === 0) // 30fps
         this.redraw(t)
       if (!this.stop)
-        requestAnimationFrame(this.onFrame)
+        requestAnimationFrame(this.onFrame.bind(this))
     }
 
     redraw(t) {
@@ -284,7 +287,7 @@ export default function uiOf(game) {
       _ctx.fillText(txt, x-w/2, y)
     }
 
-    
+
     if (
       isTop &&
       game.isClickable(bug.pos)
@@ -338,8 +341,10 @@ export default function uiOf(game) {
        : player.name.substr(0, txtLim-1) + '…'
 
     _ctx.font = 'normal 16px monospace'
+
     const txtW = _ctx.measureText(name).width
     const txtOfst = 6
+
     const s = S*SQRT3_2
     const r = s/3
     x += s*2
@@ -351,8 +356,10 @@ export default function uiOf(game) {
       _ctx.arc(x, y, r*SQRT2_3 +2, a, b, a<b)
       _ctx.strokeStyle = `hsla(${(t*200)%360}, 25%, 50%, 1)`
       _ctx.lineCap = 'round'
+
       _ctx.lineWidth = 10
-      _ctx.stroke()    
+      _ctx.stroke()
+
     }
 
     // hex:
