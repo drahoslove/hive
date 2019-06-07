@@ -4,6 +4,7 @@ import { Hex } from './board.js'
 export class Bug {
   constructor(color) {
     this.name = this.constructor.name
+    this.symbol = this.name[0]
     this.color = color
     this.pos = null
     this.speed = 1
@@ -53,6 +54,7 @@ export class Queen extends Bug {
   constructor(...props) {
     super(...props)
     this.speed = 0.6
+    this.symbol = '🐝'
   }
   canGo(hex, space) {
     return space.posOfWays(this.pos).find(pos => pos.eq(hex))
@@ -67,6 +69,7 @@ export class Beatle extends Bug {
     super(...props)
     this.speed = 0.3
     this.ease = t => t <.5 ? 2*t*t : -1+(4-2*t)*t // in out quad
+    this.symbol = '🐞'
   }
 
   reachablePlaces(space) {
@@ -96,6 +99,7 @@ export class Grasshopper extends Bug {
     super(...props)
     this.ease = t => t<.5 ? 4*t*t*t : (t-1)*(2*t-2)*(2*t-2)+1 // in out cubic
     this.speed = 2
+    this.symbol = '🦗'
   }
 
   pathTo(space, dest) {
@@ -128,6 +132,7 @@ export class Spider extends Bug {
     super(...props)
     this.ease = t => t // linear
     this.speed = 1.2
+    this.symbol = '🕷️'
   }
 
   pathTo(space, dest) {
@@ -145,6 +150,7 @@ export class Ant extends Bug {
     super(...props)
     this.ease = t => t // linear
     this.speed = 1.5
+    this.symbol = '🐜'
   }
 
   pathTo(space, dest) {
