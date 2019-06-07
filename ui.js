@@ -24,11 +24,12 @@ export default function uiOf(game) {
   let _target = null
   let _drawQue = new PriorityQueue()
 
+  let _invalidated = true
+
   return new class Ui {
     constructor() {
-
     }
-    async on(canvas) {
+    on(canvas) {
       _canvas = canvas
       _ctx = setupCanvasHDPI(_canvas, CNW, CNH, { alpha: true })
 
@@ -46,12 +47,12 @@ export default function uiOf(game) {
       canvas.addEventListener('mousemove', this.mouseMove)
       canvas.addEventListener('mousedown', this.mouseClick)
       document.addEventListener('keypress', this.keyPress)
-      this.startAnimation()
+      this.startRenderLoop()
       return this
     }
 
     off(canvas) {
-      this.stopAnimation()
+      this.stopRenderLoop()
       canvas = canvas || _canvas
       canvas.removeEventListener('mousemove', this.mouseMove)
       canvas.removeEventListener('mousedown', this.mouseClick)
@@ -59,8 +60,13 @@ export default function uiOf(game) {
       return this
     }
 
+    touch() {
+      _invalidated = true
+    }
+
     mouseClick(event) {
       game.onClick(eventToHex(event))
+      _invalidated = true
     }
 
     mouseMove(event) {
@@ -73,13 +79,14 @@ export default function uiOf(game) {
         _canvas.style.cursor = 'default'
         _target = null
       }
-      game.invalidated = true
+      _invalidated = true
     }
 
     keyPress(event) {
       const handBug = game.activePlayer().hand.findBug((bug) =>
         bug.name[0].toLowerCase() === event.key
       )
+      _invalidated = true
       if (handBug) {
         return game.onClick(handBug.pos)
       }
@@ -95,13 +102,13 @@ export default function uiOf(game) {
       }
     }
 
-    startAnimation() {
+    startRenderLoop() {
       this.stop = false
-      game.invalidated = true
+      this.touch()
 			requestAnimationFrame(this.onFrame.bind(this))
 		}
 
-    stopAnimation() {
+    stopRenderLoop() {
       this.stop = true
     }
 
@@ -113,13 +120,22 @@ export default function uiOf(game) {
     }
 
     redraw(t) {
-      if (game.invalidated || game.space.animating || this._oneMoreFrame) {
+      if (_invalidated || this._oneMoreFrame) {
         // backgrond
         drawBackground()
 
+        let someAnimating = false
         // bugs
-        game.space.each(drawBugsOftile)
+        game.space.each((tile, hex) => {
+          someAnimating = drawBugsOftile(tile, hex) || someAnimating
+        })
         game.players.forEach(({hand}) => hand.each(b => drawBug(b, undefined, true)))
+
+        if (someAnimating) {
+          game.disableInput()
+        } else {
+          game.enableInput()
+        }
 
         // outlines
         if(game.selected) {
@@ -132,12 +148,33 @@ export default function uiOf(game) {
           })
         }
 
+        if (game.message) {
+          _drawQue.push(() => {
+            const {x, y} = hexToScreen(new Hex(0, 0))
+            _ctx.font = "normal 52px monospace"
+            const w = _ctx.measureText(game.message).width
+            _ctx.fillStyle = '#eee'
+            _ctx.fillText(game.message, x-w/2 -1, y -1)
+            _ctx.filter = "blur(2px)"
+            _ctx.fillText(game.message, x-w/2 -1, y -1)
+            _ctx.fillStyle = '#111'
+            
+            _ctx.fillText(game.message, x-w/2 +2, y +2)
+            _ctx.filter = "blur(4px)"
+            _ctx.fillText(game.message, x-w/2 +2, y +2)
+            _ctx.fillStyle = '#5ef'
+            _ctx.filter = "none"
+            _ctx.fillText(game.message, x-w/2,     y   )
+          }, 10)
+        }
+
         // end
         if (this._oneMoreFrame) {
           this._oneMoreFrame = false
         }
-        game.invalidated = false
+        _invalidated = someAnimating || false
       }
+
 
       // render always:
       let p1 = new Hex(-10, 5)
@@ -151,7 +188,7 @@ export default function uiOf(game) {
       }
 
 
-      if (game.invalidated || game.space.animating) {
+      if (_invalidated) {
         this._oneMoreFrame = true
       }
     }
@@ -222,21 +259,44 @@ export default function uiOf(game) {
   }
 
   function drawBugsOftile(tile, hex) {
+    let someAnimating = false
     const offset = new Hex(+0.0, -0.2)
-    tile.forEach((b, i) => {
+    tile.forEach((bug, i) => {
+      let drawPos = bug.pos.add(offset.scale(i))
       const isTop = i === tile.length - 1
-      const draw = () => drawBug(b, b.pos.add(offset.scale(i)), isTop)
-      const isMoving = !hex.eq(b.pos)
-      if (i === 0 && !isMoving) { // bottom most and the not moving ones draw normally
-        draw()
-      } else {
-        // deffer top layers
-        _drawQue.push(
-          draw,
-          isMoving ? 2 : 1 // moving on top
-        )
+      const draw = () => drawBug(bug, drawPos, isTop)
+
+      if (bug.animation) { // drawing
+        const  { ms, path, since, ease } = bug.animation
+        const sofar = Date.now() - since
+        const jumps = path.length-1
+        const duration = ms*jumps * 1
+
+        if (sofar > duration) { // destination reached
+          bug.animation = null
+        } else {
+          someAnimating = true
+
+          // compute drawPos position during animation
+          const t = ease(Math.min(sofar/duration), 1)
+          const i = Math.floor(t * jumps) // path segment index
+          const diff = (i >= jumps)
+            ? console.error('index jumped outof path') || new Hex(0,0) // this should not happen?
+            : path[i+1].sub(path[i])
+          const tSeg = (t * duration % ms)/ms // 0-1
+          drawPos = path[i].add(diff.scale(tSeg))
+        }
       }
+
+      const isMoving = Boolean(bug.animation)
+      let prio = 0 + // most bugs are grounded
+        +(i > 0) + // higher elevation on top
+        +isMoving // animating draw even higher
+
+      _drawQue.push(draw, prio)
     })
+
+    return someAnimating
   }
 
   function drawBug(bug, pos=bug.pos, isTop) {
@@ -280,7 +340,6 @@ export default function uiOf(game) {
       _ctx.font = 'normal 16px monospace'
       if (bug.name === "Queen") {
         _ctx.font = 'bold 18px monospace'
-        _ctx.fontWeigh = "bold"
       }
       const w = _ctx.measureText(txt).width
       _ctx.fillStyle = '#808080'
