@@ -158,7 +158,7 @@ export default function uiOf(game) {
             _ctx.filter = "blur(2px)"
             _ctx.fillText(game.message, x-w/2 -1, y -1)
             _ctx.fillStyle = '#111'
-            
+
             _ctx.fillText(game.message, x-w/2 +2, y +2)
             _ctx.filter = "blur(4px)"
             _ctx.fillText(game.message, x-w/2 +2, y +2)
@@ -335,16 +335,14 @@ export default function uiOf(game) {
     }
 
     { // text
-      const txt = bug.constructor.name.substr(0,6)
+      const txt = bug.symbol
       _ctx.textBaseline = 'middle'
-      _ctx.font = 'normal 16px monospace'
-      if (bug.name === "Queen") {
-        _ctx.font = 'bold 18px monospace'
-      }
+      _ctx.font = 'normal 40px monospace'
       const w = _ctx.measureText(txt).width
       _ctx.fillStyle = '#808080'
       _ctx.fillText(txt, x-w/2, y)
     }
+
 
 
     if (
@@ -461,7 +459,6 @@ export default function uiOf(game) {
       _ctx.textBaseline = 'middle'
       _ctx.font = 'bold 15px monospace'
       _ctx.fillStyle = '#808080'
-      // _ctx.fillStyle = player.color
       _ctx.fillText(name, x, y)
     }
 
