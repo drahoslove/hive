@@ -189,8 +189,7 @@ export class Space {
 
   putAt(bug, dest) {
     const tile = this.at(dest)
-    let ms = 250
-    let ease = t => t*t
+
     if (tile) {
       let path = bug.pathTo(this, dest)
       tile.push(bug)
@@ -202,46 +201,18 @@ export class Space {
           throw Error(`Tried to move bug ${bug.toString()} from tile ${oldTile} but it is not is not ontop`)
         }
         // movement speed
-        ms = 200 / bug.speed
-        ease = bug.ease
+        bug.go(path, "move")
       } else { // placing
         path = [bug.pos, dest]
+        bug.go(path, "land")
         this._stones++
       }
 
       if(!path) {
         throw Error(`No path found for bug (${bug}) to get to tile (${tile}) at dest (${dest})`)
       }
-
-      
-
-      // animate
-      const jumps = path.length-1
-      const duration = ms*jumps * 1
-      this.doInTime(
-        duration,
-        (t) => {
-          t = ease(t)
-          let i = Math.floor(t * jumps) // path segment index
-          const diff = i === jumps ? new Hex(0,0) : path[i+1].sub(path[i])
-          bug.pos = path[i].add(diff.scale((t*duration % ms)/ms))
-        },
-      )
+     
     }
-  }
-
-  doInTime(duration, doStep) {
-    const start = Date.now()
-    const interval = setInterval(() => {
-      this.animating = true
-      const sofar = Date.now() - start
-      doStep(Math.min(sofar/duration, 1))
-    }, 10)
-    setTimeout(() => {
-      clearInterval(interval)
-      doStep(1)
-      this.animating = false
-    }, duration)
   }
 
   // positions of all occupied tiles

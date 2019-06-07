@@ -11,30 +11,33 @@ import {
 
 // class carring state of the game and prviding commands for game interaction
 export default class Game {
-  constructor(colors, size=6) {
+  constructor(size=5) {
     this.state = 'play'
     this.space = new Space(size)
     this.selected = null
     this.landings = []
-    this.invalidated = true
-    this.players = colors.map((color, i) => ({
+    this.players = ['#112', '#eed'].map((color, i) => ({
       name: `Player${"AB"[i]}`,
       color,
       hand: new Hand(Game.basicBugPack.map(Bug => new Bug(color)), !i),
     }))
     this._activePlayerIndex = 0
+    // this.message = "Hello World"
+  }
+
+  disableInput() {
+    this.inputDisabled = true
+  }
+  enableInput() {
+    this.inputDisabled = false
   }
 
   // actions
   onClick(hex) {
-    if (this.space.animating) {
-      return
-    }
-    if (this.state === 'end') {
+    if (this.inputDisabled || this.state === 'end') {
       return
     }
 
-    this.invalidated = true
     if (this.selected && this.landings.some(x => x.eq(hex))) {
       this.play(hex)
     } else {
@@ -46,7 +49,7 @@ export default class Game {
   }
 
   isClickable(hex) {
-    if (this.space.animating) {
+    if (this.inputDisabled || this.state === 'end') {
       return false
     }
     // selectable inhand bug
@@ -121,7 +124,7 @@ export default class Game {
     this.space.putAt(bug, hex)
     this.selected = null
     this.landings = []
-    this.checkEnd() && (this.state = 'end')
+    this.checkEnd() 
     this.switchPlayers()
     console.log(String(this.space))
   }
@@ -134,15 +137,18 @@ export default class Game {
       return queen && this.space.posOfNeighbors(queen.pos).length === 6
     })
     if (dead[0] && dead[1]) {
-      setTimeout(() => alert('tie'), 200)
+      this.message = "Remíza!"
+      this.state = 'end'
       return true
     }
     if (dead[this._activePlayerIndex]) {
-      setTimeout(() => alert('A won'), 200)
+      this.message = `${this.players[+!this._activePlayerIndex].name} vyhrává`
+      this.state = 'end'
       return true
     }
     if (dead[+!this._activePlayerIndex]) {
-      setTimeout(() => alert('B won'), 200)
+      this.message = `${this.players[this._activePlayerIndex].name} vyhrává`
+      this.state = 'end'
       return true
     }
   }

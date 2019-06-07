@@ -1,3 +1,5 @@
+import { Hex } from './board.js'
+
 
 export class Bug {
   constructor(color) {
@@ -22,6 +24,27 @@ export class Bug {
     } else {
       return null
     }
+  }
+  go(path, moveType) {
+    this.pos = path[path.length-1]
+
+    let ms = 0
+    let ease = t => t
+    if (moveType === "land") {
+      ms = 250
+    }
+    if (moveType === "move") {
+      ms = 200 / this.speed
+      ease = this.ease
+    }
+  
+    this.animation = {
+      since: Date.now(),
+      path, 
+      ms,
+      ease,
+    }
+
   }
 }
 
