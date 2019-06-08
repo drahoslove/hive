@@ -304,12 +304,11 @@ export default function uiOf(game) {
 
     let r = S/2
 
-    if (
-      _target && bug.pos.eq(_target) && isTop || // hover
-      game.selected === bug // selected
-    ) {
+    const highlighted = _target && _target.eq(bug.pos) && isTop || game.selected === bug || bug.animation
+    if (highlighted) {
       r *= 1.25
     }
+
 
     { // stone
       hexPath(_ctx, x, y, r)
@@ -323,6 +322,7 @@ export default function uiOf(game) {
       _ctx.lineWidth = 1
       _ctx.lineJoin = 'round'
       _ctx.strokeStyle = '#808080'
+
       _ctx.stroke()
 
       _ctx.beginPath()
@@ -330,6 +330,9 @@ export default function uiOf(game) {
       _ctx.arc(x, y, r*SQRT3_2-2, 0, Math.PI*2)
       _ctx.closePath()
       _ctx.fillStyle = bug.color
+      if (highlighted) {
+        _ctx.fillStyle = '#808080'
+      }
       _ctx.fill()
 
     }
@@ -339,11 +342,13 @@ export default function uiOf(game) {
       _ctx.textBaseline = 'middle'
       _ctx.font = 'normal 40px monospace'
       const w = _ctx.measureText(txt).width
+      if (!highlighted) {
+        _ctx.filter = 'contrast(0%)'
+      }
       _ctx.fillStyle = '#808080'
       _ctx.fillText(txt, x-w/2, y)
+      _ctx.filter = 'none'
     }
-
-
 
     if (
       isTop &&
