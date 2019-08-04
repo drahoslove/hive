@@ -148,8 +148,8 @@ export default function uiOf(game) {
     startRenderLoop() {
       this.stop = false
       this.touch()
-			requestAnimationFrame(this.onFrame.bind(this))
-		}
+      requestAnimationFrame(this.onFrame.bind(this))
+    }
 
     stopRenderLoop() {
       this.stop = true
@@ -186,8 +186,8 @@ export default function uiOf(game) {
           game.enableInput()
         }
 
-        // outlines
-        if(game.selected) {
+        // outlines (selected, path, and landings)
+        if (game.selected) {
           drawOutline(game.selected.pos, HUE_CLICKABLE)
           game.landings.forEach(pos => {
             drawOutline(pos, HUE_LANDING)
@@ -217,10 +217,8 @@ export default function uiOf(game) {
         }
 
         // end
-        if (this._oneMoreFrame) {
-          this._oneMoreFrame = false
-        }
         _invalidated = someAnimating || false
+        this._oneMoreFrame = !_invalidated && !this._oneMoreFrame
       }
 
 
@@ -233,11 +231,6 @@ export default function uiOf(game) {
       // call deffered drawing stuff
       while(_drawQue.len() > 0) {
         _drawQue.pop()()
-      }
-
-
-      if (_invalidated) {
-        this._oneMoreFrame = true
       }
     }
   }
@@ -337,7 +330,6 @@ export default function uiOf(game) {
     tile.forEach((bug, i) => {
       let drawPos = bug.pos.add(offset.scale(i))
       const isTop = i === tile.length - 1
-      const draw = () => drawBug(bug, drawPos, isTop)
 
       if (bug.animation) { // drawing
         const  { ms, path, since, ease } = bug.animation
@@ -360,6 +352,8 @@ export default function uiOf(game) {
           drawPos = path[i].add(diff.scale(tSeg))
         }
       }
+
+      const draw = () => drawBug(bug, drawPos, isTop)
 
       const isMoving = Boolean(bug.animation)
       let prio = 0 + // most bugs are grounded
