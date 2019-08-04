@@ -102,6 +102,7 @@ export default function uiOf(game) {
           _canvas.style.cursor = 'pointer'
           }
         })
+        _invalidated = true
         return
       }
 
@@ -163,15 +164,18 @@ export default function uiOf(game) {
 
     redraw(t) {
       if (_showMenu) {
-        drawBackground()
-        drawMenu()
+        if (_invalidated) {
+          drawBackground()
+          drawMenu()
+          _invalidated = false
+        }
         return
       }
 
       if (_invalidated || this._oneMoreFrame) {
         // background
         drawBackground()
-
+ 
         let someAnimating = false
         // bugs
         game.space.each((tile, hex) => {
@@ -224,7 +228,6 @@ export default function uiOf(game) {
         }
       }
 
-
       // render always:
       let p1 = new Hex(-10, 5)
       let p2 = p1.rotate(-1)
@@ -261,27 +264,34 @@ export default function uiOf(game) {
   }
 
   function drawMenu() {
-    const color =  '#776'
-    const colorH = '#665'
-    const background = '#eb06'
-    const backgroundH = '#eb0a'
+    const color =  '#6669'
+    const hsl = (hue) => (sat) => (lig) => `hsl(${hue}, ${sat}%, ${lig}%)`; // '#eb0'
 
-    game.menu.forEach(({pos, label, action, active}) => {
-      _ctx.filter = action ? 'none' : 'brightness(130%) grayscale(90%)'
+    game.menu.forEach(({pos, label, action, active}, i) => {
+      const base = hsl(60*(i+5.75)) // set hue
+      const bkg = base(active ? 80 : 50) // set saturation
+      _ctx.filter = action ? 'none' : 'brightness(150%) grayscale(95%) opacity(30%)'
 
       const {x, y} = hexToScreen(pos)
-      hexPath(_ctx, x, y, S)
-      _ctx.fillStyle = active ? backgroundH : background
-      _ctx.strokeStyle = active ? colorH : color
-      _ctx.lineWidth = 8
+
+      drawStone(x, y, S, bkg(50), [bkg(80), bkg(20)]) // set lightness
+
+      // outline
+      hexPath(_ctx, x, y, S-2)
+      _ctx.strokeStyle = bkg(40)
+      _ctx.lineWidth = 4
       _ctx.lineCap = 'round'
       _ctx.lineJoin = 'round'
-      _ctx.fill()
       _ctx.stroke()
 
       const w = _ctx.measureText(label).width
-      _ctx.fillStyle = active ? colorH : color
       _ctx.font = 'normal bold 36px emoji-symbols'
+      _ctx.fillStyle = bkg(80)
+      _ctx.fillText(uncolorEmoji(label), x-w/2+.5, y+12+.5)
+      _ctx.fillStyle = bkg(20)
+      _ctx.fillText(uncolorEmoji(label), x-w/2-.5, y+12-.5)
+
+      _ctx.fillStyle = color
       _ctx.fillText(uncolorEmoji(label), x-w/2, y+12)
       _ctx.filter = 'none'
     })
@@ -383,37 +393,17 @@ export default function uiOf(game) {
       r *= 1.25
     }
 
-
-    { // stone
-      hexPath(_ctx, x, y, r)
-      let grad = _ctx.createLinearGradient(x-r, y-r, x+r, y+r);
-      grad.addColorStop(0, bug.color === game.players[1].color ? '#fff' : '#666');
-      grad.addColorStop(1, bug.color === game.players[1].color ? '#999' : '#000');
-
-      _ctx.fillStyle = grad
-      _ctx.fill()
-
-      _ctx.lineWidth = 1
-      _ctx.lineJoin = 'round'
-      _ctx.strokeStyle = '#808080'
-
-      _ctx.stroke()
-
-      _ctx.beginPath()
-      _ctx.moveTo(x, y+r)
-      _ctx.arc(x, y, r*SQRT3_2-2, 0, Math.PI*2)
-      _ctx.closePath()
-      _ctx.fillStyle = bug.color
-      _ctx.fill()
-
-    }
+    drawStone(x, y, r, bug.color, [
+      bug.color === game.players[1].color ? '#fff' : '#666',
+      bug.color === game.players[1].color ? '#999' : '#000',
+    ])
 
     { // text
       const txt = bug.symbol
       _ctx.textBaseline = 'middle'
       _ctx.font = `normal ${highlighted ? 50 : 40}px emoji-symbols`
       const w = _ctx.measureText(txt).width
-      _ctx.fillStyle = bug.hue !== undefined ? `hsla(${bug.hue}, 40%, 50%, 1)` : '#808080'
+      _ctx.fillStyle = bug.hue !== undefined ? `hsla(${bug.hue}, ${highlighted ? 60 : 40}%, 50%, 1)` : '#808080'
       _ctx.fillText(txt, x-w/2, y+2)
     }
 
@@ -423,6 +413,28 @@ export default function uiOf(game) {
     ) {
       _drawQue.push(() => drawOutline(pos, HUE_CLICKABLE), 0)
     }
+  }
+
+  function drawStone(x, y, r, color, gradStops) {
+    hexPath(_ctx, x, y, r)
+    const grad = _ctx.createLinearGradient(x-r, y-r, x+r, y+r);
+    gradStops.forEach((color, i) => grad.addColorStop(i, color))
+
+    _ctx.fillStyle = grad
+    _ctx.fill()
+
+    _ctx.lineWidth = 1
+    _ctx.lineJoin = 'round'
+    _ctx.strokeStyle = '#808080'
+
+    _ctx.stroke()
+
+    _ctx.beginPath()
+    _ctx.moveTo(x, y+r)
+    _ctx.arc(x, y, r*SQRT3_2-2, 0, Math.PI*2)
+    _ctx.closePath()
+    _ctx.fillStyle = color
+    _ctx.fill()
   }
 
 

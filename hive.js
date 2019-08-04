@@ -8,22 +8,39 @@ console.log("Hive loaded")
 const game = new Game(5)
 game.menu = [
   {
+    label: '⚙',
+    title: 'nastavení',
+    pos: new Hex(-2, +2),
+    // action: () => { alert("nastavení zatím nefunguje")}
+  },
+  {
+    label: '❓',
+    title: 'nápověda',
+    pos: new Hex(-2, 0),
+    action: () => { alert("Cílem je obklopit královku (včelu) spoluhráče")}
+  },
+  {
     label: '👤🌐👤',
-    pos: new Hex(-1, 0),
+    title: 'multiplayer',
+    pos: new Hex(0, -2),
+    // action: () => { alert("multiplayer zatím není")}
   },
   {
     label: '👤×👽', // 🤖
-    pos: new Hex(1, -2),
+    title: 'singleplayer',
+    pos: new Hex(+2, -2),
     action: vAI,
   },
   {
     label: '👤',
-    pos: new Hex(1, 0),
+    title: 'tréning',
+    pos: new Hex(+2, 0),
     action: () => { ui.hideMenu() },
   },
   {
     label: '👽×👽',
-    pos: new Hex(-1, 2),
+    title: 'demonstrace',
+    pos: new Hex(0, +2),
     action: AIvAI,
   },
 ]
