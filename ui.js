@@ -441,6 +441,9 @@ export default function uiOf(game) {
   }
 
   function drawOutline(pos, hue) {
+    if (_disabledPlayers.includes(game._activePlayerIndex)) {
+      return
+    }
     let r = S/2
 
     const dimm = hue === HUE_CLICKABLE && game.selected && !game.selected.pos.eq(pos.round())
