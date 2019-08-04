@@ -55,6 +55,7 @@ export class Queen extends Bug {
     super(...props)
     this.speed = 0.6
     this.symbol = '🐝'
+    this.hue = 40
   }
   canGo(hex, space) {
     return space.posOfWays(this.pos).find(pos => pos.eq(hex))
@@ -70,6 +71,7 @@ export class Beatle extends Bug {
     this.speed = 0.3
     this.ease = t => t <.5 ? 2*t*t : -1+(4-2*t)*t // in out quad
     this.symbol = '🐞'
+    this.hue = -20
   }
 
   reachablePlaces(space) {
@@ -100,6 +102,7 @@ export class Grasshopper extends Bug {
     this.ease = t => t<.5 ? 4*t*t*t : (t-1)*(2*t-2)*(2*t-2)+1 // in out cubic
     this.speed = 2
     this.symbol = '🦗'
+    this.hue = 160
   }
 
   pathTo(space, dest) {
@@ -133,6 +136,7 @@ export class Spider extends Bug {
     this.ease = t => t // linear
     this.speed = 1.2
     this.symbol = '🕷️'
+    this.hue = 220
   }
 
   pathTo(space, dest) {
@@ -151,6 +155,7 @@ export class Ant extends Bug {
     this.ease = t => t // linear
     this.speed = 1.5
     this.symbol = '🐜'
+    this.hue = 280
   }
 
   pathTo(space, dest) {

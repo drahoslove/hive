@@ -413,8 +413,8 @@ export default function uiOf(game) {
       _ctx.textBaseline = 'middle'
       _ctx.font = `normal ${highlighted ? 50 : 40}px emoji-symbols`
       const w = _ctx.measureText(txt).width
-      _ctx.fillStyle = '#808080'
-      _ctx.fillText(txt, x-w/2, y)
+      _ctx.fillStyle = bug.hue !== undefined ? `hsla(${bug.hue}, 40%, 50%, 1)` : '#808080'
+      _ctx.fillText(txt, x-w/2, y+2)
     }
 
     if (
