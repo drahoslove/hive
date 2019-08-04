@@ -1,6 +1,6 @@
 // Everything what has something to do with producing visual output or handling user input is in this file
 
-import { PriorityQueue } from './common.js'
+import { PriorityQueue, uncolorEmoji } from './common.js'
 import { Hex } from './board.js'
 
 
@@ -284,7 +284,7 @@ export default function uiOf(game) {
       const w = _ctx.measureText(label).width
       _ctx.fillStyle = active ? colorH : color
       _ctx.font = 'normal 36px monospace'
-      _ctx.fillText(label, x-w/2, y+12)
+      _ctx.fillText(uncolorEmoji(label), x-w/2, y+12)
       _ctx.filter = 'none'
     })
   }

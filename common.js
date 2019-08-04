@@ -30,3 +30,13 @@ export class PriorityQueue {
     return this._que.length
   }
 }
+
+export function uncolorEmoji(txt) {
+  return txt
+    .split(/([\uD800-\uDBFF][\uDC00-\uDFFF])/)
+    .map(ch => ch.charCodeAt() > 255
+      ? ch + '\uFE0E'
+      : ch
+    )
+    .join('')
+}

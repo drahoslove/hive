@@ -1,6 +1,6 @@
 import Game from './game.js'
 import uiOf from './ui.js'
-import { rand } from './common.js'
+import { rand, uncolorEmoji } from './common.js'
 import { Hex } from './board.js'
 
 console.log("Hive loaded")
@@ -8,21 +8,21 @@ console.log("Hive loaded")
 const game = new Game(5)
 game.menu = [
   {
-    label: '👤🔗👤',
+    label: '👤\uFE0E🔗\uFE0E👤\uFE0E',
     pos: new Hex(-1, 0),
   },
   {
-    label: '👤×👽', // 🤖
+    label: '👤\uFE0E×👽\uFE0E', // 🤖
     pos: new Hex(1, -2),
     action: vAI,
   },
   {
-    label: '👤',
+    label: '👤\uFE0E',
     pos: new Hex(1, 0),
     action: () => { ui.hideMenu() },
   },
   {
-    label: '👽×👽',
+    label: '👽\uFE0E×👽\uFE0E',
     pos: new Hex(-1, 2),
     action: AIvAI,
   },
