@@ -218,9 +218,7 @@ export default function uiOf(game) {
         // end
         _invalidated = someAnimating || false
         if (!_invalidated && !this._oneMoreFrame) {
-          // animation just ended
           this._oneMoreFrame = true
-          _target = null 
         } else {
           this._oneMoreFrame = false
         }
@@ -283,7 +281,7 @@ export default function uiOf(game) {
 
       const w = _ctx.measureText(label).width
       _ctx.fillStyle = active ? colorH : color
-      _ctx.font = 'normal 36px emoji-symbols'
+      _ctx.font = 'normal bold 36px emoji-symbols'
       _ctx.fillText(uncolorEmoji(label), x-w/2, y+12)
       _ctx.filter = 'none'
     })
@@ -380,7 +378,7 @@ export default function uiOf(game) {
 
     let r = S/2
 
-    const highlighted = _target && _target.eq(bug.pos) && isTop || game.selected === bug || bug.animation
+    const highlighted = _target && _target.eq(bug.pos) && game.isClickable(_target) && isTop || game.selected === bug || bug.animation
     if (highlighted) {
       r *= 1.25
     }
@@ -406,9 +404,6 @@ export default function uiOf(game) {
       _ctx.arc(x, y, r*SQRT3_2-2, 0, Math.PI*2)
       _ctx.closePath()
       _ctx.fillStyle = bug.color
-      if (highlighted) {
-        _ctx.fillStyle = '#808080'
-      }
       _ctx.fill()
 
     }
@@ -416,14 +411,10 @@ export default function uiOf(game) {
     { // text
       const txt = bug.symbol
       _ctx.textBaseline = 'middle'
-      _ctx.font = 'normal 40px emoji-symbols'
+      _ctx.font = `normal ${highlighted ? 50 : 40}px emoji-symbols`
       const w = _ctx.measureText(txt).width
-      if (!highlighted) {
-        _ctx.filter = 'contrast(0%)'
-      }
       _ctx.fillStyle = '#808080'
       _ctx.fillText(txt, x-w/2, y)
-      _ctx.filter = 'none'
     }
 
     if (
