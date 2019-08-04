@@ -3,26 +3,28 @@
   "version": "1.0.0",
   "description": "",
   "main": "hive.js",
+  "author": "draho.cz",
+  "license": "ISC",
   "dependencies": {
+  },
+  "devDependencies": {
     "@babel/polyfill": "^7.4.4",
     "@babel/preset-env": "^7.4.5",
     "@babel/core": "^7.4.5",
     "babel-loader": "^8.0.6",
-    "http-server": "^0.11.1",
     "webpack-cli": "^3.3.2",
-    "webpack": "^4.33.0"
+    "webpack": "^4.33.0",
+    "webpack-dev-server": "^3.7.2"
   },
   "scripts": {
     "build": "webpack --mode development --module-bind js=babel-loader --entry ./hive.js -o ./hive-bundle.js",
-    "start": "npm run build -- --watch",
+    "start": "webpack-dev-server --module-bind js=babel-loader --entry ./hive.js -o ./hive-bundle.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/drahoslove/hive.git"
   },
-  "author": "draho.cz",
-  "license": "ISC",
   "bugs": {
     "url": "https://github.com/drahoslove/hive/issues"
   },
