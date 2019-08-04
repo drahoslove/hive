@@ -26,6 +26,7 @@ export default function uiOf(game) {
 
   let _invalidated = true
   let _showMenu = true
+  let _disabledPlayers = []
 
   return new class Ui {
     constructor() {
@@ -61,6 +62,10 @@ export default function uiOf(game) {
       return this
     }
 
+    disableInputFor(playerIndexes) {
+      _disabledPlayers = playerIndexes
+    }
+
     showMenu() {
       _showMenu = true
       return this
@@ -83,6 +88,9 @@ export default function uiOf(game) {
         })
         return
       }
+      if (_disabledPlayers.includes(game._activePlayerIndex)) {
+        return
+      }
       game.onClick(target)
       _invalidated = true
     }
@@ -99,6 +107,9 @@ export default function uiOf(game) {
         return
       }
 
+      if (_disabledPlayers.includes(game._activePlayerIndex)) {
+        return
+      }
       if (game.isClickable(target)) {
         _canvas.style.cursor = 'pointer'
         // store last hovered tile pos
@@ -111,6 +122,10 @@ export default function uiOf(game) {
     }
 
     keyPress(event) {
+      if (_disabledPlayers.includes(game._activePlayerIndex)) {
+        return
+      }
+
       const handBug = game.activePlayer().hand.findBug((bug) =>
         bug.name[0].toLowerCase() === event.key
       )
