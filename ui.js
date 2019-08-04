@@ -81,32 +81,31 @@ export default function uiOf(game) {
     }
 
     mouseClick(event) {
-      let target = eventToHex(event)
       if (_showMenu) {
         game.menu.forEach(({pos, action}, i) => {
-          action && target.distance(pos) <= 1 && action()
+          action && eventToHexExact(event).distance(pos) <= 1 && action()
         })
         return
       }
       if (_disabledPlayers.includes(game._activePlayerIndex)) {
         return
       }
-      game.onClick(target)
+      game.onClick(eventToHex(event))
       _invalidated = true
     }
 
     mouseMove(event) {
-      let target = eventToHex(event)
       if (_showMenu) {
         _canvas.style.cursor = 'default'
         game.menu.forEach(({pos, action}, i) => {
-          if (game.menu[i].active = action && target.distance(pos) <= 1) {
+          if (game.menu[i].active = action && eventToHexExact(event).distance(pos) <= 1) {
           _canvas.style.cursor = 'pointer'
           }
         })
         return
       }
 
+      let target = eventToHex(event)
       if (_disabledPlayers.includes(game._activePlayerIndex)) {
         return
       }
@@ -307,6 +306,10 @@ export default function uiOf(game) {
 
   function eventToHex({offsetX: x, offsetY: y}) {
     return screenToHex({x, y}).round()
+  }
+
+  function eventToHexExact({offsetX: x, offsetY: y}) {
+    return screenToHex({x, y})
   }
 
   function drawTile(tile, hex, ctx) {
