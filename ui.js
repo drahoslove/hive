@@ -95,8 +95,8 @@ export default function uiOf(game) {
     }
 
     mouseMove(event) {
+      _canvas.style.cursor = 'default'
       if (_showMenu) {
-        _canvas.style.cursor = 'default'
         game.menu.forEach(({pos, action}, i) => {
           if (game.menu[i].active = action && eventToHexExact(event).distance(pos) <= 1) {
           _canvas.style.cursor = 'pointer'
@@ -267,7 +267,7 @@ export default function uiOf(game) {
     const color =  '#6669'
     const hsl = (hue) => (sat) => (lig) => `hsl(${hue}, ${sat}%, ${lig}%)`; // '#eb0'
 
-    game.menu.forEach(({pos, label, action, active}, i) => {
+    game.menu.forEach(({pos, label, title, action, active}, i) => {
       const base = hsl(60*(i+5.75)) // set hue
       const bkg = base(active ? 80 : 50) // set saturation
       _ctx.filter = action ? 'none' : 'brightness(150%) grayscale(95%) opacity(30%)'
@@ -284,16 +284,25 @@ export default function uiOf(game) {
       _ctx.lineJoin = 'round'
       _ctx.stroke()
 
-      const w = _ctx.measureText(label).width
+      // label icons
       _ctx.font = 'normal bold 36px emoji-symbols'
+      const w = _ctx.measureText(label).width
       _ctx.fillStyle = bkg(80)
       _ctx.fillText(uncolorEmoji(label), x-w/2+.5, y+12+.5)
       _ctx.fillStyle = bkg(20)
       _ctx.fillText(uncolorEmoji(label), x-w/2-.5, y+12-.5)
-
       _ctx.fillStyle = color
       _ctx.fillText(uncolorEmoji(label), x-w/2, y+12)
-      _ctx.filter = 'none'
+
+      if (active) {
+        _ctx.font = 'bold 20px monospace'
+        const ww = _ctx.measureText(title).width
+        const {x:xx, y:yy} = hexToScreen(new Hex(0, 0))
+        _ctx.filter = 'none'
+        _ctx.fillStyle = bkg(30)
+        _ctx.fillText(title, xx-ww/2, yy+4)
+      }
+
     })
   }
 

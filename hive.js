@@ -5,41 +5,73 @@ import { Hex } from './board.js'
 
 console.log("Hive loaded")
 
+const HELP_TEXT = `
+Cílem je zablokovat ze všech stran včelí královnu spoluhráče
+
+1) Pravidlo jedné kolonie:
+ - Všichny vyložené kameny musí vždy tvořit jednotný nedělitelný útvar.
+
+2) Vykládání:
+ - Stejná pravidla pro všecny kameny.
+ - Královna musí být umístěna nejpozději ve 4. kole.
+ - Nové kameny můžeš umístit pouze do sousedství těch svých. První kámen umísti libovolně.
+ - Nové kameny nesmíš umístit do sousedství těch protihráčových. S výjimkou druhého tahu.
+
+3) Přesouvání:
+ - Kameny můžeš přesouvat, až po té co umístíš královnu.
+ - Přesouváním kamenů nesmíš porušit pravidlo 1) a to po celou dobu přesunu.
+ - Kameny nejde vmáčknout do uzkých škvír kam se fyzicky neprocpou. (Kromě kobylky a berušky)
+ - Různé kameny mají různé pravidla pohybu:
+
+  A) Královna:
+   - může se pohybovat jen o 1 krok
+  B) Beruška:
+   - může se pohybovat jen o 1 krok
+   - navíc může vlést na jiný kámen a tím ho zablokovat
+  C) Mravenec:
+   - může se přesunout na libovolné místo dostupné po obvodu
+  D) Pavouk:
+   - může se přesunout na tři kroky vzdálené místo dostupné po obvodu
+  E) Kobylka:
+   - dostane se jen tam, kam jde přeskočit přes řadu jednoho či více kamenů
+
+`
+
 const game = new Game(5)
 game.menu = [
   {
     label: '⚙',
-    title: 'nastavení',
+    title: 'config',
     pos: new Hex(-2, +2),
     // action: () => { alert("nastavení zatím nefunguje")}
   },
   {
     label: '❓',
-    title: 'nápověda',
+    title: 'help',
     pos: new Hex(-2, 0),
-    action: () => { alert("Cílem je obklopit královku (včelu) spoluhráče")}
+    action: () => { alert(HELP_TEXT)}
   },
   {
     label: '👤🌐👤',
-    title: 'multiplayer',
+    title: 'multi',
     pos: new Hex(0, -2),
     // action: () => { alert("multiplayer zatím není")}
   },
   {
-    label: '👤×👽', // 🤖
-    title: 'singleplayer',
+    label: '👤×👽',
+    title: 'single',
     pos: new Hex(+2, -2),
     action: vAI,
   },
   {
     label: '👤',
-    title: 'tréning',
+    title: 'training',
     pos: new Hex(+2, 0),
     action: () => { ui.hideMenu() },
   },
   {
     label: '👽×👽',
-    title: 'demonstrace',
+    title: 'demo',
     pos: new Hex(0, +2),
     action: AIvAI,
   },
@@ -49,8 +81,11 @@ if (window.location !== window.parent.location) {
   document.body.style.background = 'none'
 }
 
-const canvas = document.getElementById('hiveCanvas')
-const ui = uiOf(game).on(canvas).showMenu()
+const ui = uiOf(game)
+window.onload = () => {
+  const canvas = document.getElementById('hiveCanvas')
+  ui.on(canvas)
+}
 // ui.off(canvas)
 // setTimeout(()=>ui.on(canvas), 1500)
 
