@@ -25,6 +25,7 @@ export default function uiOf(game) {
   let _drawQue = new PriorityQueue()
 
   let _invalidated = true
+  let _showMenu = true
 
   return new class Ui {
     constructor() {
@@ -60,17 +61,44 @@ export default function uiOf(game) {
       return this
     }
 
+    showMenu() {
+      _showMenu = true
+      return this
+    }
+
+    hideMenu() {
+      _showMenu = false
+      return this
+    }
+
     touch() {
       _invalidated = true
     }
 
     mouseClick(event) {
-      game.onClick(eventToHex(event))
+      let target = eventToHex(event)
+      if (_showMenu) {
+        game.menu.forEach(({pos, action}, i) => {
+          action && target.distance(pos) <= 1 && action()
+        })
+        return
+      }
+      game.onClick(target)
       _invalidated = true
     }
 
     mouseMove(event) {
       let target = eventToHex(event)
+      if (_showMenu) {
+        _canvas.style.cursor = 'default'
+        game.menu.forEach(({pos, action}, i) => {
+          if (game.menu[i].active = action && target.distance(pos) <= 1) {
+          _canvas.style.cursor = 'pointer'
+          }
+        })
+        return
+      }
+
       if (game.isClickable(target)) {
         _canvas.style.cursor = 'pointer'
         // store last hovered tile pos
@@ -120,8 +148,14 @@ export default function uiOf(game) {
     }
 
     redraw(t) {
+      if (_showMenu) {
+        drawBackground()
+        drawMenu()
+        return
+      }
+
       if (_invalidated || this._oneMoreFrame) {
-        // backgrond
+        // background
         drawBackground()
 
         let someAnimating = false
@@ -215,6 +249,33 @@ export default function uiOf(game) {
     _ctx.drawImage(_cacheCanvas, 0, 0, CNW, CNH)
   }
 
+  function drawMenu() {
+    const color =  '#776'
+    const colorH = '#665'
+    const background = '#eb06'
+    const backgroundH = '#eb0a'
+
+    game.menu.forEach(({pos, label, action, active}) => {
+      _ctx.filter = action ? 'none' : 'brightness(130%) grayscale(90%)'
+
+      const {x, y} = hexToScreen(pos)
+      hexPath(_ctx, x, y, S)
+      _ctx.fillStyle = active ? backgroundH : background
+      _ctx.strokeStyle = active ? colorH : color
+      _ctx.lineWidth = 8
+      _ctx.lineCap = 'round'
+      _ctx.lineJoin = 'round'
+      _ctx.fill()
+      _ctx.stroke()
+
+      const w = _ctx.measureText(label).width
+      _ctx.fillStyle = active ? colorH : color
+      _ctx.font = 'normal 36px monospace'
+      _ctx.fillText(label, x-w/2, y+12)
+      _ctx.filter = 'none'
+    })
+  }
+
 
   function hexToScreen({q, r}) {
     // let x = S/2 * (    3/2 * q                   )
@@ -250,9 +311,7 @@ export default function uiOf(game) {
 
     ctx.strokeStyle = ctx.fillStyle = `rgba(${r},${g},${b},${0.2 + 0.1*delta})`
     ctx.lineWidth = 2
-    ctx.beginPath()
     hexPath(ctx, x, y, S/2)
-    ctx.closePath()
     ctx.fill()
     ctx.stroke()
   }

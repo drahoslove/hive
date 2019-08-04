@@ -1,21 +1,43 @@
 import Game from './game.js'
 import uiOf from './ui.js'
 import { rand } from './common.js'
+import { Hex } from './board.js'
 
 console.log("Hive loaded")
 
 const game = new Game(5)
+game.menu = [
+  {
+    label: '👤×👽', // 🤖
+    pos: new Hex(0.5, -1),
+  },
+  {
+    label: '👤🔗👤',
+    pos: new Hex(-1.5, 1),
+  },
+  {
+    label: '👤',
+    pos: new Hex(0.5, 1),
+    action: () => { ui.hideMenu() },
+  },
+  {
+    label: '👽×👽',
+    pos: new Hex(-1.5, 3),
+    action: autoplay,
+  },
+]
 
 if (window.location !== window.parent.location) {
   document.body.style.background = 'none'
 }
 
 const canvas = document.getElementById('hiveCanvas')
-const ui = uiOf(game).on(canvas)
+const ui = uiOf(game).on(canvas).showMenu()
 // ui.off(canvas)
 // setTimeout(()=>ui.on(canvas), 1500)
 
-if (window.location.href.endsWith("autoplay")) {
+function autoplay() {
+  ui.hideMenu()
   const autoMove = () => {
     !game.selected 
       ? game.onClick(
