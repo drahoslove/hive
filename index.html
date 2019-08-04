@@ -5,9 +5,14 @@
 <meta name="viewport" content="width=device-width">
 <title>Hive</title>
 <style>
+@font-face {
+  font-family: "emoji-symbols";
+  src: url("./Symbola.ttf");
+}
 body, html {
   height: 100%;
   margin: 0;
+  font-family: emoji-symbols;
 }
 body {
   background: #DFFDA2 url('https://o00o.cz/2008/o/domecek/content-bg.gif') repeat 50% 0;
@@ -19,9 +24,17 @@ canvas {
   margin: auto;
   -webkit-tap-highlight-color: transparent; /* prevents blue blinking on touchsceen in chrome for android */
 }
+.emoji{
+  display: none;
+  font-size: 50px;
+  font-family: emoji-symbols;
+}
 </style>
 </head>
 <body>
+  <div class="emoji">
+    🐜🕷️🦗🐞🐝👤🔗🌐👽
+  </div>
   <canvas id="hiveCanvas" width="685" height="auto"></canvas>
   <script type="module" src="hive.js"></script>
   <script nomodule src="hive-bundle.js"></script>

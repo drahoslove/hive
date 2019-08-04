@@ -8,21 +8,21 @@ console.log("Hive loaded")
 const game = new Game(5)
 game.menu = [
   {
-    label: '👤\uFE0E🔗\uFE0E👤\uFE0E',
+    label: '👤🌐👤',
     pos: new Hex(-1, 0),
   },
   {
-    label: '👤\uFE0E×👽\uFE0E', // 🤖
+    label: '👤×👽', // 🤖
     pos: new Hex(1, -2),
     action: vAI,
   },
   {
-    label: '👤\uFE0E',
+    label: '👤',
     pos: new Hex(1, 0),
     action: () => { ui.hideMenu() },
   },
   {
-    label: '👽\uFE0E×👽\uFE0E',
+    label: '👽×👽',
     pos: new Hex(-1, 2),
     action: AIvAI,
   },

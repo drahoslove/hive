@@ -283,7 +283,7 @@ export default function uiOf(game) {
 
       const w = _ctx.measureText(label).width
       _ctx.fillStyle = active ? colorH : color
-      _ctx.font = 'normal 36px monospace'
+      _ctx.font = 'normal 36px emoji-symbols'
       _ctx.fillText(uncolorEmoji(label), x-w/2, y+12)
       _ctx.filter = 'none'
     })
@@ -416,7 +416,7 @@ export default function uiOf(game) {
     { // text
       const txt = bug.symbol
       _ctx.textBaseline = 'middle'
-      _ctx.font = 'normal 40px monospace'
+      _ctx.font = 'normal 40px emoji-symbols'
       const w = _ctx.measureText(txt).width
       if (!highlighted) {
         _ctx.filter = 'contrast(0%)'
