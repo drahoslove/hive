@@ -217,7 +217,13 @@ export default function uiOf(game) {
 
         // end
         _invalidated = someAnimating || false
-        this._oneMoreFrame = !_invalidated && !this._oneMoreFrame
+        if (!_invalidated && !this._oneMoreFrame) {
+          // animation just ended
+          this._oneMoreFrame = true
+          _target = null 
+        } else {
+          this._oneMoreFrame = false
+        }
       }
 
 
