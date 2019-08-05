@@ -7,7 +7,9 @@
 <style>
 @font-face {
   font-family: "emoji-symbols";
-  src: url("Symbola.ttf");
+  src:
+    url("Symbola.woff") format("woff"),
+    url("Symbola.ttf") format("truetype");
 }
 body, html {
   height: 100%;
@@ -28,7 +30,7 @@ body {
   position: relative;
 }
 canvas {
-  padding-bottom: 1rem; 
+  padding-bottom: 1rem;
   display: block;
   margin: auto;
   -webkit-tap-highlight-color: transparent; /* prevents blue blinking on touchsceen in chrome for android */

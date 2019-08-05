@@ -5,8 +5,7 @@
   "main": "hive.js",
   "author": "draho.cz",
   "license": "ISC",
-  "dependencies": {
-  },
+  "dependencies": {},
   "devDependencies": {
     "@babel/polyfill": "^7.4.4",
     "@babel/preset-env": "^7.4.5",
