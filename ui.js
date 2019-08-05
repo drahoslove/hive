@@ -4,6 +4,7 @@ import { PriorityQueue, uncolorEmoji, rand } from './common.js'
 import { Hex } from './board.js'
 import { Queen } from './bugs.js';
 
+export const hsl = (hue) => (sat) => (lig) => `hsl(${hue}, ${sat}%, ${lig}%)`; 
 
 // returns new Ui class for given space
 export default function uiOf(game) {
@@ -52,6 +53,7 @@ export default function uiOf(game) {
       canvas.addEventListener('mousemove', this.mouseMove)
       canvas.addEventListener('mousedown', this.mouseClick)
       document.addEventListener('keypress', this.keyPress)
+      _invalidated = true
       this.startRenderLoop()
       return this
     }
@@ -90,6 +92,10 @@ export default function uiOf(game) {
         })
         return
       }
+      game.backButton.action
+        && eventToHexExact(event).distance(game.backButton.pos) <= .5
+        && game.backButton.action()
+
       if (_disabledPlayers.includes(game._activePlayerIndex)) {
         return
       }
@@ -102,11 +108,17 @@ export default function uiOf(game) {
       if (_showMenu) {
         game.menu.forEach(({pos, action}, i) => {
           if (game.menu[i].active = action && eventToHexExact(event).distance(pos) <= 1) {
-          _canvas.style.cursor = 'pointer'
+            _canvas.style.cursor = 'pointer'
           }
         })
         _invalidated = true
         return
+      }
+
+      if (game.backButton.active = eventToHexExact(event).distance(game.backButton.pos) <= .5) {
+        _canvas.style.cursor = 'pointer'
+        _invalidated = true
+        return 
       }
 
       let target = eventToHex(event)
@@ -178,6 +190,8 @@ export default function uiOf(game) {
       if (_invalidated || this._oneMoreFrame) {
         // background
         drawBackground()
+
+        drawBackButton(game.backButton)
 
         let someAnimating = false
         // bugs
@@ -263,10 +277,32 @@ export default function uiOf(game) {
     _ctx.drawImage(_cacheCanvas, 0, 0, CNW, CNH)
   }
 
+  function drawBackButton({pos, label, active}) {
+    const color = '6669'
+    const base = hsl(76)
+    const bkg = base(active ? 15 : 5)
+    const {x, y} = hexToScreen(pos)
+    drawStone(x, y, S/2, bkg(50), [bkg(80), bkg(20)])
+    //outline
+    hexPath(_ctx, x, y, S/2-1)
+    _ctx.strokeStyle = bkg(40)
+    _ctx.lineWidth = 2
+    _ctx.lineCap = 'round'
+    _ctx.lineJoin = 'round'
+    _ctx.stroke()
+    // text
+    _ctx.font = 'normal bold 36px emoji-symbols'
+    const w = _ctx.measureText(label).width
+    _ctx.fillStyle = bkg(80)
+    _ctx.fillText(uncolorEmoji(label), x-8+.5, y+4+.5)
+    _ctx.fillStyle = bkg(20)
+    _ctx.fillText(uncolorEmoji(label), x-8-.5, y+4-.5)
+    _ctx.fillStyle = color
+    _ctx.fillText(uncolorEmoji(label), x-8,    y+4   )
+  }
+
   function drawMenu() {
     const color =  '#6669'
-    const hsl = (hue) => (sat) => (lig) => `hsl(${hue}, ${sat}%, ${lig}%)`; // '#eb0'
-
     game.menu.forEach(({pos, label, title, action, active}, i) => {
       const base = hsl(-60*(i+5.75)) // set hue
       const bkg = base(active ? 80 : 50) // set saturation

@@ -12,7 +12,12 @@ import {
 // class carring state of the game and prviding commands for game interaction
 export default class Game {
   constructor(size=5) {
-    this.state = 'play'
+    this.reset(size)
+  }
+
+  reset(size=this._size) {
+    this._size = size
+    this.state = 'init'
     this.space = new Space(size)
     this.selected = null
     this.landings = []
@@ -22,7 +27,7 @@ export default class Game {
       hand: new Hand(Game.basicBugPack.map(Bug => new Bug(color)), !i),
     }))
     this._activePlayerIndex = 0
-    // this.message = "Hello World"
+    this.message = ""
   }
 
   disableInput() {

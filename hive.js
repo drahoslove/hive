@@ -52,7 +52,21 @@ Cílem je zablokovat ze všech stran včelí královnu spoluhráče
 
 `
 
+const canvas = document.getElementById('hiveCanvas')
+
+let AiInterval
 const game = new Game(5)
+game.backButton = {
+  label: '🠸',
+  pos: new Hex(-6, 0),
+  action: () => {
+    clearInterval(AiInterval)
+    ui.off()
+    ui.showMenu()
+    game.reset()
+    ui.on(canvas)
+  }
+}
 game.menu = [
   {
     label: '⚙',
@@ -82,7 +96,10 @@ game.menu = [
     label: '👤',
     title: 'training',
     pos: new Hex(+2, 0),
-    action: () => { ui.hideMenu() },
+    action: () => {
+      ui.disableInputFor([])
+      ui.hideMenu()
+    },
   },
   {
     label: '👽×👽',
@@ -98,7 +115,6 @@ if (window.location !== window.parent.location) {
 
 const ui = uiOf(game)
 window.onload = () => {
-  const canvas = document.getElementById('hiveCanvas')
   ui.on(canvas)
   console.timeEnd("")
   setTimeout(() => {
@@ -129,12 +145,12 @@ const autoMove = (players) => () => {
 function AIvAI() {
   ui.hideMenu()
   ui.disableInputFor([0,1])
-  const timer = setInterval(autoMove([0, 1]), 250)
+  AiInterval = setInterval(autoMove([0, 1]), 250)
 }
 
 function vAI() {
   ui.hideMenu()
   ui.disableInputFor([1])
-  const timer = setInterval(autoMove([1]), 800)
+  AiInterval = setInterval(autoMove([1]), 800)
 }
 
