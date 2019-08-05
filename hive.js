@@ -104,7 +104,7 @@ window.onload = () => {
   setTimeout(() => {
     cancelAnimationFrame(loaderInterval)
     document.getElementById("loader").innerHTML = ''
-  }, 1000)
+  }, 100)
 }
 // ui.off(canvas)
 // setTimeout(()=>ui.on(canvas), 1500)

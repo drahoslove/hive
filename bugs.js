@@ -1,4 +1,5 @@
 import { Hex } from './board.js'
+import { rand } from './common.js'
 
 
 export class Bug {
@@ -9,6 +10,10 @@ export class Bug {
     this.pos = null
     this.speed = 1
     this.ease = t => t // linear
+    this.angle = 7-rand(15)
+  }
+  shiver(d=3) { // randomly change angle +-3 degree
+    return this.angle += (d-rand(d*2+1)) * (this.animation ? 10 : 1)
   }
   toString() {
     return `${this.color} ${this.name}: ${this.pos}`
@@ -38,10 +43,10 @@ export class Bug {
       ms = 200 / this.speed
       ease = this.ease
     }
-  
+
     this.animation = {
       since: Date.now(),
-      path, 
+      path,
       ms,
       ease,
     }

@@ -1,7 +1,8 @@
 // Everything what has something to do with producing visual output or handling user input is in this file
 
-import { PriorityQueue, uncolorEmoji } from './common.js'
+import { PriorityQueue, uncolorEmoji, rand } from './common.js'
 import { Hex } from './board.js'
+import { Queen } from './bugs.js';
 
 
 // returns new Ui class for given space
@@ -27,6 +28,8 @@ export default function uiOf(game) {
   let _invalidated = true
   let _showMenu = true
   let _disabledPlayers = []
+
+  let _beeRot = 0
 
   return new class Ui {
     constructor() {
@@ -175,7 +178,7 @@ export default function uiOf(game) {
       if (_invalidated || this._oneMoreFrame) {
         // background
         drawBackground()
- 
+
         let someAnimating = false
         // bugs
         game.space.each((tile, hex) => {
@@ -293,14 +296,37 @@ export default function uiOf(game) {
 
       if (active) {
         _ctx.font = 'bold 20px monospace'
-        const ww = _ctx.measureText(title).width
-        const {x:xx, y:yy} = hexToScreen(new Hex(0, 0))
+        const w = _ctx.measureText(title).width
+        const {x, y} = hexToScreen(new Hex(0, 0))
         _ctx.filter = 'none'
         _ctx.fillStyle = bkg(30)
-        _ctx.fillText(title, xx-ww/2, yy+4)
+        _ctx.fillText(title, x-w/2, y+4)
       }
-
     })
+    if (game.menu.every(({ active }) => !active)) {
+      const bee = new Queen()
+      const w = _ctx.measureText(bee.symbol).width
+      const {x, y} = hexToScreen(new Hex(0, 0))
+
+      doRatoted(x, y, _beeRot, () => {
+        _ctx.font = 'normal 75px emoji-symbols'
+        _ctx.fillStyle = hsl(bee.hue)(0)(50)
+        _ctx.fillText(bee.symbol, x-w, y+25)
+      })
+
+      _beeRot += (11-rand(23)) * 2
+      _beeRot %= 360
+    }
+  }
+
+  function doRatoted(x, y, angle, func) {
+    _ctx.translate(x, y)
+    _ctx.rotate((Math.PI/180) * angle)
+    _ctx.translate(-x, -y)
+    typeof func === 'function' && func()
+    _ctx.translate(x, y)
+    _ctx.rotate((Math.PI/180) * -angle)
+    _ctx.translate(-x, -y)
   }
 
 
@@ -410,7 +436,9 @@ export default function uiOf(game) {
       _ctx.font = `normal ${highlighted ? 50 : 40}px emoji-symbols`
       const w = _ctx.measureText(txt).width
       _ctx.fillStyle = bug.hue !== undefined ? `hsla(${bug.hue}, ${highlighted ? 60 : 40}%, 50%, 1)` : '#808080'
-      _ctx.fillText(txt, x-w/2, y+2)
+      doRatoted(x, y, bug.shiver(), () => {
+        _ctx.fillText(txt, x-w/2, y+2)
+      })
     }
 
     if (
