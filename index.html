@@ -17,6 +17,7 @@ body, html {
 body {
   background: #DFFDA2 url('https://o00o.cz/2008/o/domecek/content-bg.gif') repeat 50% 0;
   display: flex;
+  flex-direction: column;
 }
 canvas {
   padding-bottom: 1rem; 
@@ -29,6 +30,19 @@ canvas {
   font-size: 50px;
   font-family: emoji-symbols;
 }
+#loader{
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 50px;
+  color: #888;
+  z-index: -1;
+}
 </style>
 </head>
 <body>
@@ -36,6 +50,7 @@ canvas {
     🐜🕷️🦗🐞🐝👤🔗🌐👽💻🖳🖥🤖
   </div>
   <canvas id="hiveCanvas" width="685" height="auto"></canvas>
+  <div id="loader">🕛</div>
   <script type="module" src="hive.js"></script>
   <script nomodule src="hive-bundle.js"></script>
 </body>

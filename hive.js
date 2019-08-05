@@ -3,7 +3,18 @@ import uiOf from './ui.js'
 import { rand, uncolorEmoji } from './common.js'
 import { Hex } from './board.js'
 
+const loaderInterval = (() => {
+  let i = 0
+  const cp = document.getElementById("loader").innerText.codePointAt(0)
+  return setInterval(() => {
+    i++
+    document.getElementById("loader").innerText = String.fromCodePoint(
+      cp+(i%12)
+    )
+  }, 20)
+})()
 console.log("Hive loaded")
+console.time("")
 
 const HELP_TEXT = `
 Cílem je zablokovat ze všech stran včelí královnu spoluhráče
@@ -85,6 +96,11 @@ const ui = uiOf(game)
 window.onload = () => {
   const canvas = document.getElementById('hiveCanvas')
   ui.on(canvas)
+  console.timeEnd("")
+  setTimeout(() => {
+    clearInterval(loaderInterval)
+    document.getElementById("loader").innerHTML = ''
+  }, 1000)
 }
 // ui.off(canvas)
 // setTimeout(()=>ui.on(canvas), 1500)
