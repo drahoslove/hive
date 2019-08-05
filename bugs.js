@@ -11,9 +11,11 @@ export class Bug {
     this.speed = 1
     this.ease = t => t // linear
     this.angle = 7-rand(15)
+    this.moveShiver = 10
+    this.stillShiver = 1
   }
   shiver(d=3) { // randomly change angle +-3 degree
-    return this.angle += (d-rand(d*2+1)) * (this.animation ? 10 : 1)
+    return this.angle += (d-rand(d*2+1)) * (this.animation ? this.moveShiver : this.stillShiver)
   }
   toString() {
     return `${this.color} ${this.name}: ${this.pos}`
@@ -61,6 +63,8 @@ export class Queen extends Bug {
     this.speed = 0.6
     this.symbol = '🐝'
     this.hue = 40
+    this.stillShiver = 3
+    this.moveShiver = 15
   }
   canGo(hex, space) {
     return space.posOfWays(this.pos).find(pos => pos.eq(hex))
@@ -77,6 +81,7 @@ export class Beatle extends Bug {
     this.ease = t => t <.5 ? 2*t*t : -1+(4-2*t)*t // in out quad
     this.symbol = '🐞'
     this.hue = -20
+    this.moveShiver = 5
   }
 
   reachablePlaces(space) {
@@ -108,6 +113,8 @@ export class Grasshopper extends Bug {
     this.speed = 2
     this.symbol = '🦗'
     this.hue = 160
+    this.moveShiver = 0
+    this.stillShiver = 1
   }
 
   pathTo(space, dest) {
@@ -142,6 +149,7 @@ export class Spider extends Bug {
     this.speed = 1.2
     this.symbol = '🕷️'
     this.hue = 220
+    this.stillShiver = 0 
   }
 
   pathTo(space, dest) {
