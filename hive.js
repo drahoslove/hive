@@ -3,16 +3,20 @@ import uiOf from './ui.js'
 import { rand, uncolorEmoji } from './common.js'
 import { Hex } from './board.js'
 
-const loaderInterval = (() => {
-  let i = 0
+let loaderInterval = 0
+{
   const cp = document.getElementById("loader").innerText.codePointAt(0)
-  return setInterval(() => {
-    i++
-    document.getElementById("loader").innerText = String.fromCodePoint(
-      cp+(i%12)
-    )
-  }, 20)
-})()
+  const spinLoader = (i) => {
+    loaderInterval = requestAnimationFrame(() => {
+      document.getElementById("loader").innerText = String.fromCodePoint(
+        cp+(i%12)
+      )
+      spinLoader(i+1)
+    })
+  }
+  spinLoader(0)
+}
+
 console.log("Hive loaded")
 console.time("")
 
@@ -98,7 +102,7 @@ window.onload = () => {
   ui.on(canvas)
   console.timeEnd("")
   setTimeout(() => {
-    clearInterval(loaderInterval)
+    cancelAnimationFrame(loaderInterval)
     document.getElementById("loader").innerHTML = ''
   }, 1000)
 }
@@ -109,14 +113,14 @@ const autoMove = (players) => () => {
   if (!players.includes(game._activePlayerIndex)) {
     return
   }
-  !game.selected 
+  !game.selected
     ? game.onClick(
       rand(game.activePlayer().hand.size()+1)
         ? game.activePlayer().hand.__getRandomBugPos()
         : game.space.__randomBugPos(game.activePlayer().color)
       )
     : game.onClick(game.__randomLandingPos())
- 
+
   // console.clear()
   // console.log(String(game.space))
   ui.touch()
@@ -126,13 +130,11 @@ function AIvAI() {
   ui.hideMenu()
   ui.disableInputFor([0,1])
   const timer = setInterval(autoMove([0, 1]), 250)
-  setTimeout(() => {clearInterval(timer)}, 5*60*1000)
 }
 
 function vAI() {
   ui.hideMenu()
   ui.disableInputFor([1])
   const timer = setInterval(autoMove([1]), 800)
-  // setTimeout(() => {clearInterval(timer)}, 10*60*1000)
 }
 
