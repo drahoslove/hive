@@ -19,12 +19,16 @@ body, html {
   display: flex;
 }
 body {
-  background: #DFFDA2 url('https://o00o.cz/2008/o/domecek/content-bg.gif') repeat 50% 0;
+  background: #80808010 url(./noise.png);
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   margin: auto;
+  transition: background .5s ease-in-out;
+}
+body.dark {
+  background-color: #808080f0;
 }
 .box {
   max-width: 1024px;

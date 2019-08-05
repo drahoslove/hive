@@ -61,8 +61,8 @@ game.backButton = {
   pos: new Hex(-6, 0),
   action: () => {
     clearInterval(AiInterval)
-    ui.off()
     ui.showMenu()
+    ui.off()
     game.reset()
     ui.on(canvas)
   }
@@ -109,9 +109,6 @@ game.menu = [
   },
 ]
 
-if (window.location !== window.parent.location) {
-  document.body.style.background = 'none'
-}
 
 const ui = uiOf(game)
 window.onload = () => {

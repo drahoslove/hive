@@ -73,11 +73,15 @@ export default function uiOf(game) {
 
     showMenu() {
       _showMenu = true
+      _invalidated = true
+      document.body.classList.remove("dark")
       return this
     }
 
     hideMenu() {
       _showMenu = false
+      _invalidated = true
+      document.body.classList.add("dark")
       return this
     }
 
@@ -278,9 +282,9 @@ export default function uiOf(game) {
   }
 
   function drawBackButton({pos, label, active}) {
-    const color = '6669'
-    const base = hsl(76)
-    const bkg = base(active ? 15 : 5)
+    const textColor = '#6669'
+    const base = hsl(-10)
+    const bkg = base(active ? 65 : 0)
     const {x, y} = hexToScreen(pos)
     drawStone(x, y, S/2, bkg(50), [bkg(80), bkg(20)])
     //outline
@@ -297,12 +301,12 @@ export default function uiOf(game) {
     _ctx.fillText(uncolorEmoji(label), x-8+.5, y+4+.5)
     _ctx.fillStyle = bkg(20)
     _ctx.fillText(uncolorEmoji(label), x-8-.5, y+4-.5)
-    _ctx.fillStyle = color
+    _ctx.fillStyle = textColor
     _ctx.fillText(uncolorEmoji(label), x-8,    y+4   )
   }
 
   function drawMenu() {
-    const color =  '#6669'
+    const textColor =  '#6669'
     game.menu.forEach(({pos, label, title, action, active}, i) => {
       const base = hsl(-60*(i+5.75)) // set hue
       const bkg = base(active ? 80 : 50) // set saturation
@@ -327,26 +331,36 @@ export default function uiOf(game) {
       _ctx.fillText(uncolorEmoji(label), x-w/2+.5, y+12+.5)
       _ctx.fillStyle = bkg(20)
       _ctx.fillText(uncolorEmoji(label), x-w/2-.5, y+12-.5)
-      _ctx.fillStyle = color
+      _ctx.fillStyle = textColor
       _ctx.fillText(uncolorEmoji(label), x-w/2, y+12)
 
       if (active) {
-        _ctx.font = 'bold 20px monospace'
+        _ctx.font = 'normal 20px monospace'
         const w = _ctx.measureText(title).width
         const {x, y} = hexToScreen(new Hex(0, 0))
         _ctx.filter = 'none'
-        _ctx.fillStyle = bkg(30)
+        _ctx.fillStyle = bkg(20)
+        _ctx.fillText(title, x-w/2+1, y+4+1)
+        _ctx.fillStyle = bkg(80)
+        _ctx.fillText(title, x-w/2-1, y+4-1)
+        _ctx.fillStyle = bkg(50)
         _ctx.fillText(title, x-w/2, y+4)
       }
     })
+    // bee
     if (game.menu.every(({ active }) => !active)) {
       const bee = new Queen()
       const w = _ctx.measureText(bee.symbol).width
       const {x, y} = hexToScreen(new Hex(0, 0))
 
-      doRatoted(x, y, _beeRot, () => {
+      doRatoted(x, y, _beeRot, (xo, yo) => {
+        const clr = hsl(bee.hue)(0)
         _ctx.font = 'normal 75px emoji-symbols'
-        _ctx.fillStyle = hsl(bee.hue)(0)(50)
+        // _ctx.fillStyle = clr(40)
+        // _ctx.fillText(bee.symbol, x-w+.5*xo, y+25+.5*yo)
+        // _ctx.fillStyle = clr(80)
+        // _ctx.fillText(bee.symbol, x-w-.5*xo, y+25-.5*yo)
+        _ctx.fillStyle = clr(60)
         _ctx.fillText(bee.symbol, x-w, y+25)
       })
 
@@ -356,12 +370,13 @@ export default function uiOf(game) {
   }
 
   function doRatoted(x, y, angle, func) {
+    const a = (Math.PI/180) * angle
     _ctx.translate(x, y)
-    _ctx.rotate((Math.PI/180) * angle)
+    _ctx.rotate(a)
     _ctx.translate(-x, -y)
-    typeof func === 'function' && func()
+    typeof func === 'function' && func(Math.sin(a), Math.cos(a))
     _ctx.translate(x, y)
-    _ctx.rotate((Math.PI/180) * -angle)
+    _ctx.rotate(-a)
     _ctx.translate(-x, -y)
   }
 
@@ -557,28 +572,25 @@ export default function uiOf(game) {
     _ctx.font = 'normal 16px monospace'
 
     const txtW = _ctx.measureText(name).width
-    const txtOfst = 6
+    const txtOfst = 8
 
     const s = S*SQRT3_2
     const r = s/3
     x += s*2
-    _ctx.clearRect(x - r -4, y - r -4, r*2 + txtW+txtOfst+ 8, r*2 +8)
+    _ctx.clearRect(x - r -4, y - r -4, r*2 + txtW+txtOfst+ 18, r*2 +8)
 
-    // circle
+    // rotating circle
     if (player === game.activePlayer()) {
       _ctx.beginPath()
       _ctx.arc(x, y, r*SQRT2_3 +2, a, b, a<b)
-      _ctx.strokeStyle = `hsla(${(t*200)%360}, 25%, 50%, 1)`
+      _ctx.strokeStyle = hsl((t*200)%360)(75)(50)
       _ctx.lineCap = 'round'
-
       _ctx.lineWidth = 10
       _ctx.stroke()
-
     }
 
     // hex:
     {
-
       hexPath(_ctx, x, y, r - 0.5)
       _ctx.strokeStyle = player.color
       _ctx.lineCap = 'round'
@@ -589,27 +601,28 @@ export default function uiOf(game) {
       _ctx.strokeStyle = '#808080'
       _ctx.lineCap = 'round'
       _ctx.lineWidth = 1
-      _ctx.stroke()
+      // _ctx.stroke()
 
       x += txtOfst + r
-      // { // name label
-      //   let r = s/2 - 12
-      //   _ctx.beginPath()
-      //   _ctx.moveTo(x, y-r)
-      //   _ctx.lineTo(x+txtW, y-r)
-      //   _ctx.lineTo(x+SQRT3_2*r+txtW, y - SQRT2_3 * r)
-      //   _ctx.lineTo(x+SQRT3_2*r+txtW, y + SQRT2_3 * r)
-      //   _ctx.lineTo(x+txtW, y+r)
-      //   _ctx.lineTo(x, y+r)
-      //   _ctx.lineTo(x-SQRT3_2*r,  y + SQRT2_3 * r)
-      //   _ctx.lineTo(x-SQRT3_2*r,  y - SQRT2_3 * r)
-      //   _ctx.closePath()
-      //   _ctx.fillStyle = player.color
-      //   // _ctx.fillStyle = '#808080'
-      //   _ctx.lineCap = 'round'
-      //   _ctx.fill()
-      //   _ctx.stroke()
-      // }
+      { // name label
+        let r = s/2 - 12
+        _ctx.beginPath()
+        // _ctx.moveTo(x, y-r)
+        _ctx.lineTo(x+txtW, y-r)
+        _ctx.lineTo(x+SQRT3_2*r+txtW, y - SQRT2_3 * r)
+        // _ctx.lineTo(x+SQRT3_2*r+txtW-r/2, y                )
+        _ctx.lineTo(x+SQRT3_2*r+txtW, y + SQRT2_3 * r)
+        _ctx.lineTo(x+txtW, y+r)
+        // _ctx.lineTo(x, y+r)
+        _ctx.lineTo(x-SQRT3_2*r,  y + SQRT2_3 * r*1.5)
+        _ctx.lineTo(x-SQRT3_2*r,  y - SQRT2_3 * r*1.5)
+        _ctx.closePath()
+        _ctx.fillStyle = player.color
+        // _ctx.fillStyle = '#808080'
+        _ctx.lineCap = 'round'
+        _ctx.fill()
+        // _ctx.stroke()
+      }
     }
     // name text:
     {

@@ -22,7 +22,7 @@ export default class Game {
     this.selected = null
     this.landings = []
     this.players = ['#112', '#eed'].map((color, i) => ({
-      name: `Player${"AB"[i]}`,
+      name: `Player ${"AB"[i]}`,
       color,
       hand: new Hand(Game.basicBugPack.map(Bug => new Bug(color)), !i),
     }))
