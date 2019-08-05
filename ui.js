@@ -206,15 +206,10 @@ export default function uiOf(game) {
             _ctx.font = "normal 52px monospace"
             const w = _ctx.measureText(game.message).width
             _ctx.fillStyle = '#eee'
-            _ctx.fillText(game.message, x-w/2 -1, y -1)
-            _ctx.filter = "blur(2px)"
-            _ctx.fillText(game.message, x-w/2 -1, y -1)
+            _ctx.fillText(game.message, x-w/2 -.5, y -.5)
             _ctx.fillStyle = '#111'
-            _ctx.fillText(game.message, x-w/2 +2, y +2)
-            _ctx.filter = "blur(4px)"
-            _ctx.fillText(game.message, x-w/2 +2, y +2)
-            _ctx.fillStyle = '#5ef'
-            _ctx.filter = "none"
+            _ctx.fillText(game.message, x-w/2 +.5, y +.5)
+            _ctx.fillStyle = '#888'
             _ctx.fillText(game.message, x-w/2,     y   )
           }, 10)
         }
@@ -252,6 +247,8 @@ export default function uiOf(game) {
     canvas.height = h * ratio;
     canvas.style.width = w +'px'
     canvas.style.height = h +'px'
+    // canvas.style.width = '100%'
+    // canvas.style.height = 'auto'
 
     let ctx = canvas.getContext('2d', options);
     ctx.scale(ratio, ratio)

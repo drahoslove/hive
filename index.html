@@ -13,11 +13,19 @@ body, html {
   height: 100%;
   margin: 0;
   font-family: emoji-symbols;
+  display: flex;
 }
 body {
   background: #DFFDA2 url('https://o00o.cz/2008/o/domecek/content-bg.gif') repeat 50% 0;
   display: flex;
   flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin: auto;
+}
+.box {
+  max-width: 1024px;
+  position: relative;
 }
 canvas {
   padding-bottom: 1rem; 
@@ -46,11 +54,14 @@ canvas {
 </style>
 </head>
 <body>
-  <div class="emoji">
-    🐜🕷️🦗🐞🐝👤🔗🌐👽💻🖳🖥🤖
+  <div class="box">
+    <div class="emoji">
+      🐜🕷️🦗🐞🐝👤🔗🌐👽💻🖳🖥🤖
+    </div>
+    <canvas id="hiveCanvas" width="685" height="auto">
+    </canvas>
+    <div id="loader">🕛</div>
   </div>
-  <canvas id="hiveCanvas" width="685" height="auto"></canvas>
-  <div id="loader">🕛</div>
   <script type="module" src="hive.js"></script>
   <script nomodule src="hive-bundle.js"></script>
 </body>
