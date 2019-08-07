@@ -264,15 +264,37 @@ export default function uiOf(game) {
         }
 
         if (game.message) {
+          if (game.message.state === 'end') {
+            document.body.classList.remove('dark')
+          }
           _drawQue.push(() => {
             const {x, y} = hexToScreen(new Hex(0, 0))
+            // background
+            ;[-1,0, 1].forEach(j => {
+              ;[-5,-4,-3,-2,-1,0,1,2,3,4,5].forEach(i => {
+                if (Math.abs(i) === 5 && Math.abs(i+j) === 6) {
+                  return
+                }
+                const {x, y} = hexToScreen(new Hex(i, j))
+                _ctx.save()
+                hexPath(_ctx, x, y, S/2+1)
+                _ctx.clip()
+                // _ctx.globalCompositeOperation = 'destination-over'
+                // drawBackground()
+                _ctx.globalCompositeOperation = 'source-in'
+                _ctx.fillStyle = `hsla(0, 0%, 20%, 0.5)`
+                _ctx.fill()
+                _ctx.restore()
+              })
+            })
+            // text
             _ctx.font = "normal 52px monospace"
             const w = _ctx.measureText(game.message).width
             _ctx.fillStyle = '#eee'
             _ctx.fillText(game.message, x-w/2 -.5, y -.5)
             _ctx.fillStyle = '#111'
             _ctx.fillText(game.message, x-w/2 +.5, y +.5)
-            _ctx.fillStyle = '#888'
+            _ctx.fillStyle = '#ddd'
             _ctx.fillText(game.message, x-w/2,     y   )
           }, 10)
         }
@@ -477,7 +499,7 @@ export default function uiOf(game) {
 
     const delta = hex.distance(new Hex(0,0))
     const cube = hex.toCube()
-    const [r,g,b] = [cube.x * 45, cube.z * 45, cube.y * 45]
+    const [r,g,b] = [cube.x * 35, cube.z * 35, cube.y * 35]
 
     ctx.strokeStyle = ctx.fillStyle = `rgba(${r},${g},${b},${0.2 + 0.1*delta})`
     ctx.lineWidth = 2
