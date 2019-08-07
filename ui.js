@@ -18,7 +18,12 @@ export default function uiOf(game) {
   const SQRT3_2 = Math.sqrt(3)/2
   const SQRT2_3 = Math.sqrt(2)/3
 
-  const FPS = 30
+  const loaderPos = [
+    new Hex(-9, 7),
+    new Hex(-2, -7),
+  ]
+
+  const FPS = 60
   const skipFrame = {
     60: 1,
     30: 2,
@@ -34,6 +39,7 @@ export default function uiOf(game) {
 
   let _invalidated = true
   let _showMenu = true
+  let _showNames = false
   let _disabledPlayers = []
 
   let _beeRot = 0
@@ -131,6 +137,10 @@ export default function uiOf(game) {
         return
       }
 
+      if (_showNames = loaderPos.some(pos => pos.eq(eventToHex(event)))) {
+        _invalidated = true
+        return
+      }
       if (game.backButton.active = eventToHexExact(event).distance(game.backButton.pos) <= .5) {
         _canvas.style.cursor = 'pointer'
         _invalidated = true
@@ -203,18 +213,40 @@ export default function uiOf(game) {
         return
       }
 
+      let [offsetX, offsetY] = [0, 0] 
+
       if (_invalidated || this._oneMoreFrame) {
+        let someAnimating = false
+
+        // DRAW SPACE
+
+        // animate space shift
+        if (game.space.animation) {
+          const { dest, since } = game.space.animation
+          const duration = 400
+          const sofar = Date.now() - since
+
+          const progress = sofar / duration
+          const {x, y} = hexToScreen(dest.scale(1-progress))
+
+          if (progress > 1) { // destination reached
+            game.space.animation = null
+          } else {
+            someAnimating = true
+            offsetX = x-CNW/2
+            offsetY = y-CNH/2
+          }
+        }
+
+        _ctx.translate(offsetX, offsetY)
+
         // background
         drawBackground()
 
-        drawBackButton(game.backButton)
-
-        let someAnimating = false
         // bugs
         game.space.each((tile, hex) => {
           someAnimating = drawBugsOftile(tile, hex, t) || someAnimating
         })
-        game.players.forEach(({hand}) => hand.each(b => drawBug(b, undefined, true, t)))
 
         if (someAnimating) {
           game.disableInput()
@@ -256,19 +288,35 @@ export default function uiOf(game) {
         } else {
           this._oneMoreFrame = false
         }
+
+        // call deffered drawing stuff for board
+        while(_drawQue.len() > 0) {
+          _drawQue.pop()()
+        }
+
+        _ctx.translate(-offsetX, -offsetY)
+
+      
+        // DRAW GUI
+        game.players.forEach(({hand}) => hand.each(b => drawBug(b, undefined, true, t)))
+
+        drawBackButton(game.backButton)
+
+        // call deffered drawing stuff for gui
+        while(_drawQue.len() > 0) {
+          _drawQue.pop()()
+        }
+  
       }
+
+      // render always:
+      // if (game.space.midpoint) {
+      //   drawDot(game.space.midpoint, 0)
+      // }
 
       if (game.state !== 'end') {
-        // render always:
-        let p1 = new Hex(-10, 5)
-        let p2 = p1.rotate(-1)
-        drawLoader(t, p1, game.players[0])
-        drawLoader(t, p2, game.players[1])
-      }
-
-      // call deffered drawing stuff
-      while(_drawQue.len() > 0) {
-        _drawQue.pop()()
+        drawLoader(t, loaderPos[0], game.players[0])
+        drawLoader(t, loaderPos[1], game.players[1])
       }
     }
   }
@@ -369,7 +417,7 @@ export default function uiOf(game) {
       const w = _ctx.measureText(bee.symbol).width
       const {x, y} = hexToScreen(new Hex(0, 0))
 
-      doRatoted(x, y, _beeRot, (xo, yo) => {
+      doRatated(x, y, _beeRot, (xo, yo) => {
         const clr = hsl(bee.hue)(0)
         _ctx.font = 'normal 75px emoji-symbols'
         // _ctx.fillStyle = clr(40)
@@ -385,7 +433,7 @@ export default function uiOf(game) {
     }
   }
 
-  function doRatoted(x, y, angle, func) {
+  function doRatated(x, y, angle, func) {
     const a = (Math.PI/180) * angle
     _ctx.translate(x, y)
     _ctx.rotate(a)
@@ -482,10 +530,15 @@ export default function uiOf(game) {
     return someAnimating
   }
 
-  function drawBug(bug, pos=bug.pos, isTop, t=0) {
-    let {x, y} = hexToScreen(pos)
-
+  function drawBug(bug, pos, isTop, t=0) {
     let r = S/2
+
+    if (!pos) { // hand bug
+      pos = bug.pos
+      // r *= 1.25
+    }
+
+    let {x, y} = hexToScreen(pos)
 
     const highlighted = _target && _target.eq(bug.pos) && game.isClickable(_target) && isTop || game.selected === bug || bug.animation
     if (highlighted) {
@@ -503,7 +556,7 @@ export default function uiOf(game) {
       _ctx.font = `normal ${highlighted ? 50 : 40}px emoji-symbols`
       const w = _ctx.measureText(txt).width
       _ctx.fillStyle = bug.hue !== undefined ? `hsla(${bug.hue}, ${highlighted ? 60 : 40}%, 50%, 1)` : '#808080'
-      doRatoted(x, y, bug.shiver(t), () => {
+      doRatated(x, y, bug.shiver(t), () => {
         _ctx.fillText(txt, x-w/2, y+2)
       })
     }
@@ -592,8 +645,26 @@ export default function uiOf(game) {
 
     const s = S*SQRT3_2
     const r = s/3
-    x += s*2
-    _ctx.clearRect(x - r -4, y - r -4, r*2 + txtW+txtOfst+ 18, r*2 +8)
+
+
+    let angle = pos.r < 0 ? 60 : -60
+    if (!player.hand._hand[0]) {
+      angle /=2
+      if (!player.hand._hand[1]) {
+        angle = 0
+      }
+    }
+
+    {
+      const X = x - r -3
+      const Y = y - r -3
+      const W = r*2 +6 + (_showNames ? txtW+txtOfst+12 : 0)
+      const H = r*2 +6
+      doRatated(x, y, _showNames ? angle : 0, () => {
+        // _ctx.clearRect(X, Y, W, H)
+        _ctx.drawImage(_cacheCanvas, X, Y, W, H, X, Y, W, H)
+      })
+    }
 
     // rotating circle
     if (player === game.activePlayer()) {
@@ -619,6 +690,14 @@ export default function uiOf(game) {
       _ctx.lineWidth = 1
       // _ctx.stroke()
 
+    }
+
+
+    if (!_showNames) {
+      return
+    }
+
+    doRatated(x, y, angle, () => {
       x += txtOfst + r
       { // name label
         let r = s/2 - 12
@@ -639,14 +718,14 @@ export default function uiOf(game) {
         _ctx.fill()
         // _ctx.stroke()
       }
-    }
-    // name text:
-    {
-      _ctx.textBaseline = 'middle'
-      _ctx.font = 'bold 15px monospace'
-      _ctx.fillStyle = '#808080'
-      _ctx.fillText(name, x, y)
-    }
+      // name text:
+      {
+        _ctx.textBaseline = 'middle'
+        _ctx.font = 'bold 15px monospace'
+        _ctx.fillStyle = '#808080'
+        _ctx.fillText(name, x, y)
+      }
+    })
 
   }
 

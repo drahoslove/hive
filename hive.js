@@ -55,7 +55,7 @@ Cílem je zablokovat ze všech stran včelí královnu spoluhráče
 const canvas = document.getElementById('hiveCanvas')
 
 let AiInterval
-const game = new Game(5)
+const game = new Game(12)
 game.backButton = {
   label: '🠸',
   pos: new Hex(-6, 0),

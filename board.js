@@ -154,6 +154,64 @@ export class Space {
     )
   }
 
+  // moves bug closer to the center
+  centralize() {
+    const max = new Cube(-Infinity, -Infinity, -Infinity)
+    const min = new Cube(+Infinity, +Infinity, +Infinity)
+
+    this.each((tile, pos) => {
+      if (tile.length > 0) {
+        const cPos = pos.toCube()
+        'xyz'.split('').forEach(axis => {
+          if (cPos[axis] > max[axis]) {
+            max[axis] = cPos[axis]
+          }
+          if (cPos[axis] < min[axis]) {
+            min[axis] = cPos[axis]
+          }
+        })
+      }
+    })
+
+    const midpoint = max.add(min).scale(1/2).toHex()
+    this.midpoint = midpoint
+
+    if (midpoint.distance(new Hex(0,0)) <= 1) {
+      return
+    }
+
+    const _grid = this._grid
+    const _radius = this._radius
+    {
+      const len = _radius*2 + 1
+      this._grid = Array.from(Array(len), (_, i) =>
+        Array.from(Array(len - Math.abs(_radius-i)), (_, j) =>
+          [] // tile
+        )
+      )
+    }
+    const atOld = this.at.bind({ _grid, _radius })
+    const dir = midpoint.round() //(new Hex(0,0)).directionTo(midpoint)
+    this.each((tile, pos) => {
+      const oldTile = atOld(pos.add(dir)) || []
+      while (oldTile.length > 0) {
+        const bug = oldTile.shift()
+        bug.pos = bug.pos.sub(dir)
+        if (bug.animation) {
+          bug.animation.path.forEach((pos, i) => {
+            bug.animation.path[i] = pos.sub(dir)
+          })
+        }        
+        tile.push(bug)
+      }
+    })
+
+    this.animation = {
+      since: Date.now(),
+      dest: dir,
+    }
+  }
+
   // return tile of grid on given position or undefined if outside of grid
   at({q, r}) {
     if (Math.abs(q) <= this._radius && Math.abs(r) <= this._radius) {
@@ -211,8 +269,8 @@ export class Space {
       if(!path) {
         throw Error(`No path found for bug (${bug}) to get to tile (${tile}) at dest (${dest})`)
       }
-     
     }
+    this.centralize()
   }
 
   // positions of all occupied tiles
@@ -443,15 +501,16 @@ export class Hand {
   constructor(bugs, revert, offset=0) {
     this._hand = [...bugs]
     bugs.forEach((bug, i) => {
-      bug.pos = new Hex(
-       // -5 + i,
-       // -3 -(i-i%2)/2 - i%2,
-       +8 - i,
+      bug.pos = !revert
+      ? new Hex(
+       -1 + i,
        -7 + offset, 
       )
-      if (revert) {
-        bug.pos = bug.pos.revert()
-      }
+      : new Hex(
+       -8 + i,
+       +7 + offset, 
+      )
+
     })
   }
 
