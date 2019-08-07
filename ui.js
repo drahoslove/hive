@@ -52,19 +52,15 @@ export default function uiOf(game) {
       _ctx = setupCanvasHDPI(_canvas, CNW, CNH, { alpha: true })
 
       // prepare cached background
-      if (!_cacheCanvas
-        || _cacheCanvas.with !== _canvas.with
-        || _cacheCanvas.height !== _canvas.height
-      ) {
+      if (!_cacheCanvas) {
         _cacheCanvas = document.createElement('canvas') // _canvas.cloneNode()
         // game.space.each((tile, hex) => drawTile(tile, hex))
 
-        _cacheCanvas.with = _canvas.with
-        _cacheCanvas.height = _canvas.height
-        const ctx = setupCanvasHDPI(_cacheCanvas, CNW, CNH, { _willReadFrequently: true })
+        const ctx = setupCanvasHDPI(_cacheCanvas, CNW+S*2, CNH+S*SQRT3_2*2, { _willReadFrequently: true })
 
         // render background
         ctx.filter = "brightness(120%) contrast(20%) blur(2px)"
+        ctx.translate(+S, +S*SQRT3_2)
         game.space.each((tile, hex) => drawTile(tile, hex, ctx))
       }
 
@@ -342,7 +338,9 @@ export default function uiOf(game) {
 
   function drawBackground() {
     _ctx.clearRect(0, 0, CNW, CNH)
-    _ctx.drawImage(_cacheCanvas, 0, 0, CNW, CNH)
+    _ctx.drawImage(_cacheCanvas,
+      -S, -S*SQRT3_2, CNW+S*2, CNH+S*SQRT3_2*2,
+    )
   }
 
   function drawBackButton({pos, label, active}) {
@@ -662,7 +660,10 @@ export default function uiOf(game) {
       const H = r*2 +6
       doRatated(x, y, _showNames ? angle : 0, () => {
         // _ctx.clearRect(X, Y, W, H)
-        _ctx.drawImage(_cacheCanvas, X, Y, W, H, X, Y, W, H)
+        _ctx.drawImage(_cacheCanvas,
+          X+S, Y+S*SQRT3_2, W, H,
+          X, Y, W, H,
+        )
       })
     }
 
