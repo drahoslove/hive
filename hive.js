@@ -137,6 +137,9 @@ const autoMove = (players) => () => {
   // console.clear()
   // console.log(String(game.space))
   ui.touch()
+  if (game.state === 'end') {
+    clearInterval(AiInterval)
+  }
 }
 
 function AIvAI() {

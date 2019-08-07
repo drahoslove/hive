@@ -18,10 +18,16 @@ export default function uiOf(game) {
   const SQRT3_2 = Math.sqrt(3)/2
   const SQRT2_3 = Math.sqrt(2)/3
 
+  const FPS = 30
+  const skipFrame = {
+    60: 1,
+    30: 2,
+    10: 6,
+  }
+
   let _ctx
   let _canvas
   let _cacheCanvas
-  let _cacheCtx
   let _frames = 0
   let _target = null
   let _drawQue = new PriorityQueue()
@@ -39,16 +45,22 @@ export default function uiOf(game) {
       _canvas = canvas
       _ctx = setupCanvasHDPI(_canvas, CNW, CNH, { alpha: true })
 
-      _cacheCanvas = document.createElement('canvas') // _canvas.cloneNode()
-      // game.space.each((tile, hex) => drawTile(tile, hex))
+      // prepare cached background
+      if (!_cacheCanvas
+        || _cacheCanvas.with !== _canvas.with
+        || _cacheCanvas.height !== _canvas.height
+      ) {
+        _cacheCanvas = document.createElement('canvas') // _canvas.cloneNode()
+        // game.space.each((tile, hex) => drawTile(tile, hex))
 
-      _cacheCanvas.with = _canvas.with
-      _cacheCanvas.height = _canvas.height
-      _cacheCtx = setupCanvasHDPI(_cacheCanvas, CNW, CNH, { _willReadFrequently: true })
+        _cacheCanvas.with = _canvas.with
+        _cacheCanvas.height = _canvas.height
+        const ctx = setupCanvasHDPI(_cacheCanvas, CNW, CNH, { _willReadFrequently: true })
 
-      // prepare background
-      _cacheCtx.filter = "brightness(120%) contrast(20%) blur(2px)"
-      game.space.each((tile, hex) => drawTile(tile, hex, _cacheCtx))
+        // render background
+        ctx.filter = "brightness(120%) contrast(20%) blur(2px)"
+        game.space.each((tile, hex) => drawTile(tile, hex, ctx))
+      }
 
       canvas.addEventListener('mousemove', this.mouseMove)
       canvas.addEventListener('mousedown', this.mouseClick)
@@ -175,7 +187,7 @@ export default function uiOf(game) {
     }
 
     onFrame(t) {
-      if (_frames++ % 1 === 0) // 30fps
+      if (_frames++ % skipFrame[FPS] === 0)
         this.redraw(t)
       if (!this.stop)
         requestAnimationFrame(this.onFrame.bind(this))
@@ -200,9 +212,9 @@ export default function uiOf(game) {
         let someAnimating = false
         // bugs
         game.space.each((tile, hex) => {
-          someAnimating = drawBugsOftile(tile, hex) || someAnimating
+          someAnimating = drawBugsOftile(tile, hex, t) || someAnimating
         })
-        game.players.forEach(({hand}) => hand.each(b => drawBug(b, undefined, true)))
+        game.players.forEach(({hand}) => hand.each(b => drawBug(b, undefined, true, t)))
 
         if (someAnimating) {
           game.disableInput()
@@ -214,7 +226,9 @@ export default function uiOf(game) {
         if (game.selected) {
           drawOutline(game.selected.pos, HUE_CLICKABLE)
           game.landings.forEach(pos => {
-            drawOutline(pos, HUE_LANDING)
+            _drawQue.push(() => {
+              drawOutline(pos, HUE_LANDING)
+            })
           })
           _target && game.selected && (game.selected.pathTo(game.space, _target) || []).forEach((pos, i) => {
             i > 0 && _drawQue.push(() => drawDot(pos, HUE_LANDING), 3)
@@ -244,11 +258,13 @@ export default function uiOf(game) {
         }
       }
 
-      // render always:
-      let p1 = new Hex(-10, 5)
-      let p2 = p1.rotate(-1)
-      drawLoader(t, p1, game.players[0])
-      drawLoader(t, p2, game.players[1])
+      if (game.state !== 'end') {
+        // render always:
+        let p1 = new Hex(-10, 5)
+        let p2 = p1.rotate(-1)
+        drawLoader(t, p1, game.players[0])
+        drawLoader(t, p2, game.players[1])
+      }
 
       // call deffered drawing stuff
       while(_drawQue.len() > 0) {
@@ -424,7 +440,7 @@ export default function uiOf(game) {
     ctx.stroke()
   }
 
-  function drawBugsOftile(tile, hex) {
+  function drawBugsOftile(tile, hex, t) {
     let someAnimating = false
     const offset = new Hex(+0.0, -0.2)
     tile.forEach((bug, i) => {
@@ -453,7 +469,7 @@ export default function uiOf(game) {
         }
       }
 
-      const draw = () => drawBug(bug, drawPos, isTop)
+      const draw = () => drawBug(bug, drawPos, isTop, t)
 
       const isMoving = Boolean(bug.animation)
       let prio = 0 + // most bugs are grounded
@@ -466,7 +482,7 @@ export default function uiOf(game) {
     return someAnimating
   }
 
-  function drawBug(bug, pos=bug.pos, isTop) {
+  function drawBug(bug, pos=bug.pos, isTop, t=0) {
     let {x, y} = hexToScreen(pos)
 
     let r = S/2
@@ -487,7 +503,7 @@ export default function uiOf(game) {
       _ctx.font = `normal ${highlighted ? 50 : 40}px emoji-symbols`
       const w = _ctx.measureText(txt).width
       _ctx.fillStyle = bug.hue !== undefined ? `hsla(${bug.hue}, ${highlighted ? 60 : 40}%, 50%, 1)` : '#808080'
-      doRatoted(x, y, bug.shiver(), () => {
+      doRatoted(x, y, bug.shiver(t), () => {
         _ctx.fillText(txt, x-w/2, y+2)
       })
     }
@@ -540,7 +556,7 @@ export default function uiOf(game) {
     }
     let r = S/2
 
-    const dimm = hue === HUE_CLICKABLE && game.selected && !game.selected.pos.eq(pos.round())
+    const dimm =  hue === HUE_CLICKABLE && game.selected && !game.selected.pos.eq(pos.round())
 
     if (
       _target && pos.round().eq(_target) && game.isClickable(_target) || // hover

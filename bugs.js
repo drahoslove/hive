@@ -13,9 +13,14 @@ export class Bug {
     this.angle = 7-rand(15)
     this.moveShiver = 10
     this.stillShiver = 1
+    this.willShiver = (t) => (t-this.timeshift)%1000 < 500
+    this.timeshift = rand(10000)
   }
-  shiver(d=3) { // randomly change angle +-3 degree
-    return this.angle += (d-rand(d*2+1)) * (this.animation ? this.moveShiver : this.stillShiver)
+  shiver(t) { // randomly change angle +-3 degree
+    const d = 3
+    return !this.willShiver(t) && !this.animation
+      ? this.angle
+      : this.angle += (d-rand(d*2+1)) * (this.animation ? this.moveShiver : this.stillShiver)
   }
   toString() {
     return `${this.color} ${this.name}: ${this.pos}`
@@ -63,8 +68,9 @@ export class Queen extends Bug {
     this.speed = 0.6
     this.symbol = '🐝'
     this.hue = 40
-    this.stillShiver = 3
+    this.stillShiver = 4
     this.moveShiver = 15
+    this.willShiver = (t) => (t-this.timeshift)%1100 > 100
   }
   canGo(hex, space) {
     return space.posOfWays(this.pos).find(pos => pos.eq(hex))
@@ -114,7 +120,8 @@ export class Grasshopper extends Bug {
     this.symbol = '🦗'
     this.hue = 160
     this.moveShiver = 0
-    this.stillShiver = 1
+    this.stillShiver = 2
+    this.willShiver = (t) => (t-this.timeshift)%1900 < 600
   }
 
   pathTo(space, dest) {
@@ -149,7 +156,8 @@ export class Spider extends Bug {
     this.speed = 1.2
     this.symbol = '🕷️'
     this.hue = 220
-    this.stillShiver = 0 
+    this.stillShiver = 15
+    this.willShiver = (t) => (t-this.timeshift)%12000 < 350
   }
 
   pathTo(space, dest) {
