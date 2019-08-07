@@ -154,3 +154,6 @@ function vAI() {
   AiInterval = setInterval(autoMove([1]), 800)
 }
 
+setTimeout(() => {
+  // ui.downloadBackground()
+}, 3000)

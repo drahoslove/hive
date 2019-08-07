@@ -32,7 +32,7 @@ export default function uiOf(game) {
 
   let _ctx
   let _canvas
-  let _cacheCanvas
+  let _cachedBackground
   let _frames = 0
   let _target = null
   let _drawQue = new PriorityQueue()
@@ -52,16 +52,21 @@ export default function uiOf(game) {
       _ctx = setupCanvasHDPI(_canvas, CNW, CNH, { alpha: true })
 
       // prepare cached background
-      if (!_cacheCanvas) {
-        _cacheCanvas = document.createElement('canvas') // _canvas.cloneNode()
-        // game.space.each((tile, hex) => drawTile(tile, hex))
+      if (!_cachedBackground) {
+        _cachedBackground = document.createElement('img')
+        _cachedBackground.src = 'background.png'
+        _cachedBackground.onload = (e) => {
+          _invalidated = true
+        }
+        _cachedBackground.onerror = (e) => { // image does not exist - generate background
+          _cachedBackground = document.createElement('canvas')
+          const ctx = setupCanvasHDPI(_cachedBackground, CNW+S*2, CNH+S*SQRT3_2*2, { _willReadFrequently: true })
 
-        const ctx = setupCanvasHDPI(_cacheCanvas, CNW+S*2, CNH+S*SQRT3_2*2, { _willReadFrequently: true })
-
-        // render background
-        ctx.filter = "brightness(120%) contrast(20%) blur(2px)"
-        ctx.translate(+S, +S*SQRT3_2)
-        game.space.each((tile, hex) => drawTile(tile, hex, ctx))
+          // render background
+          ctx.filter = "brightness(120%) contrast(20%) blur(2px)"
+          ctx.translate(+S, +S*SQRT3_2)
+          game.space.each((tile, hex) => drawTile(tile, hex, ctx))
+        }
       }
 
       canvas.addEventListener('mousemove', this.mouseMove)
@@ -337,6 +342,14 @@ export default function uiOf(game) {
         drawLoader(t, loaderPos[1], game.players[1])
       }
     }
+    
+    downloadBackground() {
+      const link = document.createElement('a')
+      link.download = 'background.png'
+      link.href = _cachedBackground.url || _cachedBackground.toDataURL("image/png")
+      link.click()
+    }
+
   }
 
   // canvas related functions
@@ -360,7 +373,7 @@ export default function uiOf(game) {
 
   function drawBackground() {
     _ctx.clearRect(0, 0, CNW, CNH)
-    _ctx.drawImage(_cacheCanvas,
+    _ctx.drawImage(_cachedBackground,
       -S, -S*SQRT3_2, CNW+S*2, CNH+S*SQRT3_2*2,
     )
   }
@@ -682,7 +695,7 @@ export default function uiOf(game) {
       const H = r*2 +6
       doRatated(x, y, _showNames ? angle : 0, () => {
         // _ctx.clearRect(X, Y, W, H)
-        _ctx.drawImage(_cacheCanvas,
+        _ctx.drawImage(_cachedBackground,
           X+S, Y+S*SQRT3_2, W, H,
           X, Y, W, H,
         )
