@@ -145,7 +145,7 @@ const autoMove = (players) => () => {
 function AIvAI() {
   ui.hideMenu()
   ui.disableInputFor([0,1])
-  AiInterval = setInterval(autoMove([0, 1]), 250)
+  AiInterval = setInterval(autoMove([0, 1]), 50)
 }
 
 function vAI() {

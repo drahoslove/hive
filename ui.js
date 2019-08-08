@@ -9,6 +9,7 @@ export const hsl = (hue) => (sat) => (lig) => `hsl(${hue}, ${sat}%, ${lig}%)`;
 // returns new Ui class for given space
 export default function uiOf(game) {
   const S = 64 // size of stone from point to point
+  const Sf = S/16
   const CNW = 685
   const CNH = 685 + 67
 
@@ -42,6 +43,8 @@ export default function uiOf(game) {
   let _showNames = false
   let _disabledPlayers = []
 
+  let _zoom = 1 
+
   let _beeRot = 0
 
   return new class Ui {
@@ -71,6 +74,7 @@ export default function uiOf(game) {
 
       canvas.addEventListener('mousemove', this.mouseMove)
       canvas.addEventListener('mousedown', this.mouseClick)
+      canvas.addEventListener('mousewheel', this.mouseWheel)
       document.addEventListener('keypress', this.keyPress)
       _invalidated = true
       this.startRenderLoop()
@@ -82,6 +86,7 @@ export default function uiOf(game) {
       canvas = canvas || _canvas
       canvas.removeEventListener('mousemove', this.mouseMove)
       canvas.removeEventListener('mousedown', this.mouseClick)
+      canvas.removeEventListener('mousewheel', this.mouseWheel)
       document.removeEventListener('keypress', this.keyPress)
       return this
     }
@@ -108,6 +113,25 @@ export default function uiOf(game) {
       _invalidated = true
     }
 
+    mouseWheel(event) {
+      if (!event.shiftKey) {
+        return
+      }
+      if (event.deltaY < 0) {
+        _zoom *= Math.SQRT2
+      } else {
+        _zoom /= Math.SQRT2
+      }
+      if (_zoom > 2) {
+        _zoom = 2
+      }
+      if (_zoom < .5) {
+        _zoom = .5
+      }
+      console.log('zoom', _zoom)
+      _invalidated = true
+    }
+
     mouseClick(event) {
       if (_showMenu) {
         game.menu.forEach(({pos, action}, i) => {
@@ -122,6 +146,7 @@ export default function uiOf(game) {
       if (_disabledPlayers.includes(game._activePlayerIndex)) {
         return
       }
+      game.onClick(guiEventToHex(event)) ||
       game.onClick(eventToHex(event))
       _invalidated = true
     }
@@ -138,7 +163,7 @@ export default function uiOf(game) {
         return
       }
 
-      if (_showNames = loaderPos.some(pos => pos.eq(eventToHex(event)))) {
+      if (_showNames = loaderPos.some(pos => pos.eq(guiEventToHex(event)))) {
         _invalidated = true
         return
       }
@@ -149,12 +174,15 @@ export default function uiOf(game) {
       }
 
       let target = eventToHex(event)
+      let handTarget = guiEventToHex(event)
       if (_disabledPlayers.includes(game._activePlayerIndex)) {
         return
       }
-      if (game.isClickable(target)) {
+      if (game.isClickable(handTarget)) {
         _canvas.style.cursor = 'pointer'
-        // store last hovered tile pos
+        _target = handTarget
+      } else if (game.isClickable(target)) {
+        _canvas.style.cursor = 'pointer'
         _target = target
       } else {
         _canvas.style.cursor = 'default'
@@ -239,6 +267,10 @@ export default function uiOf(game) {
           }
         }
 
+        _ctx.translate((CNW-CNW*_zoom)/2, (CNH-CNH*_zoom)/2)
+        _ctx.scale(_zoom, _zoom)
+
+
         _ctx.translate(offsetX, offsetY)
 
         // background
@@ -319,6 +351,9 @@ export default function uiOf(game) {
 
         _ctx.translate(-offsetX, -offsetY)
 
+        _ctx.scale(1/_zoom, 1/_zoom)
+        _ctx.translate(-(CNW-CNW*_zoom)/2, -(CNH-CNH*_zoom)/2)
+
       
         // DRAW GUI
         game.players.forEach(({hand}) => hand.each(b => drawBug(b, undefined, true, t)))
@@ -372,7 +407,7 @@ export default function uiOf(game) {
   }
 
   function drawBackground() {
-    _ctx.clearRect(0, 0, CNW, CNH)
+    _ctx.clearRect(-CNW, -CNH, CNW*3, CNH*3)
     _ctx.drawImage(_cachedBackground,
       -S, -S*SQRT3_2, CNW+S*2, CNH+S*SQRT3_2*2,
     )
@@ -392,7 +427,7 @@ export default function uiOf(game) {
     _ctx.lineJoin = 'round'
     _ctx.stroke()
     // text
-    _ctx.font = 'normal bold 36px emoji-symbols'
+    _ctx.font = `normal bold ${Sf*9}px emoji-symbols`
     const w = _ctx.measureText(label).width
     _ctx.fillStyle = bkg(80)
     _ctx.fillText(uncolorEmoji(label), x-8+.5, y+4+.5)
@@ -422,7 +457,7 @@ export default function uiOf(game) {
       _ctx.stroke()
 
       // label icons
-      _ctx.font = 'normal bold 36px emoji-symbols'
+      _ctx.font = `normal bold ${Sf*9}px emoji-symbols`
       const w = _ctx.measureText(label).width
       _ctx.fillStyle = bkg(80)
       _ctx.fillText(uncolorEmoji(label), x-w/2+.5, y+12+.5)
@@ -432,7 +467,7 @@ export default function uiOf(game) {
       _ctx.fillText(uncolorEmoji(label), x-w/2, y+12)
 
       if (active) {
-        _ctx.font = 'normal 20px monospace'
+        _ctx.font = `normal ${Sf*5}px monospace`
         const w = _ctx.measureText(title).width
         const {x, y} = hexToScreen(new Hex(0, 0))
         _ctx.filter = 'none'
@@ -452,7 +487,7 @@ export default function uiOf(game) {
 
       doRatated(x, y, _beeRot, (xo, yo) => {
         const clr = hsl(bee.hue)(0)
-        _ctx.font = 'normal 75px emoji-symbols'
+        _ctx.font = `normal ${Sf*20}px emoji-symbols`
         // _ctx.fillStyle = clr(40)
         // _ctx.fillText(bee.symbol, x-w+.5*xo, y+25+.5*yo)
         // _ctx.fillStyle = clr(80)
@@ -499,6 +534,10 @@ export default function uiOf(game) {
   }
 
   function eventToHex({offsetX: x, offsetY: y}) {
+    return screenToHex({x, y}).scale(1/_zoom).round()
+  }
+
+  function guiEventToHex({offsetX: x, offsetY: y}) {
     return screenToHex({x, y}).round()
   }
 
@@ -586,7 +625,7 @@ export default function uiOf(game) {
     { // text
       const txt = bug.symbol
       _ctx.textBaseline = 'middle'
-      _ctx.font = `normal ${highlighted ? 50 : 40}px emoji-symbols`
+      _ctx.font = `normal ${Sf * (highlighted ? 12.5 : 10)}px emoji-symbols`
       const w = _ctx.measureText(txt).width
       _ctx.fillStyle = bug.hue !== undefined ? `hsla(${bug.hue}, ${highlighted ? 60 : 40}%, 50%, 1)` : '#808080'
       doRatated(x, y, bug.shiver(t), () => {
@@ -671,7 +710,7 @@ export default function uiOf(game) {
        ? player.name
        : player.name.substr(0, txtLim-1) + '…'
 
-    _ctx.font = 'normal 16px monospace'
+    _ctx.font = `normal ${Sf*4}px monospace`
 
     const txtW = _ctx.measureText(name).width
     const txtOfst = 8
@@ -757,7 +796,7 @@ export default function uiOf(game) {
       // name text:
       {
         _ctx.textBaseline = 'middle'
-        _ctx.font = 'bold 15px monospace'
+        _ctx.font = `bold ${Sf*4}px monospace`
         _ctx.fillStyle = '#808080'
         _ctx.fillText(name, x, y)
       }

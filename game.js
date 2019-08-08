@@ -46,7 +46,7 @@ export default class Game {
     if (this.selected && this.landings.some(x => x.eq(hex))) {
       this.play(hex)
     } else {
-      this.trySelect(hex)
+      return this.trySelect(hex)
     }
     // console.clear()
     // console.log(String(game.space))
@@ -89,11 +89,11 @@ export default class Game {
     // hand?
     if (bug = this.activePlayer().hand.findBug(bug => bug.pos.eq(hex))) {
       if (this.hasToPlaceQueenNow() && bug.name !== 'Queen') {
-        return
+        return false
       }
       this.landings = this.space.possibleLandings(bug)
       this.selected = bug
-      return
+      return true
     }
 
     // tile?
@@ -112,7 +112,7 @@ export default class Game {
       if (!this.isQueenPlaced()) {
         bug = null
         console.error('cant move - qeen not placed yet')
-      }  else
+      } else
       if (bug) {
         // select own
         this.landings = bug.reachablePlaces(this.space) // TODO
@@ -120,6 +120,9 @@ export default class Game {
     }
 
     this.selected = bug
+    if (bug) {
+      return true
+    }
   }
 
   // place or move selected bug
