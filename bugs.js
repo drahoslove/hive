@@ -52,7 +52,7 @@ export class Bug {
     }
 
     this.animation = {
-      since: Date.now(),
+      since: performance.now(),
       path,
       ms,
       ease,

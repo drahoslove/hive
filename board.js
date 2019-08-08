@@ -207,7 +207,7 @@ export class Space {
     })
 
     this.animation = {
-      since: Date.now(),
+      since: performance.now(),
       dest: dir,
     }
   }

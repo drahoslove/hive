@@ -225,7 +225,7 @@ export default function uiOf(game) {
         if (game.space.animation) {
           const { dest, since } = game.space.animation
           const duration = 400
-          const sofar = Date.now() - since
+          const sofar = performance.now() - since
 
           const progress = sofar / duration
           const {x, y} = hexToScreen(dest.scale(1-progress))
@@ -530,7 +530,7 @@ export default function uiOf(game) {
 
       if (bug.animation) { // drawing
         const  { ms, path, since, ease } = bug.animation
-        const sofar = Date.now() - since
+        const sofar = performance.now() - since
         const jumps = path.length-1
         const duration = ms*jumps * 1
 
