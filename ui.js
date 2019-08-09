@@ -10,8 +10,8 @@ export const hsl = (hue) => (sat) => (lig) => `hsl(${hue}, ${sat}%, ${lig}%)`;
 export default function uiOf(game) {
   const S = 64 // size of stone from point to point
   const Sf = S/16
-  const CNW = 685
-  const CNH = 685 + 67
+  let CNW = 685
+  let CNH = 685 + 67
 
   const HUE_CLICKABLE = 150
   const HUE_LANDING = HUE_CLICKABLE + 35
@@ -52,6 +52,8 @@ export default function uiOf(game) {
     }
     on(canvas) {
       _canvas = canvas
+      CNW = window.innerWidth
+      CNH = window.innerHeight
       _ctx = setupCanvasHDPI(_canvas, CNW, CNH, { alpha: true })
 
       // prepare cached background
@@ -66,9 +68,12 @@ export default function uiOf(game) {
           const ctx = setupCanvasHDPI(_cachedBackground, CNW+S*2, CNH+S*SQRT3_2*2, { _willReadFrequently: true })
 
           // render background
-          ctx.filter = "brightness(120%) contrast(20%) blur(2px)"
+          ctx.filter = "brightness(110%) contrast(30%) blur(2px)"
           ctx.translate(+S, +S*SQRT3_2)
           game.space.each((tile, hex) => drawTile(tile, hex, ctx))
+          setTimeout(() => {
+            this.downloadBackground()
+          }, 0)
         }
       }
 
@@ -76,6 +81,7 @@ export default function uiOf(game) {
       canvas.addEventListener('mousedown', this.mouseClick)
       canvas.addEventListener('mousewheel', this.mouseWheel)
       document.addEventListener('keypress', this.keyPress)
+      window.addEventListener('resize', this.resize)
       _invalidated = true
       this.startRenderLoop()
       return this
@@ -88,6 +94,7 @@ export default function uiOf(game) {
       canvas.removeEventListener('mousedown', this.mouseClick)
       canvas.removeEventListener('mousewheel', this.mouseWheel)
       document.removeEventListener('keypress', this.keyPress)
+      window.removeEventListener('resize', this.resize)
       return this
     }
 
@@ -111,6 +118,12 @@ export default function uiOf(game) {
 
     touch() {
       _invalidated = true
+    }
+
+    resize(event) {
+      CNW = window.innerWidth
+      CNH = window.innerHeight
+      _ctx = setupCanvasHDPI(_canvas, CNW, CNH, { alpha: true })
     }
 
     mouseWheel(event) {
@@ -407,8 +420,10 @@ export default function uiOf(game) {
   }
 
   function drawBackground() {
+    const { width, height } = _cachedBackground
     _ctx.clearRect(-CNW, -CNH, CNW*3, CNH*3)
     _ctx.drawImage(_cachedBackground,
+      (width-CNW)/2-S, (height-CNH)/2-S*SQRT3_2, CNW+2*S, CNH+2*S*SQRT3_2,
       -S, -S*SQRT3_2, CNW+S*2, CNH+S*SQRT3_2*2,
     )
   }
@@ -551,9 +566,9 @@ export default function uiOf(game) {
 
     const delta = hex.distance(new Hex(0,0))
     const cube = hex.toCube()
-    const [r,g,b] = [cube.x * 35, cube.z * 35, cube.y * 35]
+    const [r,g,b] = 'xzy'.split('').map(axis => Math.abs(cube[axis] * 20 + 150))
 
-    ctx.strokeStyle = ctx.fillStyle = `rgba(${r},${g},${b},${0.2 + 0.1*delta})`
+    ctx.strokeStyle = ctx.fillStyle = `rgba(${r},${g},${b},${0.2 + 0.08*delta})`
     ctx.lineWidth = 2
     hexPath(ctx, x, y, S/2)
     ctx.fill()

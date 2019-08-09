@@ -13,26 +13,17 @@
     url("Symbola.ttf") format("truetype");
 }
 body, html {
-  /* height: 100%; */
-  /* margin: 0; */
-  font-family: emoji-symbols;
+  margin: 0; 
+  font-family: emoji-symbols; 
   display: flex;
 }
 body {
+  position: relative;
   background: #111 url(./noise.png);
-  /* display: flex; */
-  /* flex-direction: column; */
-  /* justify-content: center; */
-  /* align-items: center; */
-  margin: auto;
   transition: background .5s ease-in-out;
 }
 body.dark {
   background-color: #808080f0;
-}
-.box {
-  max-width: 1024px;
-  position: relative;
 }
 canvas {
   display: block;
@@ -57,17 +48,21 @@ canvas {
   color: #888;
   z-index: -1;
 }
+@media only screen and (min-width: 600px) {
+  #loader {
+    width: 100vw;
+    height: 100vh;
+  }
+}
 </style>
 </head>
 <body>
-  <div class="box">
-    <div class="emoji">
-      🐜🕷️🦗🐞🐝👤🔗🌐👽💻🖳🖥🤖
-    </div>
-    <canvas id="hiveCanvas" width="685" height="auto">
-    </canvas>
-    <div id="loader">🕛</div>
+  <div class="emoji">
+    🐜🕷️🦗🐞🐝👤🔗🌐👽💻🖳🖥🤖
   </div>
+  <canvas id="hiveCanvas" width="685" height="auto">
+  </canvas>
+  <div id="loader">🕛</div>
   <script type="module" src="hive.js"></script>
   <script nomodule src="hive-bundle.js"></script>
 </body>
