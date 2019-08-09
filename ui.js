@@ -125,8 +125,8 @@ export default function uiOf(game) {
       CNH = window.innerHeight
       _ctx = setupCanvasHDPI(_canvas, CNW, CNH, { alpha: true })
       loaderPos = [
-        screenToHex({x: S*SQRT2_3, y: CNH-S/2/SQRT3_2}),
-        screenToHex({x: S*SQRT2_3, y: S/2/SQRT3_2}),
+        screenToHex({x: S*SQRT2_3+8, y: CNH-(S/2/SQRT3_2+4)}),
+        screenToHex({x: S*SQRT2_3+8, y: S/2/SQRT3_2+4}),
       ]
       backButtonPos = screenToHex({x: 0, y: CNH/2})
       _invalidated = true
