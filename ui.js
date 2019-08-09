@@ -19,10 +19,11 @@ export default function uiOf(game) {
   const SQRT3_2 = Math.sqrt(3)/2
   const SQRT2_3 = Math.sqrt(2)/3
 
-  const loaderPos = [
+  let loaderPos = [
     new Hex(-9, 7),
     new Hex(-2, -7),
   ]
+  let backButtonPos = new Hex(-6, 0)
 
   const FPS = 60
   const skipFrame = {
@@ -52,8 +53,7 @@ export default function uiOf(game) {
     }
     on(canvas) {
       _canvas = canvas
-      CNW = window.innerWidth
-      CNH = window.innerHeight
+      this.resize()
       _ctx = setupCanvasHDPI(_canvas, CNW, CNH, { alpha: true })
 
       // prepare cached background
@@ -124,6 +124,12 @@ export default function uiOf(game) {
       CNW = window.innerWidth
       CNH = window.innerHeight
       _ctx = setupCanvasHDPI(_canvas, CNW, CNH, { alpha: true })
+      loaderPos = [
+        screenToHex({x: S*SQRT2_3, y: CNH-S/2/SQRT3_2}),
+        screenToHex({x: S*SQRT2_3, y: S/2/SQRT3_2}),
+      ]
+      backButtonPos = screenToHex({x: 0, y: CNH/2})
+      _invalidated = true
     }
 
     mouseWheel(event) {
@@ -153,7 +159,7 @@ export default function uiOf(game) {
         return
       }
       game.backButton.action
-        && eventToHexExact(event).distance(game.backButton.pos) <= .5
+        && eventToHexExact(event).distance(game.backButton.pos||backButtonPos) <= .75
         && game.backButton.action()
 
       if (_disabledPlayers.includes(game._activePlayerIndex)) {
@@ -176,11 +182,11 @@ export default function uiOf(game) {
         return
       }
 
-      if (_showNames = loaderPos.some(pos => pos.eq(guiEventToHex(event)))) {
+      if (_showNames = loaderPos.some(pos => eventToHexExact(event).distance(pos) <= .4)) {
         _invalidated = true
         return
       }
-      if (game.backButton.active = eventToHexExact(event).distance(game.backButton.pos) <= .5) {
+      if (game.backButton.active = eventToHexExact(event).distance(game.backButton.pos||backButtonPos) <= .75) {
         _canvas.style.cursor = 'pointer'
         _invalidated = true
         return 
@@ -428,14 +434,15 @@ export default function uiOf(game) {
     )
   }
 
-  function drawBackButton({pos, label, active}) {
+  function drawBackButton({pos=backButtonPos, label, active}) {
+    const r = S/1.5
     const textColor = '#6669'
     const base = hsl(-10)
     const bkg = base(active ? 65 : 0)
     const {x, y} = hexToScreen(pos)
-    drawStone(x, y, S/2, bkg(50), [bkg(80), bkg(20)])
+    drawStone(x, y, r, bkg(50), [bkg(80), bkg(20)])
     //outline
-    hexPath(_ctx, x, y, S/2-1)
+    hexPath(_ctx, 0, y, r-1)
     _ctx.strokeStyle = bkg(40)
     _ctx.lineWidth = 2
     _ctx.lineCap = 'round'
@@ -445,11 +452,11 @@ export default function uiOf(game) {
     _ctx.font = `normal bold ${Sf*9}px emoji-symbols`
     const w = _ctx.measureText(label).width
     _ctx.fillStyle = bkg(80)
-    _ctx.fillText(uncolorEmoji(label), x-8+.5, y+4+.5)
+    _ctx.fillText(uncolorEmoji(label), r/3-w/2+.5, y+4+.5)
     _ctx.fillStyle = bkg(20)
-    _ctx.fillText(uncolorEmoji(label), x-8-.5, y+4-.5)
+    _ctx.fillText(uncolorEmoji(label), r/3-w/2-.5, y+4-.5)
     _ctx.fillStyle = textColor
-    _ctx.fillText(uncolorEmoji(label), x-8,    y+4   )
+    _ctx.fillText(uncolorEmoji(label), r/3-w/2,    y+4   )
   }
 
   function drawMenu() {
@@ -716,6 +723,7 @@ export default function uiOf(game) {
 
   function drawLoader(t, pos, player) {
     t /= 2000
+    const showNames = _showNames || CNW > 900
     const a = (t%1 * Math.PI*4) - Math.PI/2
     const b = (t/2%1 * Math.PI*4) - Math.PI/2
     let {x, y} = hexToScreen(pos)
@@ -733,27 +741,17 @@ export default function uiOf(game) {
     const s = S*SQRT3_2
     const r = s/3
 
-
-    let angle = pos.r < 0 ? 60 : -60
-    if (!player.hand._hand[0]) {
-      angle /=2
-      if (!player.hand._hand[1]) {
-        angle = 0
-      }
-    }
-
     {
-      const X = x - r -3
-      const Y = y - r -3
-      const W = r*2 +6 + (_showNames ? txtW+txtOfst+12 : 0)
-      const H = r*2 +6
-      doRatated(x, y, _showNames ? angle : 0, () => {
-        // _ctx.clearRect(X, Y, W, H)
-        _ctx.drawImage(_cachedBackground,
-          X+S, Y+S*SQRT3_2, W, H,
-          X, Y, W, H,
-        )
-      })
+      const X = x - r -4
+      const Y = y - r -4
+      const W = r*2 +8 + (showNames ? txtW+txtOfst+12 : 0)
+      const H = r*2 +8
+      _ctx.clearRect(X, Y, W, H)
+      const { width, height } = _cachedBackground
+      _ctx.drawImage(_cachedBackground,
+        Math.round((width-CNW)/2+X)-1, Math.round((height-CNH)/2+Y)-1, W+1, H+1,
+        X-.5, Y-.5, W+1, H+1,
+      )
     }
 
     // rotating circle
@@ -782,40 +780,37 @@ export default function uiOf(game) {
 
     }
 
-
-    if (!_showNames) {
+    if (!showNames) {
       return
     }
 
-    doRatated(x, y, angle, () => {
-      x += txtOfst + r
-      { // name label
-        let r = s/2 - 12
-        _ctx.beginPath()
-        // _ctx.moveTo(x, y-r)
-        _ctx.lineTo(x+txtW, y-r)
-        _ctx.lineTo(x+SQRT3_2*r+txtW, y - SQRT2_3 * r)
-        // _ctx.lineTo(x+SQRT3_2*r+txtW-r/2, y                )
-        _ctx.lineTo(x+SQRT3_2*r+txtW, y + SQRT2_3 * r)
-        _ctx.lineTo(x+txtW, y+r)
-        // _ctx.lineTo(x, y+r)
-        _ctx.lineTo(x-SQRT3_2*r,  y + SQRT2_3 * r*1.5)
-        _ctx.lineTo(x-SQRT3_2*r,  y - SQRT2_3 * r*1.5)
-        _ctx.closePath()
-        _ctx.fillStyle = player.color
-        // _ctx.fillStyle = '#808080'
-        _ctx.lineCap = 'round'
-        _ctx.fill()
-        // _ctx.stroke()
-      }
-      // name text:
-      {
-        _ctx.textBaseline = 'middle'
-        _ctx.font = `bold ${Sf*4}px monospace`
-        _ctx.fillStyle = '#808080'
-        _ctx.fillText(name, x, y)
-      }
-    })
+    x += txtOfst + r
+    { // name label
+      let r = s/2 - 12
+      _ctx.beginPath()
+      // _ctx.moveTo(x, y-r)
+      _ctx.lineTo(x+txtW, y-r)
+      _ctx.lineTo(x+SQRT3_2*r+txtW, y - SQRT2_3 * r)
+      // _ctx.lineTo(x+SQRT3_2*r+txtW-r/2, y                )
+      _ctx.lineTo(x+SQRT3_2*r+txtW, y + SQRT2_3 * r)
+      _ctx.lineTo(x+txtW, y+r)
+      // _ctx.lineTo(x, y+r)
+      _ctx.lineTo(x-SQRT3_2*r,  y + SQRT2_3 * r*1.5)
+      _ctx.lineTo(x-SQRT3_2*r,  y - SQRT2_3 * r*1.5)
+      _ctx.closePath()
+      _ctx.fillStyle = player.color
+      // _ctx.fillStyle = '#808080'
+      _ctx.lineCap = 'round'
+      _ctx.fill()
+      // _ctx.stroke()
+    }
+    // name text:
+    {
+      _ctx.textBaseline = 'middle'
+      _ctx.font = `bold ${Sf*4}px monospace`
+      _ctx.fillStyle = '#808080'
+      _ctx.fillText(name, x, y)
+    }
 
   }
 

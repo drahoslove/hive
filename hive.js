@@ -58,7 +58,6 @@ let AiInterval
 const game = new Game(12)
 game.backButton = {
   label: '🠸',
-  pos: new Hex(-6, 0),
   action: () => {
     clearInterval(AiInterval)
     ui.showMenu()
