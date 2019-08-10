@@ -129,7 +129,10 @@ export default function uiOf(game) {
       loaderPos = [
         screenToHex({x: S*SQRT2_3+8, y: CNH-(S/2/SQRT3_2+4)}),
         screenToHex({x: S*SQRT2_3+8, y: S/2/SQRT3_2+4}),
+        // screenToHex({x: S*SQRT2_3+8, y: CNH-(S+24)}),
+        // screenToHex({x: S*SQRT2_3+8, y: S+24}),
       ]
+      console.log('lp', loaderPos)
       backButtonPos = screenToHex({x: 0, y: CNH/2})
       game.players.forEach(({hand}) => {
         hand.each((bug, i) => {
@@ -383,7 +386,7 @@ export default function uiOf(game) {
 
         // end
         _invalidated = someAnimating || false
-        if (!_invalidated && !this._oneMoreFrame) {
+        if (!_invalidated && !this._oneMoreFrame || _showNames) {
           this._oneMoreFrame = true
         } else {
           this._oneMoreFrame = false
@@ -479,14 +482,14 @@ export default function uiOf(game) {
     return zoom
   }
 
-  function drawBackground() {
+  function drawBackground(noclear) {
     const { width, height } = _cachedBackground
     const z = _showMenu ? 1 : getAnimatedZoomLLevel()
     const OX = S
     const OY = S*SQRT3_2
     const SX = (CNW-CNW/z)/2
     const SY = (CNH-CNH/z)/2
-    _ctx.clearRect(-CNW, -CNH, +CNW*3, +CNH*3)
+    noclear || _ctx.clearRect(-CNW, -CNH, +CNW*3, +CNH*3)
     _ctx.drawImage(_cachedBackground,
       // some magic here
       (width-CNW)/2/z-OX+SX*(width/CNW), (height-CNH)/2/z-OY+SY*(height/CNH), CNW/z+OX*2, CNH/z+OY*2, // src
@@ -806,12 +809,20 @@ export default function uiOf(game) {
       const Y = y - r -4
       const W = r*2 +8 + (showNames ? txtW+txtOfst+12 : 0)
       const H = r*2 +8
+      // clip to arc
+      _ctx.save()
+      _ctx.beginPath()
+      _ctx.arc(x, y, r+5, 0, 2*Math.PI)
+      _ctx.closePath()
+      _ctx.clip()
       _ctx.clearRect(X, Y, W, H)
-      const { width, height } = _cachedBackground
-      _ctx.drawImage(_cachedBackground,
-        Math.round((width-CNW)/2+X)-1, Math.round((height-CNH)/2+Y)-1, W+1, H+1,
-        X-.5, Y-.5, W+1, H+1,
-      )
+      drawBackground(true)
+      // const { width, height } = _cachedBackground
+      // _ctx.drawImage(_cachedBackground,
+      //   Math.round((width-CNW)/2+X)-1, Math.round((height-CNH)/2+Y)-1, W+1, H+1,
+      //   X-.5, Y-.5, W+1, H+1,
+      // )
+      _ctx.restore()
     }
 
     // rotating circle
@@ -858,10 +869,14 @@ export default function uiOf(game) {
       _ctx.lineTo(x-SQRT3_2*r,  y + SQRT2_3 * r*1.5)
       _ctx.lineTo(x-SQRT3_2*r,  y - SQRT2_3 * r*1.5)
       _ctx.closePath()
+      _ctx.save()
+      _ctx.clip()
+      drawBackground(true)
       _ctx.fillStyle = player.color
       // _ctx.fillStyle = '#808080'
       _ctx.lineCap = 'round'
       _ctx.fill()
+      _ctx.restore()
       // _ctx.stroke()
     }
     // name text:
