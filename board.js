@@ -252,7 +252,7 @@ export class Space {
       let path = bug.pathTo(this, dest)
       tile.push(bug)
       const oldTile = this.at(bug.pos)
-      if (oldTile && oldTile.length) { // moving
+      if (bug.placed) { // mopving
         const b = oldTile.pop()
         if (b !== bug) {
           oldTile.push(b)
@@ -261,6 +261,7 @@ export class Space {
         // movement speed
         bug.go(path, "move")
       } else { // placing
+        bug.placed = true
         path = [bug.pos, dest]
         bug.go(path, "land")
         this._stones++
@@ -514,13 +515,9 @@ export class Hand {
     })
   }
 
-  findBug(check) {
-    return this._hand.filter(Boolean).find(check)
-  }
-
   // remove bug from hand (if possible)
   takeBug(bug) {
-    this.each((b, i) => {
+    this._hand.forEach((b, i) => {
       if (b === bug) {
         this._hand[i] = null
       }
@@ -552,7 +549,19 @@ export class Hand {
   }
 
   each(callback) {
-    this._hand.forEach((bug, i) => bug && callback(bug, i, this) )
+    this._hand.filter(Boolean).forEach(callback) 
+  }
+
+  some(callback) {
+    return this._hand.filter(Boolean).some(callback)
+  }
+
+  find(callback) {
+    return this._hand.filter(Boolean).find(callback)
+  }
+
+  filter(callback) {
+    return this._hand.filter(Boolean).filter(callback)
   }
 }
 

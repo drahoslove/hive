@@ -129,6 +129,18 @@ export default function uiOf(game) {
         screenToHex({x: S*SQRT2_3+8, y: S/2/SQRT3_2+4}),
       ]
       backButtonPos = screenToHex({x: 0, y: CNH/2})
+      game.players.forEach(({hand}) => {
+        hand.each((bug, i) => {
+          let {x, y} = hexToScreen(bug.pos)
+          x = CNW/2 - 4.5*S*SQRT3_2 + i*S*SQRT3_2 +1
+          if (bug.pos.r <= 0) {
+            y = CNH * 0.09
+          } else {
+            y = CNH * 0.91
+          }
+          bug.pos = screenToHex({x, y}).round()
+        })
+      })
       _invalidated = true
     }
 
@@ -193,14 +205,10 @@ export default function uiOf(game) {
       }
 
       let target = eventToHex(event)
-      let handTarget = guiEventToHex(event)
       if (_disabledPlayers.includes(game._activePlayerIndex)) {
         return
       }
-      if (game.isClickable(handTarget)) {
-        _canvas.style.cursor = 'pointer'
-        _target = handTarget
-      } else if (game.isClickable(target)) {
+      if (game.isClickable(target)) {
         _canvas.style.cursor = 'pointer'
         _target = target
       } else {
@@ -215,7 +223,7 @@ export default function uiOf(game) {
         return
       }
 
-      const handBug = game.activePlayer().hand.findBug((bug) =>
+      const handBug = game.activePlayer().hand.find((bug) =>
         bug.name[0].toLowerCase() === event.key
       )
       _invalidated = true
@@ -373,9 +381,26 @@ export default function uiOf(game) {
         _ctx.scale(1/_zoom, 1/_zoom)
         _ctx.translate(-(CNW-CNW*_zoom)/2, -(CNH-CNH*_zoom)/2)
 
-      
         // DRAW GUI
-        game.players.forEach(({hand}) => hand.each(b => drawBug(b, undefined, true, t)))
+        game.players.forEach(({hand}, which) => {
+          if (!hand.isEmpty()) {
+            hand.each((bug) => {
+              const {x, y} = hexToScreen(bug.pos)
+              const [X, Y, W, H] = !which
+                ? [x-S*SQRT3_2/2, y, S*SQRT3_2, (CNH-y)]
+                : [x-S*SQRT3_2/2, y, S*SQRT3_2, -y]
+              const grad = _ctx.createLinearGradient(x+S*SQRT3_2*H/90, Y, x-S*SQRT3_2*H/90, Y+H)
+              // for(let i = 0; i<360*3; i+=10) { // rainbow!
+              //   grad.addColorStop(i/360/3, `hsla(${(Math.floor(t/2)% 360 - i)}, 50%, 50%, ${1-i/360/3})`)
+              // }
+              grad.addColorStop(0, `hsla(${(Math.floor(t/30)% 360)}, 0%, ${which ? 100 : 0}%, 1)`)
+              grad.addColorStop(1, `hsla(${(Math.floor(t/30)% 360)}, 0%, 50%, 0)`)
+              _ctx.fillStyle = grad
+              _ctx.fillRect(X, Y, W, H)
+            })
+            hand.each(b => drawBug(b, undefined, true, t))
+          }
+        })
 
         drawBackButton(game.backButton)
 
