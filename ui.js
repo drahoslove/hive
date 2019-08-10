@@ -132,7 +132,6 @@ export default function uiOf(game) {
         // screenToHex({x: S*SQRT2_3+8, y: CNH-(S+24)}),
         // screenToHex({x: S*SQRT2_3+8, y: S+24}),
       ]
-      console.log('lp', loaderPos)
       backButtonPos = screenToHex({x: 0, y: CNH/2})
       game.players.forEach(({hand}) => {
         hand.each((bug, i) => {

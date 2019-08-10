@@ -20,37 +20,6 @@ let loaderInterval = 0
 console.log("Hive loaded")
 console.time("")
 
-const HELP_TEXT = `
-Cílem je zablokovat ze všech stran včelí královnu spoluhráče
-
-1) Pravidlo jedné kolonie:
- - Všichny vyložené kameny musí vždy tvořit jednotný nedělitelný útvar.
-
-2) Vykládání:
- - Stejná pravidla pro všecny kameny.
- - Královna musí být umístěna nejpozději ve 4. kole.
- - Nové kameny můžeš umístit pouze do sousedství těch svých. První kámen umísti libovolně.
- - Nové kameny nesmíš umístit do sousedství těch protihráčových. S výjimkou druhého tahu.
-
-3) Přesouvání:
- - Kameny můžeš přesouvat, až po té co umístíš královnu.
- - Přesouváním kamenů nesmíš porušit pravidlo 1) a to po celou dobu přesunu.
- - Kameny nejde vmáčknout do uzkých škvír kam se fyzicky neprocpou. (Kromě kobylky a berušky)
- - Různé kameny mají různé pravidla pohybu:
-
-  A) Královna:
-   - může se pohybovat jen o 1 krok
-  B) Beruška:
-   - může se pohybovat jen o 1 krok
-   - navíc může vlést na jiný kámen a tím ho zablokovat
-  C) Mravenec:
-   - může se přesunout na libovolné místo dostupné po obvodu
-  D) Pavouk:
-   - může se přesunout na tři kroky vzdálené místo dostupné po obvodu
-  E) Kobylka:
-   - dostane se jen tam, kam jde přeskočit přes řadu jednoho či více kamenů
-
-`
 
 const canvas = document.getElementById('hiveCanvas')
 
@@ -77,7 +46,12 @@ game.menu = [
     label: '❓',
     title: 'help',
     pos: new Hex(-2, 0),
-    action: () => { alert(HELP_TEXT)}
+    action: () => {
+      document.getElementById('help').classList.add('show')
+      document.getElementById('closehelp').onclick = () => {
+        document.getElementById('help').classList.remove('show')
+      }
+    }
   },
   {
     label: '👤🌐👤',

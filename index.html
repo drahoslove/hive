@@ -54,6 +54,37 @@ canvas {
     height: 100vh;
   }
 }
+#help {
+  white-space: pre-wrap;
+  position: absolute;
+  width: 50%;
+  height: 100%;
+  left: -50%;
+  transition: left .5s ease-in-out;
+  background: #000000d0;
+  font-family: monospace;
+  padding: 1.5rem;
+  box-sizing: border-box;
+  color: white;
+}
+#help.show {
+  left: 0%;
+}
+#closehelp {
+ width: 24px;
+ height: 24px;
+ border-radius: 50%;
+ background: #ffffff80;
+ cursor: pointer;
+ margin-left: auto;
+ position: absolute;
+ right: 10px;
+ top: 10px;
+ text-align: center;
+ box-sizing: border-box;
+ font-size: 20px;
+ color: #030303;
+}
 </style>
 </head>
 <body>
@@ -63,6 +94,38 @@ canvas {
   <canvas id="hiveCanvas" width="685" height="auto">
   </canvas>
   <div id="loader">🕛</div>
+  <div id="help">
+    <div id="closehelp">×</div>
+Cílem je zablokovat ze všech stran včelí královnu spoluhráče
+
+1) Pravidlo jedné kolonie:
+ - Všechny vyložené kameny musí vždy tvořit jednotný, nedělitelný útvar.
+
+2) Vykládání:
+ - Stejná pravidla pro všechny kameny.
+ - Královna musí být umístěna nejpozději ve 4. kole.
+ - Nové kameny můžeš umístit pouze do sousedství těch svých. První kámen umísti libovolně.
+ - Nové kameny nesmíš umístit do sousedství těch protihráčových. S výjimkou druhého tahu.
+
+3) Přesouvání:
+ - Kameny můžeš přesouvat až poté, co umístíš královnu.
+ - Přesouváním kamenů nesmíš porušit pravidlo 1), a to po celou dobu přesunu.
+ - Kameny nejde vmáčknout do úzkých škvír, kam se fyzicky neprocpou. (Kromě kobylky a berušky)
+ - Různé kameny mají různá pravidla pohybu:
+
+  A) Královna:
+   - může se pohybovat jen o 1 krok
+  B) Beruška:
+   - může se pohybovat jen o 1 krok
+   - navíc může vlézt na jiný kámen, a tím ho zablokovat
+  C) Mravenec:
+   - může se přesunout na libovolné místo dostupné po obvodu
+  D) Pavouk:
+   - může se přesunout na tři kroky vzdálené místo dostupné po obvodu
+  E) Kobylka:
+   - může přeskočit přes jedno, či více obsazených políček
+
+  </div>
   <script type="module" src="hive.js"></script>
   <script nomodule src="hive-bundle.js"></script>
 </body>
