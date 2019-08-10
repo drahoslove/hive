@@ -461,10 +461,16 @@ export default function uiOf(game) {
 
   function drawBackground() {
     const { width, height } = _cachedBackground
-    _ctx.clearRect(-CNW, -CNH, CNW*3, CNH*3)
+    const z = _showMenu ? 1 : _zoom
+    const OX = S
+    const OY = S*SQRT3_2
+    const SX = (CNW-CNW/z)/2
+    const SY = (CNH-CNH/z)/2
+    _ctx.clearRect(-CNW, -CNH, +CNW*3, +CNH*3)
     _ctx.drawImage(_cachedBackground,
-      (width-CNW)/2-S, (height-CNH)/2-S*SQRT3_2, CNW+2*S, CNH+2*S*SQRT3_2,
-      -S, -S*SQRT3_2, CNW+S*2, CNH+S*SQRT3_2*2,
+      // some magic here
+      (width-CNW)/2/z-OX+SX*(width/CNW), (height-CNH)/2/z-OY+SY*(height/CNH), CNW/z+OX*2, CNH/z+OY*2, // src
+      -OX+SX, -OY+SY, CNW/z+OX*2, CNH/z+OY*2, // dest
     )
   }
 
