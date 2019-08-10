@@ -44,7 +44,9 @@ export default function uiOf(game) {
   let _showNames = false
   let _disabledPlayers = []
 
-  let _zoom = 1 
+  let _zoom = 1
+  let _zoomStart = _zoom
+  let _zoomSince
 
   let _beeRot = 0
 
@@ -148,6 +150,8 @@ export default function uiOf(game) {
       if (_showMenu) {
         return
       }
+      _zoomStart = _zoom
+      _zoomSince = performance.now()
       if (event.deltaY < 0) {
         _zoom *= Math.SQRT2
       } else {
@@ -159,7 +163,6 @@ export default function uiOf(game) {
       if (_zoom < .5) {
         _zoom = .5
       }
-      console.log('zoom', _zoom)
       _invalidated = true
     }
 
@@ -278,10 +281,16 @@ export default function uiOf(game) {
         return
       }
 
+      let zoom = getAnimatedZoomLLevel()
+
       let [offsetX, offsetY] = [0, 0] 
 
       if (_invalidated || this._oneMoreFrame) {
         let someAnimating = false
+
+        if (zoom !== _zoom) {
+          someAnimating = true
+        }
 
         // DRAW SPACE
 
@@ -303,8 +312,8 @@ export default function uiOf(game) {
           }
         }
 
-        _ctx.translate((CNW-CNW*_zoom)/2, (CNH-CNH*_zoom)/2)
-        _ctx.scale(_zoom, _zoom)
+        _ctx.translate((CNW-CNW*zoom)/2, (CNH-CNH*zoom)/2)
+        _ctx.scale(zoom, zoom)
 
 
         _ctx.translate(offsetX, offsetY)
@@ -387,8 +396,8 @@ export default function uiOf(game) {
 
         _ctx.translate(-offsetX, -offsetY)
 
-        _ctx.scale(1/_zoom, 1/_zoom)
-        _ctx.translate(-(CNW-CNW*_zoom)/2, -(CNH-CNH*_zoom)/2)
+        _ctx.scale(1/zoom, 1/zoom)
+        _ctx.translate(-(CNW-CNW*zoom)/2, -(CNH-CNH*zoom)/2)
 
         // DRAW GUI
         game.players.forEach(({hand}, which) => {
@@ -459,9 +468,20 @@ export default function uiOf(game) {
     return ctx
   }
 
+  function getAnimatedZoomLLevel() {
+    let zoom = _zoom // compute zoom animation progress
+    const duration = 100
+    const sofar = performance.now() - _zoomSince
+    const progress = sofar/duration
+    if (progress < 1) {
+      zoom = _zoomStart*(1-progress) + _zoom*progress
+    }
+    return zoom
+  }
+
   function drawBackground() {
     const { width, height } = _cachedBackground
-    const z = _showMenu ? 1 : _zoom
+    const z = _showMenu ? 1 : getAnimatedZoomLLevel()
     const OX = S
     const OY = S*SQRT3_2
     const SX = (CNW-CNW/z)/2
