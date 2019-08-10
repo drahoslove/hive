@@ -541,7 +541,7 @@ export class Hand {
   }
 
   size() {
-    return this._hand.filter(bug => bug).length
+    return this._hand.filter(bug => bug !== null).length
   }
 
   used() {

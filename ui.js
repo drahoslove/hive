@@ -145,7 +145,7 @@ export default function uiOf(game) {
     }
 
     mouseWheel(event) {
-      if (!event.shiftKey) {
+      if (_showMenu) {
         return
       }
       if (event.deltaY < 0) {
@@ -166,19 +166,23 @@ export default function uiOf(game) {
     mouseClick(event) {
       if (_showMenu) {
         game.menu.forEach(({pos, action}, i) => {
-          action && eventToHexExact(event).distance(pos) <= 1 && action()
+          action && eventToExactHex(event).distance(pos) <= 1 && action()
         })
         return
       }
-      game.backButton.action
-        && eventToHexExact(event).distance(game.backButton.pos||backButtonPos) <= .75
-        && game.backButton.action()
+      if (eventToExactHex(event).distance(game.backButton.pos||backButtonPos) <= .75) {
+        game.backButton.action()
+      }
 
       if (_disabledPlayers.includes(game._activePlayerIndex)) {
         return
       }
-      game.onClick(guiEventToHex(event)) ||
-      game.onClick(eventToHex(event))
+      const handTarget = eventToGuiHex(event)
+      const spaceTarget = eventToSpaceHex(event)
+      const target = game.activePlayer().hand.some(({pos}) => pos.eq(handTarget))
+        ? handTarget
+        : spaceTarget
+      game.onClick(target)
       _invalidated = true
     }
 
@@ -186,7 +190,7 @@ export default function uiOf(game) {
       _canvas.style.cursor = 'default'
       if (_showMenu) {
         game.menu.forEach(({pos, action}, i) => {
-          if (game.menu[i].active = action && eventToHexExact(event).distance(pos) <= 1) {
+          if (game.menu[i].active = action && eventToExactHex(event).distance(pos) <= 1) {
             _canvas.style.cursor = 'pointer'
           }
         })
@@ -194,20 +198,25 @@ export default function uiOf(game) {
         return
       }
 
-      if (_showNames = loaderPos.some(pos => eventToHexExact(event).distance(pos) <= .4)) {
+      if (_showNames = loaderPos.some(pos => eventToExactHex(event).distance(pos) <= .4)) {
         _invalidated = true
         return
       }
-      if (game.backButton.active = eventToHexExact(event).distance(game.backButton.pos||backButtonPos) <= .75) {
+      if (game.backButton.active = eventToExactHex(event).distance(game.backButton.pos||backButtonPos) <= .75) {
         _canvas.style.cursor = 'pointer'
         _invalidated = true
         return 
       }
-
-      let target = eventToHex(event)
       if (_disabledPlayers.includes(game._activePlayerIndex)) {
         return
       }
+
+      const handTarget = eventToGuiHex(event)
+      const spaceTarget = eventToSpaceHex(event)
+      const target = game.activePlayer().hand.some(({pos}) => pos.eq(handTarget))
+        ? handTarget
+        : spaceTarget
+
       if (game.isClickable(target)) {
         _canvas.style.cursor = 'pointer'
         _target = target
@@ -580,15 +589,15 @@ export default function uiOf(game) {
     return new Hex(q, r)
   }
 
-  function eventToHex({offsetX: x, offsetY: y}) {
+  function eventToSpaceHex({offsetX: x, offsetY: y}) {
     return screenToHex({x, y}).scale(1/_zoom).round()
   }
 
-  function guiEventToHex({offsetX: x, offsetY: y}) {
+  function eventToGuiHex({offsetX: x, offsetY: y}) {
     return screenToHex({x, y}).round()
   }
 
-  function eventToHexExact({offsetX: x, offsetY: y}) {
+  function eventToExactHex({offsetX: x, offsetY: y}) {
     return screenToHex({x, y})
   }
 
