@@ -4,7 +4,7 @@
 
 const BACKEND = window.location.origin.includes('localhost')
 	? 'http://localhost:3000'
-	: 'https://simple-socketio-responder.herokuapp.com'
+	: 'https://gamsoc.draho.cz'
 
 const io = window.io
 
