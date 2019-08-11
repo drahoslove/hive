@@ -141,13 +141,11 @@ function startMultiplayer() {
   connect(origHash, (room, playerIndex, sendAction, onIncomingAction) => {
     ui.disableInputFor([0, 1]) // disable all input until ready/go
     game.message = 'Čekej na spoluhráče'
+    if (playerIndex === 1) { // swap the sides to ensure "you" is always at bottom
+      ;[ game.players[1], game.players[0] ] = [ game.players[0], game.players[1] ]
+    }
     game.players[playerIndex].name = 'Tvé já'
     game.players[+!playerIndex].name = 'Protivník'
-    // if (playerIndex === 1) { // swap the sides to ensure "you" is always at bottom
-    //   // ;[ game.players[1], game.players[0] ] = [ game.players[0], game.players[1] ]
-    //   // ;[ game.players[1].name, game.players[0].name ] = [ game.players[0].name, game.players[1].name ]
-    //   ;[ game.players[1].hand, game.players[0].hand ] = [ game.players[0].hand, game.players[1].hand ]
-    // }
     ui.hideMenu()
     let lastSentAction = ''
 

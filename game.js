@@ -25,6 +25,7 @@ export default class Game {
       const player = {
         name: `Player ${"AB"[i]}`,
         color,
+        pos: i ? 'top' : 'bottom', // for loader & label positioning
       }
       player.hand = new Hand(Game.basicBugPack.map(Bug => new Bug(color, player)), !i)
       return player

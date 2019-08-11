@@ -19,10 +19,10 @@ export default function uiOf(game) {
   const SQRT3_2 = Math.sqrt(3)/2
   const SQRT2_3 = Math.sqrt(2)/3
 
-  let loaderPos = [
-    new Hex(-9, 7),
-    new Hex(-2, -7),
-  ]
+  let loaderPos = {
+    top: new Hex(-2, -7),
+    bottom: new Hex(-9, 7),
+  }
   let backButtonPos = new Hex(-6, 0)
 
   const FPS = 60
@@ -127,12 +127,12 @@ export default function uiOf(game) {
       CNW = window.innerWidth
       CNH = window.innerHeight
       _ctx = setupCanvasHDPI(_canvas, CNW, CNH, { alpha: true })
-      loaderPos = [
-        screenToHex({x: S*SQRT2_3+8, y: CNH-(S/2/SQRT3_2+4)}),
-        screenToHex({x: S*SQRT2_3+8, y: S/2/SQRT3_2+4}),
+      loaderPos = {
+        bottom: screenToHex({x: S*SQRT2_3+8, y: CNH-(S/2/SQRT3_2+4)}),
+        top: screenToHex({x: S*SQRT2_3+8, y: S/2/SQRT3_2+4}),
         // screenToHex({x: S*SQRT2_3+8, y: CNH-(S+24)}),
         // screenToHex({x: S*SQRT2_3+8, y: S+24}),
-      ]
+      }
       backButtonPos = screenToHex({x: 0, y: CNH/2})
       game.players.forEach(({hand}) => {
         hand.each((bug, i) => {
@@ -204,7 +204,7 @@ export default function uiOf(game) {
         return
       }
 
-      if (_showNames = loaderPos.some(pos => eventToExactHex(event).distance(pos) <= .4)) {
+      if (_showNames = Object.values(loaderPos).some(pos => eventToExactHex(event).distance(pos) <= .4)) {
         _invalidated = true
         return
       }
@@ -403,9 +403,10 @@ export default function uiOf(game) {
         _ctx.translate(-(CNW-CNW*zoom)/2, -(CNH-CNH*zoom)/2)
 
         // DRAW GUI
-        game.players.forEach(({hand}, which) => {
+        game.players.forEach(({hand}) => {
           if (!hand.isEmpty()) {
             hand.each((bug) => {
+              const which = bug.pos.r < 0 // top or bottom hand
               const {x, y} = hexToScreen(bug.pos)
               const [X, Y, W, H] = !which
                 ? [x-S*SQRT3_2/2, y, S*SQRT3_2, (CNH-y)]
@@ -438,8 +439,8 @@ export default function uiOf(game) {
       // }
 
       if (game.state !== 'end') {
-        drawLoader(t, loaderPos[0], game.players[0])
-        drawLoader(t, loaderPos[1], game.players[1])
+        drawLoader(t, loaderPos[game.players[0].pos], game.players[0])
+        drawLoader(t, loaderPos[game.players[1].pos], game.players[1])
       }
     }
     
@@ -702,10 +703,16 @@ export default function uiOf(game) {
       r *= 1.25
     }
 
-    drawStone(x, y, r, bug.color, [
-      bug.owner === game.players[1] ? '#fff' : '#666',
-      bug.owner === game.players[1] ? '#999' : '#000',
-    ])
+    const ligher = {
+      '#eed': '#fff',
+      '#112': '#666',
+    }
+    const darker = {
+      '#eed': '#999',
+      '#112': '#000',
+    }
+
+    drawStone(x, y, r, bug.color, [ ligher[bug.color], darker[bug.color] ])
 
     { // text
       const txt = bug.symbol
