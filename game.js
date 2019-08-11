@@ -28,6 +28,7 @@ export default class Game {
     }))
     this._activePlayerIndex = 0
     this.message = ""
+    this.onClick = null
   }
 
   disableInput() {

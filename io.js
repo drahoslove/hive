@@ -10,13 +10,20 @@ const io = window.io
 
 let socket
 
-export default function online (driver) {
+export function disconnect() {
+	if (socket) {
+		socket.close()
+	}
+	socket = null
+}
+
+export function connect (room='', driver) {
 	if (socket) {
 		socket.close()
 	}
 	socket = io(`${BACKEND}/game`, {
 		query: {
-			room: window.location.hash.substr(1),
+			room: room,
 			secret: localStorage['user_secret'] || '',
 		}
 	})
@@ -36,8 +43,8 @@ export default function online (driver) {
 
 	socket.on('room_joined', (room, playerIndex) => {
 		console.log('room_joined', room)
-		location.hash = room
 		driver(
+			room,
 			playerIndex,
 			(action) => { socket.emit('action', action) },
 			(handleAction) => { socket.on('action', handleAction) },

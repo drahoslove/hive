@@ -1,6 +1,6 @@
 import Game from './game.js'
 import uiOf from './ui.js'
-import online from './io.js'
+import { connect, disconnect } from './io.js'
 import { rand, uncolorEmoji } from './common.js'
 import { Hex } from './board.js'
 
@@ -29,6 +29,7 @@ const game = new Game(12)
 game.backButton = {
   label: '🠸',
   action: () => {
+    disconnect()
     clearInterval(AiInterval)
     ui.showMenu()
     window.location.hash = ''
@@ -104,12 +105,12 @@ const autoMove = (players) => () => {
     return
   }
   !game.selected
-    ? game.onClick(
+    ? game.click(
       rand(game.activePlayer().hand.size()+1)
         ? game.activePlayer().hand.__getRandomBugPos()
         : game.space.__randomBugPos(game.activePlayer().color)
       )
-    : game.onClick(game.__randomLandingPos())
+    : game.click(game.__randomLandingPos())
 
   // console.clear()
   // console.log(String(game.space))
@@ -120,27 +121,39 @@ const autoMove = (players) => () => {
 }
 
 function AIvAI() {
+  game.players[0].name = "Silly AI"
+  game.players[1].name = "Dull AI"
   ui.hideMenu()
   ui.disableInputFor([0,1])
   AiInterval = setInterval(autoMove([0, 1]), 50)
 }
 
 function vAI() {
+  game.players[0].name = "You"
+  game.players[1].name = "Unsmart AI"
   ui.hideMenu()
   ui.disableInputFor([1])
   AiInterval = setInterval(autoMove([1]), 800)
 }
 
 function startMultiplayer() {
-  online((playerIndex, sendAction, onIncomingAction) => {
-    ui.disableInputFor([+!playerIndex])
+  const origHash = window.location.hash.substr(1)
+  connect(origHash, (room, playerIndex, sendAction, onIncomingAction) => {
+    ui.disableInputFor([0, 1]) // disable all input until ready/go
+    game.players[playerIndex].name = 'You'
+    game.players[+!playerIndex].name = 'Them'
     ui.hideMenu()
     let lastSentAction = ''
+
+    window.location.hash = room
+    if (!origHash) {
+      window.prompt('Tento link pošli protihráči', window.location)
+    }
 
     game.onClick = (hex) => {
       let action
       { // encode click to action
-        const pi = game._activePlayerIndex
+        const pi  = game._activePlayerIndex
         const handBug = game.activePlayer().hand.find(({pos}, i) => pos.eq(hex))
         if (handBug) {
           const i = game.activePlayer().hand.indexOf(handBug)
@@ -152,8 +165,15 @@ function startMultiplayer() {
       lastSentAction = action
       sendAction(action)
     }
-
+        
     onIncomingAction((action) => {
+      if (action === 'ready' || action === 'go') {
+        if (action === 'ready') {
+          sendAction('go')
+        }
+        ui.disableInputFor([+!playerIndex]) // game can start => allow input
+        return
+      }
       if (lastSentAction !== action) {
         // decode action to click
         let hex
@@ -171,5 +191,7 @@ function startMultiplayer() {
         ui.touch()
       }
     })
+
+    sendAction('ready')
   })
 }

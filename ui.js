@@ -102,6 +102,7 @@ export default function uiOf(game) {
 
     disableInputFor(playerIndexes) {
       _disabledPlayers = playerIndexes
+      _invalidated = true
     }
 
     showMenu() {
