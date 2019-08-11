@@ -11,6 +11,9 @@
   "scripts": {
     "start": "node ./server.js"
   },
+  "engines": {
+    "node": "10.13.0"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/drahoslove/hive.git"

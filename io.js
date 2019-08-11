@@ -1,5 +1,9 @@
 // import io from './socket.io.dev.js'
 
+const BACKEND = window.location.origin.includes('localhost')
+	? 'http://localhost:3000'
+	: 'https://simple-socketio-responder.herokuapp.com'
+
 const io = window.io
 
 let socket
@@ -8,10 +12,10 @@ export default function online (driver) {
 	if (socket) {
 		socket.close()
 	}
-	socket = io('http://localhost:3000/game', {
+	socket = io(`${BACKEND}/game`, {
 		query: {
 			room: window.location.hash.substr(1),
-			secret: localStorage['hive_secret'] || '',
+			secret: localStorage['user_secret'] || '',
 		}
 	})
 
@@ -20,7 +24,7 @@ export default function online (driver) {
 	})
 
 	socket.on('new_secret', (secret) => {
-		localStorage['hive_secret'] = secret
+		localStorage['user_secret'] = secret
 		console.log('new_secret', secret)
 	})
 
