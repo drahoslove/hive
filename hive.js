@@ -1,5 +1,6 @@
 import Game from './game.js'
 import uiOf from './ui.js'
+import connect from './io.js'
 import { rand, uncolorEmoji } from './common.js'
 import { Hex } from './board.js'
 
@@ -57,7 +58,9 @@ game.menu = [
     label: '👤🌐👤',
     title: 'multi',
     pos: new Hex(0, -2),
-    // action: () => { alert("multiplayer zatím není")}
+    action: () => {
+      connect()
+    }
   },
   {
     label: '👤×👽',
