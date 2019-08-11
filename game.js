@@ -38,9 +38,14 @@ export default class Game {
   }
 
   // actions
-  onClick(hex) {
+  click(hex, silent=false) {
     if (this.inputDisabled || this.state === 'end') {
       return
+    }
+
+    if (this.onClick && !silent) {
+      console.log('click',hex)
+      this.onClick(hex)
     }
 
     if (this.selected && this.landings.some(x => x.eq(hex))) {
@@ -48,9 +53,6 @@ export default class Game {
     } else {
       return this.trySelect(hex)
     }
-    // console.clear()
-    // console.log(String(game.space))
-    // console.log('hex', String(hex))
   }
 
   isClickable(hex) {

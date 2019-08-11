@@ -10,13 +10,12 @@ const io = require('socket.io')(PORT, {
 	serveClient: false,
 	// transports: ['websocket'],
 })
-console.log(io.origins())
 io.origins((origin, callback) => {
   if (!origin.includes(origin)) {
     return callback('origin not allowed', false);
   }
-  callback(null, true);
-});
+  callback(null, true)
+})
 
 const rooms = {
 	// [room]: [secret, secret],
@@ -40,7 +39,7 @@ gameNamespace.on('connect', (socket) => {
 			room = randomToken(12)
 		} while(room in rooms)
 		rooms[room] = [ secret ] // seat yourself
-		socket.emit('room_created', room)
+		socket.emit('room_joined', room, 0)
 	} else { // join existing room
 		if (!(room in rooms)) {
 			return socket.emit('err', 'room_unknown', room)
@@ -51,7 +50,8 @@ gameNamespace.on('connect', (socket) => {
 			}
 			rooms[room].push(secret)
 		}
-		socket.emit('room_joined', room)
+		const playerIndex = rooms[room].indexOf(secret)
+		socket.emit('room_joined', room, playerIndex) // TODO pass username
 	}
 
 	socket.join(room, () => {
@@ -61,6 +61,7 @@ gameNamespace.on('connect', (socket) => {
 				gameNamespace.to(room).emit('chat', data) 
 			})
 			.on('action', (data) => {
+				console.log('action', data)
 				// broadcast game actions to everyone in room except yourself
 				socket.to(room).emit('action', data)
 			})

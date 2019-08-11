@@ -1,6 +1,6 @@
 import Game from './game.js'
 import uiOf from './ui.js'
-import connect from './io.js'
+import online from './io.js'
 import { rand, uncolorEmoji } from './common.js'
 import { Hex } from './board.js'
 
@@ -31,6 +31,7 @@ game.backButton = {
   action: () => {
     clearInterval(AiInterval)
     ui.showMenu()
+    window.location.hash = ''
     ui.off()
     game.reset()
     ui.on(canvas)
@@ -59,7 +60,15 @@ game.menu = [
     title: 'multi',
     pos: new Hex(0, -2),
     action: () => {
-      connect()
+      online((playerIndex, doRemoteClick, onIncamingClick) => {
+        ui.disableInputFor([+!playerIndex])
+        ui.hideMenu()
+        game.onClick = (hex) => doRemoteClick(hex.toString())
+        onIncamingClick(hex => {
+          game.click(Hex.fromString(hex), true)
+          ui.touch()
+        })
+      })
     }
   },
   {

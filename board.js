@@ -59,6 +59,10 @@ Hex.directions = [
   new Hex(+1, 0), new Hex(+1, -1), new Hex(0, -1), 
   new Hex(-1, 0), new Hex(-1, +1), new Hex(0, +1), 
 ]
+Hex.fromString = (str) => {
+  const [ q, r ] = str.split(';').map(Number)
+  return new Hex(q, r)
+}
 
 // Cubic coordinates
 export class Cube {

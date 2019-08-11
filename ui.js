@@ -187,7 +187,7 @@ export default function uiOf(game) {
       const target = game.activePlayer().hand.some(({pos}) => pos.eq(handTarget))
         ? handTarget
         : spaceTarget
-      game.onClick(target)
+      game.click(target)
       _invalidated = true
     }
 
@@ -242,7 +242,7 @@ export default function uiOf(game) {
       )
       _invalidated = true
       if (handBug) {
-        return game.onClick(handBug.pos)
+        return game.click(handBug.pos)
       }
 
       const spaceBug = game.space.findBug((bug) =>
@@ -252,7 +252,7 @@ export default function uiOf(game) {
           !game.space.isHiveBridge(bug.pos)
       )
       if (spaceBug) {
-        return game.onClick(spaceBug.pos)
+        return game.click(spaceBug.pos)
       }
     }
 
