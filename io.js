@@ -17,7 +17,7 @@ export function disconnect() {
 	socket = null
 }
 
-export function connect (room='', driver) {
+export function connect (room, driver) {
 	if (socket) {
 		socket.close()
 	}
@@ -30,6 +30,10 @@ export function connect (room='', driver) {
 
 	socket.on('connect', () => {
 		console.log('connected')
+	})
+
+	socket.on('error', (error) => {
+		console.warn('connection error', error)
 	})
 
 	socket.on('new_secret', (secret) => {
