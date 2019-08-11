@@ -248,7 +248,7 @@ export default function uiOf(game) {
 
       const spaceBug = game.space.findBug((bug) =>
         bug.name[0].toLowerCase() === event.key &&
-          bug.color === game.activePlayer().color &&
+          bug.owner === game.activePlayer() &&
           bug !== game.selected &&
           !game.space.isHiveBridge(bug.pos)
       )
@@ -703,8 +703,8 @@ export default function uiOf(game) {
     }
 
     drawStone(x, y, r, bug.color, [
-      bug.color === game.players[1].color ? '#fff' : '#666',
-      bug.color === game.players[1].color ? '#999' : '#000',
+      bug.owner === game.players[1] ? '#fff' : '#666',
+      bug.owner === game.players[1] ? '#999' : '#000',
     ])
 
     { // text

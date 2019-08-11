@@ -301,9 +301,9 @@ export class Space {
   }
 
   // next to hive positions which does not lay next to enemy of given color
-  safeNextPositions(color) {
+  safeNextPositions(owner) {
     return this.nextToHivePositions().filter(hex => 
-      hex.neighborhood().every((x) => !this.isEnemyOf(x, color))
+      hex.neighborhood().every((x) => !this.isEnemyOf(x, owner))
     )
   }
 
@@ -356,9 +356,9 @@ export class Space {
     })
   }
 
-  isEnemyOf(hex, color) {
+  isEnemyOf(hex, owner) {
     const topBug = this.atTop(hex) 
-    return topBug && topBug.color !== color
+    return topBug && topBug.owner !== owner
   }
   
   isNextToHive(hex, except) { // is empty but has occupied neighbor tile
@@ -452,24 +452,24 @@ export class Space {
   }
 
   // returns array of hex position where bug of given color can land
-  possibleLandings({color}) {
+  possibleLandings({owner}) {
     if (this._stones === 0) { 
       return [new Hex(0, 0), ...Hex.directions]
     } 
     if (this._stones === 1) {
       return this.nextToHivePositions()
     } 
-    return this.safeNextPositions(color)
+    return this.safeNextPositions(owner)
   }
 
-  __randomLandingPos(color) {
-    const positions = this.possibleLandings({color})
-    return positions[rand(positions.length)] || __randomBugPos(color)
+  __randomLandingPos(owner) {
+    const positions = this.possibleLandings({owner})
+    return positions[rand(positions.length)] || __randomBugPos(owner)
   }
 
-  __randomBugPos(color) {
+  __randomBugPos(owner) {
     const positions = this.hivePositions()
-      .filter(pos => color === (this.atTop(pos)||{}).color)
+      .filter(pos => (this.atTop(pos)||{}).owner === owner)
       .filter(pos => !this.isHiveBridge(pos) || this.at(pos).length > 1)
     return positions[rand(positions.length)] || new Hex(0, 0)
   }

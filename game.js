@@ -21,11 +21,14 @@ export default class Game {
     this.space = new Space(size)
     this.selected = null
     this.landings = []
-    this.players = ['#112', '#eed'].map((color, i) => ({
-      name: `Player ${"AB"[i]}`,
-      color,
-      hand: new Hand(Game.basicBugPack.map(Bug => new Bug(color)), !i),
-    }))
+    this.players = ['#112', '#eed'].map((color, i) => {
+      const player = {
+        name: `Player ${"AB"[i]}`,
+        color,
+      }
+      player.hand = new Hand(Game.basicBugPack.map(Bug => new Bug(color, player)), !i)
+      return player
+    })
     this._activePlayerIndex = 0
     this.message = ""
     this.onClick = null
@@ -73,7 +76,7 @@ export default class Game {
     if (tile && tile.length) {
       let bug = tile[tile.length-1]
       if (
-        bug.color === this.activePlayer().color &&
+        bug.owner === this.activePlayer() &&
         this.isQueenPlaced() &&
         !(tile.length === 1 && this.space.isHiveBridge(bug.pos))
       ) {
@@ -103,7 +106,7 @@ export default class Game {
     let tile = this.space.at(hex)
     if (tile && tile.length) {
       bug = tile[tile.length-1]
-      if (bug.color !== this.activePlayer().color) {
+      if (bug.owner !== this.activePlayer()) {
         // deselect
         bug = null
         this.landings = []
@@ -142,23 +145,23 @@ export default class Game {
 
   checkEnd () {
     const dead = this.players.map(player => {
-      const queen = this.space.findBug(({name, color}) =>
-        name === 'Queen' && color === player.color
+      const queen = this.space.findBug(({name, owner}) =>
+        name === 'Queen' && owner === player
       )
       return queen && this.space.posOfNeighbors(queen.pos).length === 6
     })
     if (dead[0] && dead[1]) {
-      this.message = "Remíza!"
+      this.message = "Tie!"
       this.state = 'end'
       return true
     }
     if (dead[this._activePlayerIndex]) {
-      this.message = `${this.players[+!this._activePlayerIndex].name} vyhrává`
+      this.message = `${this.players[+!this._activePlayerIndex].name} vyhrává!`
       this.state = 'end'
       return true
     }
     if (dead[+!this._activePlayerIndex]) {
-      this.message = `${this.players[this._activePlayerIndex].name} vyhrává`
+      this.message = `${this.players[this._activePlayerIndex].name} vyhrává!`
       this.state = 'end'
       return true
     }
@@ -182,7 +185,7 @@ export default class Game {
   }
 
   __randomLandingPos() {
-    return this.landings[rand(this.landings.length-1)] || this.space.__randomBugPos(this.activePlayer().color)
+    return this.landings[rand(this.landings.length-1)] || this.space.__randomBugPos(this.activePlayer())
   }
 
 }

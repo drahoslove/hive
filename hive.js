@@ -108,7 +108,7 @@ const autoMove = (players) => () => {
     ? game.click(
       rand(game.activePlayer().hand.size()+1)
         ? game.activePlayer().hand.__getRandomBugPos()
-        : game.space.__randomBugPos(game.activePlayer().color)
+        : game.space.__randomBugPos(game.activePlayer())
       )
     : game.click(game.__randomLandingPos())
 
@@ -129,7 +129,7 @@ function AIvAI() {
 }
 
 function vAI() {
-  game.players[0].name = "You"
+  game.players[0].name = "Ty"
   game.players[1].name = "Unsmart AI"
   ui.hideMenu()
   ui.disableInputFor([1])
@@ -140,9 +140,14 @@ function startMultiplayer() {
   const origHash = window.location.hash.substr(1)
   connect(origHash, (room, playerIndex, sendAction, onIncomingAction) => {
     ui.disableInputFor([0, 1]) // disable all input until ready/go
-    game.message = 'Wait for opponent'
-    game.players[playerIndex].name = 'You'
-    game.players[+!playerIndex].name = 'Them'
+    game.message = 'Čekej na spoluhráče'
+    game.players[playerIndex].name = 'Tvé já'
+    game.players[+!playerIndex].name = 'Protivník'
+    // if (playerIndex === 1) { // swap the sides to ensure "you" is always at bottom
+    //   // ;[ game.players[1], game.players[0] ] = [ game.players[0], game.players[1] ]
+    //   // ;[ game.players[1].name, game.players[0].name ] = [ game.players[0].name, game.players[1].name ]
+    //   ;[ game.players[1].hand, game.players[0].hand ] = [ game.players[0].hand, game.players[1].hand ]
+    // }
     ui.hideMenu()
     let lastSentAction = ''
 

@@ -3,10 +3,11 @@ import { rand } from './common.js'
 
 
 export class Bug {
-  constructor(color) {
+  constructor(color, owner) {
     this.name = this.constructor.name
     this.symbol = this.name[0]
     this.color = color
+    this.owner = owner
     this.pos = null
     this.speed = 1
     this.ease = t => t // linear
