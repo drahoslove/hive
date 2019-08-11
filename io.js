@@ -4,7 +4,7 @@
 
 const BACKEND = window.location.origin.includes('localhost')
 	? 'http://localhost:3000'
-	: 'https://gamsoc.draho.cz'
+	: 'http://gamsoc.draho.cz'
 
 const io = window.io
 
