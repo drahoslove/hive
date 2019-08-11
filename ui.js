@@ -194,23 +194,21 @@ export default function uiOf(game) {
 
     mouseMove(event) {
       _canvas.style.cursor = 'default'
+      _invalidated = true // always animate on mousemove
       if (_showMenu) {
         game.menu.forEach(({pos, action}, i) => {
           if (game.menu[i].active = action && eventToExactHex(event).distance(pos) <= 1) {
             _canvas.style.cursor = 'pointer'
           }
         })
-        _invalidated = true
         return
       }
 
       if (_showNames = Object.values(loaderPos).some(pos => eventToExactHex(event).distance(pos) <= .4)) {
-        _invalidated = true
         return
       }
       if (game.backButton.active = eventToExactHex(event).distance(game.backButton.pos||backButtonPos) <= .75) {
         _canvas.style.cursor = 'pointer'
-        _invalidated = true
         return 
       }
       if (_disabledPlayers.includes(game._activePlayerIndex)) {
@@ -230,7 +228,6 @@ export default function uiOf(game) {
         _canvas.style.cursor = 'default'
         _target = null
       }
-      _invalidated = true
     }
 
     keyPress(event) {
