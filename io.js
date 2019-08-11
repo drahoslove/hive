@@ -8,7 +8,7 @@ export default function online (driver) {
 	if (socket) {
 		socket.close()
 	}
-	socket = io('http://localhost:3000/hive', {
+	socket = io('http://localhost:3000/game', {
 		query: {
 			room: window.location.hash.substr(1),
 			secret: localStorage['hive_secret'] || '',
