@@ -1,15 +1,22 @@
 const PORT = 3000
+const origins = [
+	'http://localhost:8080',
+	'https://hive.draho.cz',
+	'https://www.alik.cz',
+]
 
 const crypto = require('crypto')
 const io = require('socket.io')(PORT, {
 	serveClient: false,
-	origins: [
-		'http://localhost:8080',
-		'https://hive.draho.cz',
-		'https://www.alik.cz',
-	],
 	// transports: ['websocket'],
 })
+console.log(io.origins())
+io.origins((origin, callback) => {
+  if (!origin.includes(origin)) {
+    return callback('origin not allowed', false);
+  }
+  callback(null, true);
+});
 
 const rooms = {
 	// [room]: [secret, secret],
