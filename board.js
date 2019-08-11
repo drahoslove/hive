@@ -567,5 +567,11 @@ export class Hand {
   filter(callback) {
     return this._hand.filter(Boolean).filter(callback)
   }
+  indexOf(bug) {
+    return this._hand.filter(Boolean).indexOf(bug)
+  }
+  at(index) {
+    return this._hand.filter(Boolean)[index]
+  }
 }
 

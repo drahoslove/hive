@@ -1,3 +1,5 @@
+// This module contain no game-specific logic
+
 // import io from './socket.io.dev.js'
 
 const BACKEND = window.location.origin.includes('localhost')
@@ -46,7 +48,4 @@ export default function online (driver) {
 		console.log('chat', msg)
 	})
 
-	// socket.on('action', (action) => {
-	// 	console.log('action', action)
-	// })
 }

@@ -59,24 +59,7 @@ game.menu = [
     label: '👤🌐👤',
     title: 'multi',
     pos: new Hex(0, -2),
-    action: () => {
-      online((playerIndex, doRemoteClick, onIncamingClick) => {
-        ui.disableInputFor([+!playerIndex])
-        ui.hideMenu()
-        let lastClick = ''
-        game.onClick = (hex) => {
-          lastClick = hex
-          doRemoteClick(hex.toString())
-        }
-        onIncamingClick(hex => {
-          if (lastClick.toString() !== hex) {
-            lastClick = ''
-            game.click(Hex.fromString(hex))
-            ui.touch()
-          }
-        })
-      })
-    }
+    action: startMultiplayer,
   },
   {
     label: '👤×👽',
@@ -101,7 +84,6 @@ game.menu = [
   },
 ]
 
-
 const ui = uiOf(game)
 window.onload = () => {
   ui.on(canvas)
@@ -109,6 +91,9 @@ window.onload = () => {
   setTimeout(() => {
     cancelAnimationFrame(loaderInterval)
     document.getElementById("loader").innerHTML = ''
+    if (window.location.hash) {
+      startMultiplayer()
+    }
   }, 100)
 }
 // ui.off(canvas)
@@ -144,4 +129,47 @@ function vAI() {
   ui.hideMenu()
   ui.disableInputFor([1])
   AiInterval = setInterval(autoMove([1]), 800)
+}
+
+function startMultiplayer() {
+  online((playerIndex, sendAction, onIncomingAction) => {
+    ui.disableInputFor([+!playerIndex])
+    ui.hideMenu()
+    let lastSentAction = ''
+
+    game.onClick = (hex) => {
+      let action
+      { // encode click to action
+        const pi = game._activePlayerIndex
+        const handBug = game.activePlayer().hand.find(({pos}, i) => pos.eq(hex))
+        if (handBug) {
+          const i = game.activePlayer().hand.indexOf(handBug)
+          action =`${pi}H${i}` // hand click
+        } else {
+          action = `${pi}S${hex.toString()}` // space click
+        }
+      }
+      lastSentAction = action
+      sendAction(action)
+    }
+
+    onIncomingAction((action) => {
+      if (lastSentAction !== action) {
+        // decode action to click
+        let hex
+        {
+          if (action[1] === 'H') { // hand click
+            const i = Number(action.substr(2))
+            const handBug = game.activePlayer().hand.at(i)
+            hex = handBug.pos
+          }
+          if (action[1] === 'S') { // space click
+            hex = Hex.fromString(action.substr(2))
+          }
+        }
+        game.click(hex)
+        ui.touch()
+      }
+    })
+  })
 }
