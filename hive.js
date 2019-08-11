@@ -63,10 +63,17 @@ game.menu = [
       online((playerIndex, doRemoteClick, onIncamingClick) => {
         ui.disableInputFor([+!playerIndex])
         ui.hideMenu()
-        game.onClick = (hex) => doRemoteClick(hex.toString())
+        let lastClick = ''
+        game.onClick = (hex) => {
+          lastClick = hex
+          doRemoteClick(hex.toString())
+        }
         onIncamingClick(hex => {
-          game.click(Hex.fromString(hex), true)
-          ui.touch()
+          if (lastClick.toString() !== hex) {
+            lastClick = ''
+            game.click(Hex.fromString(hex))
+            ui.touch()
+          }
         })
       })
     }
