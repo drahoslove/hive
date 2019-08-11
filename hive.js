@@ -140,6 +140,7 @@ function startMultiplayer() {
   const origHash = window.location.hash.substr(1)
   connect(origHash, (room, playerIndex, sendAction, onIncomingAction) => {
     ui.disableInputFor([0, 1]) // disable all input until ready/go
+    game.message = 'Wait for opponent'
     game.players[playerIndex].name = 'You'
     game.players[+!playerIndex].name = 'Them'
     ui.hideMenu()
@@ -171,6 +172,7 @@ function startMultiplayer() {
         if (action === 'ready') {
           sendAction('go')
         }
+        game.message = ''
         ui.disableInputFor([+!playerIndex]) // game can start => allow input
         return
       }
