@@ -525,7 +525,7 @@ export default function uiOf(game) {
   function drawMenu() {
     const textColor =  '#6669'
     game.menu.forEach(({pos, label, title, action, active}, i) => {
-      const base = hsl(-60*(i+5.75)) // set hue
+      const base = hsl(-60*(i-5.3)) // set hue
       const bkg = base(active ? 80 : 50) // set saturation
       _ctx.filter = action ? 'none' : 'brightness(150%) grayscale(95%) opacity(30%)'
 

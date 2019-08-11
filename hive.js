@@ -43,7 +43,7 @@ game.menu = [
     label: '⚙',
     title: 'config',
     pos: new Hex(-2, +2),
-    // action: () => { alert("nastavení zatím nefunguje")}
+    action: () => { alert("Zatím není co nastavovat")}
   },
   {
     label: '❓',
