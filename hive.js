@@ -41,13 +41,13 @@ game.backButton = {
 game.menu = [
   {
     label: '⚙',
-    title: 'config',
+    title: 'možnosti',
     pos: new Hex(-2, +2),
     action: () => { alert("Zatím není co nastavovat")}
   },
   {
     label: '❓',
-    title: 'help',
+    title: 'pravidla',
     pos: new Hex(-2, 0),
     action: () => {
       document.getElementById('help').classList.add('show')
@@ -58,19 +58,19 @@ game.menu = [
   },
   {
     label: '👤🌐👤',
-    title: 'multi',
+    title: 's někým',
     pos: new Hex(0, -2),
     action: startMultiplayer,
   },
   {
     label: '👤×👽',
-    title: 'single',
+    title: 'proti hře',
     pos: new Hex(+2, -2),
     action: vAI,
   },
   {
     label: '👤',
-    title: 'training',
+    title: 'tréning',
     pos: new Hex(+2, 0),
     action: () => {
       ui.disableInputFor([])
@@ -80,7 +80,7 @@ game.menu = [
   },
   {
     label: '👽×👽',
-    title: 'demo',
+    title: 'ukázka',
     pos: new Hex(0, +2),
     action: AIvAI,
   },
