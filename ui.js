@@ -8,6 +8,7 @@ export const hsl = (hue) => (sat) => (lig) => `hsl(${hue}, ${sat}%, ${lig}%)`;
 
 // returns new Ui class for given space
 export default function uiOf(game) {
+  const TITLE = "Hmyziště"
   const S = 64 // size of stone from point to point
   const Sf = S/16
   let CNW = 685
@@ -522,6 +523,19 @@ export default function uiOf(game) {
 
   function drawMenu() {
     const textColor =  '#6669'
+
+    const size = Sf*25
+
+    const [x, y] = [ CNW/2,  (CNH/2 - 3*S)/2 + size/3*2 ] 
+    _ctx.font = `normal bold ${size}px arial`
+    const w = _ctx.measureText(TITLE).width
+    _ctx.fillStyle = hsl(0)(0)(80)
+    _ctx.fillText(TITLE, x-w/2 +1, y +1)
+    _ctx.fillStyle = hsl(0)(0)(10)
+    _ctx.fillText(TITLE, x-w/2 -1, y -1)
+    _ctx.fillStyle = hsl(0)(0)(20)
+    _ctx.fillText(TITLE, x-w/2, y)
+
     game.menu.forEach(({pos, label, title, action, active}, i) => {
       const base = hsl(-60*(i-5.3)) // set hue
       const bkg = base(active ? 80 : 50) // set saturation
