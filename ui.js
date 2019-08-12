@@ -138,11 +138,11 @@ export default function uiOf(game) {
       game.players.forEach(({hand}) => {
         hand.each((bug, i) => {
           let {x, y} = hexToScreen(bug.pos)
-          x = CNW/2 - 4.5*S*SQRT3_2 + i*S*SQRT3_2 +1
+          x = CNW/2 - 4.5*S*SQRT3_2 + i*S*SQRT3_2 -1
           if (bug.pos.r <= 0) {
-            y = CNH * 0.09
+            y = CNH * 0 +S
           } else {
-            y = CNH * 0.91
+            y = CNH * 1 -S
           }
           bug.pos = screenToHex({x, y}).round()
         })
@@ -157,9 +157,9 @@ export default function uiOf(game) {
       _zoomStart = _zoom
       _zoomSince = performance.now()
       if (event.deltaY < 0) {
-        _zoom *= Math.SQRT2
+        _zoom *= Math.sqrt(Math.SQRT2)
       } else {
-        _zoom /= Math.SQRT2
+        _zoom /= Math.sqrt(Math.SQRT2)
       }
       if (_zoom > 2) {
         _zoom = 2
