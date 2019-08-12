@@ -35,6 +35,11 @@ export default class Game {
     this.onClick = null
   }
 
+  start () {
+    this.state = 'started'
+    this.message = ''
+  }
+
   disableInput() {
     this.inputDisabled = true
   }

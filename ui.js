@@ -346,7 +346,7 @@ export default function uiOf(game) {
         }
 
         if (game.message) {
-          if (game.message.state === 'end') {
+          if (game.state === 'end') {
             document.body.classList.remove('dark')
           }
           _drawQue.push(() => {
@@ -370,7 +370,7 @@ export default function uiOf(game) {
               })
             })
             // text
-            _ctx.font = "normal 52px monospace"
+            _ctx.font = "normal 48px monospace"
             const w = _ctx.measureText(game.message).width
             _ctx.fillStyle = '#eee'
             _ctx.fillText(game.message, x-w/2 -.5, y -.5)
@@ -830,7 +830,7 @@ export default function uiOf(game) {
     }
 
     // rotating circle
-    if (player === game.activePlayer()) {
+    if (player === game.activePlayer() && game.state === 'started') {
       _ctx.beginPath()
       _ctx.arc(x, y, r*SQRT2_3 +2, a, b, a<b)
       _ctx.strokeStyle = hsl((t*200)%360)(75)(50)

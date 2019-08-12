@@ -75,6 +75,7 @@ game.menu = [
     action: () => {
       ui.disableInputFor([])
       ui.hideMenu()
+      game.start()
     },
   },
   {
@@ -125,6 +126,7 @@ function AIvAI() {
   game.players[1].name = "Dull AI"
   ui.hideMenu()
   ui.disableInputFor([0,1])
+  game.start()
   AiInterval = setInterval(autoMove([0, 1]), 50)
 }
 
@@ -133,6 +135,7 @@ function vAI() {
   game.players[1].name = "Unsmart AI"
   ui.hideMenu()
   ui.disableInputFor([1])
+  game.start()
   AiInterval = setInterval(autoMove([1]), 800)
 }
 
@@ -141,11 +144,12 @@ function startMultiplayer() {
   connect(origHash, (room, playerIndex, sendAction, onIncomingAction) => {
     ui.disableInputFor([0, 1]) // disable all input until ready/go
     game.message = 'Čekej na spoluhráče'
+    game.state = 'wait'
     if (playerIndex === 1) { // swap the sides to ensure "you" is always at bottom
       ;[ game.players[1], game.players[0] ] = [ game.players[0], game.players[1] ]
     }
     game.players[playerIndex].name = 'Tvé já'
-    game.players[+!playerIndex].name = 'Protivník'
+    game.players[+!playerIndex].name = 'Soupeř'
     ui.hideMenu()
     let lastSentAction = ''
 
@@ -169,14 +173,34 @@ function startMultiplayer() {
       lastSentAction = action
       sendAction(action)
     }
-        
+
+    const go = () => {
+      game.message = ''
+      game.start()
+      ui.disableInputFor([+!playerIndex]) // game can start => allow input
+    }
+
     onIncomingAction((action) => {
-      if (action === 'ready' || action === 'go') {
-        if (action === 'ready') {
-          sendAction('go')
+      if (action.match(/ready|go/)) {
+        if (action === 'ready'+ +!playerIndex) {
+          if (game.state === 'wait') {
+            sendAction('go')
+            go()
+          } else {
+            game.message = "Soupeř restartoval hru"
+            ui.touch()
+            setTimeout(() => {
+              window.location.reload()
+            }, 1500)
+          }
         }
-        game.message = ''
-        ui.disableInputFor([+!playerIndex]) // game can start => allow input
+        if (action === 'go') { // go mean everyone goes
+          go()
+        }
+        // ready from my other socket is ignored
+        return
+      }
+      if (game.state !== 'started') {
         return
       }
       if (lastSentAction !== action) {
@@ -197,6 +221,6 @@ function startMultiplayer() {
       }
     })
 
-    sendAction('ready')
+    sendAction('ready'+playerIndex) // ready means I can go
   })
 }
