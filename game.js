@@ -153,7 +153,7 @@ export default class Game {
     const dead = this.players.map(player => {
       const queen = this.space.findBug(({name, owner}) =>
         name === 'Queen' && owner === player
-      )
+      , true)
       return queen && this.space.posOfNeighbors(queen.pos).length === 6
     })
     if (dead[0] && dead[1]) {

@@ -231,9 +231,17 @@ export class Space {
       return tile[tile.length-1]
     }
   }
+  atBottom(pos) {
+    const tile = this.at(pos)
+    if(tile && tile.length > 0) {
+      return tile[0]
+    }
+  }
 
-  findBug(check) {
-    return this.hivePositions().map(hex => this.atTop(hex)).find(check)
+  findBug(check, bottom=false) {
+    return bottom
+      ? this.hivePositions().map(hex => this.atBottom(hex)).find(check)
+      : this.hivePositions().map(hex => this.atTop(hex)).find(check)
   }
 
 

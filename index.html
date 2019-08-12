@@ -55,7 +55,6 @@ canvas {
   }
 }
 #help {
-  white-space: pre-wrap;
   position: absolute;
   width: 50%;
   height: 100%;
@@ -63,18 +62,25 @@ canvas {
   transition: left .5s ease-in-out;
   background: #000000d0;
   font-family: monospace;
+  font-size: 16px;
   padding: 1.5rem;
   box-sizing: border-box;
-  color: white;
+  color: #eeeeee;
+  overflow: auto; 
 }
 #help.show {
   left: 0%;
+}
+#help i {
+  font-family: emoji-symbols;
+  font-size: 125%;
+  font-style: normal;
 }
 #closehelp {
  width: 24px;
  height: 24px;
  border-radius: 50%;
- background: #ffffff80;
+ background: #eeeeee80;
  cursor: pointer;
  margin-left: auto;
  position: absolute;
@@ -96,35 +102,67 @@ canvas {
   <div id="loader">🕛</div>
   <div id="help">
     <div id="closehelp">×</div>
-Cílem je zablokovat ze všech šesti stran včelí královnu spoluhráče. Nemusí to být jen vlastními kameny.
+<i>🞋</i> Cíl:
+<ul>
+  <li>Cílem hry je zablokovat ze všech šesti stran včelí královnu spoluhráče <i>🐝</i>.</li>
+  <li>Nemusí to být jen vlastními kameny.</li>
+</ul>
 
-1) Pravidlo jedné kolonie:
- - Všechny vyložené kameny musí vždy tvořit jednotný, nedělitelný útvar.
+<i>☯</i> Pravidlo jedné kolonie:
+<ul>
+  <li>Všechny vyložené kameny musí vždy tvořit jednotný, nedělitelný útvar.</li>
+</ul>
 
-2) Vykládání:
- - Stejná pravidla pro všechny kameny.
- - Královna musí být umístěna nejpozději ve 4. kole.
- - Nové kameny můžeš umístit pouze do sousedství těch svých. První kámen umísti libovolně.
- - Nové kameny nesmíš umístit do sousedství těch protihráčových. S výjimkou druhého tahu.
+<i>⬊</i> Vykládání:
+<ul>
+  <li>Nové kameny můžeš umístit pouze do sousedství těch svých. První kámen umísti libovolně.</li>
+  <li>Nové kameny nesmíš umístit do sousedství těch protihráčových. S výjimkou druhého tahu.</li>
+  <li>Stejná pravidla pro všechny kameny.</li>
+  <li>Královna musí být umístěna nejpozději ve 4. kole.</li>
+</ul>
 
-3) Přesouvání:
- - Kameny můžeš přesouvat až poté, co umístíš královnu.
- - Přesouváním kamenů nesmíš porušit pravidlo 1), a to po celou dobu přesunu.
- - Kameny nejde vmáčknout do úzkých škvír, kam se fyzicky neprocpou. (Kromě kobylky a někdy berušky)
- - Různé kameny mají různá pravidla pohybu:
+<i>⬌</i> Přesouvání:
+<ul>
+  <li>Kameny můžeš přesouvat až poté, co umístíš královnu.</li>
+  <li>Přesouváním kamenů nesmíš porušit pravidlo jedné kolonie <i>☯</i>, a to po celou dobu přesunu.</li>
 
-  A) Královna:
-   - může se pohybovat jen o 1 krok
-  B) Beruška:
-   - může se pohybovat jen o 1 krok
-   - navíc může vlézt na jiný kámen, a tím ho zablokovat
-   - pro účely pravidla 2) se takové políčko bere jako tvé
-  C) Mravenec:
-   - může se přesunout na libovolné místo dostupné po obvodu
-  D) Pavouk:
-   - může se přesunout na tři kroky vzdálené místo dostupné po obvodu
-  E) Kobylka:
-   - může přeskočit rovně přes jedno, či více obsazených políček
+  <li>Různé kameny mají různá pravidla pohybu:</li>
+    <i>🐜</i> Mravenec:
+    <ul>
+      <li>může se přesunout na libovolné místo dostupné po obvodu</li>
+      <li>nejmocnější kámen ve hře</li>
+    </ul>
+    <i>🕷️</i> Pavouk:
+    <ul>
+      <li>může se přesunout na 3 kroky vzdálené místo dostupné po obvodu</li>
+    </ul>
+    <i>🐝</i> Včelí královna:
+    <ul>
+      <li>může se pohybovat jen o 1 krok</li>
+    </ul>
+    <i>🐞</i> Beruška:
+    <ul>
+      <li>může se pohybovat jen o 1 krok</li>
+      <li>navíc může vlézt na jiný kámen, a tím ho zablokovat</li>
+      <li>pro účely pravidla vykládání <i>⬊</i> se takové políčko bere jako tvé
+    </ul>
+    <i>🦗</i> Kobylka:
+    <ul>
+      <li>může přeskočit rovně přes jedno, či více obsazených políček</li>
+    </ul>
+</ul>
+
+<i>⚠</i> Volnost pohybu:
+<ul>
+  <li>Kameny nelze vmáčknout tam, kam se fyzicky neprocpou při posunu po zemi.</li>
+  <li>Neplatí pro:</li>
+  <ul>
+      <li>vykládání <i>⬊</i>,</li>
+      <li>kobylku, která skáče, a</li>
+      <li>berušku, když stoupá/klesá.</li>
+  </ul>
+
+</ul>
 
   </div>
   <script type="module" src="hive.js"></script>

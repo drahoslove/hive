@@ -70,7 +70,7 @@ game.menu = [
   },
   {
     label: '👤',
-    title: 'tréning',
+    title: 'trénink',
     pos: new Hex(+2, 0),
     action: () => {
       ui.disableInputFor([])
@@ -131,8 +131,8 @@ function AIvAI() {
 }
 
 function vAI() {
-  game.players[0].name = "Ty"
-  game.players[1].name = "Unsmart AI"
+  game.players[0].name = "Tvé IQ"
+  game.players[1].name = "Hloupé AI"
   ui.hideMenu()
   ui.disableInputFor([1])
   game.start()
