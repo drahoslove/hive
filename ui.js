@@ -524,7 +524,7 @@ export default function uiOf(game) {
   function drawMenu() {
     const textColor =  '#6669'
 
-    const size = Sf*25
+    const size = Sf*24
 
     const [x, y] = [ CNW/2,  (CNH/2 - 3*S)/2 + size/3*2 ] 
     _ctx.font = `normal bold ${size}px arial`
