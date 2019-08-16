@@ -104,6 +104,9 @@ export default class Game {
         return false
       }
       this.landings = this.space.possibleLandings(bug)
+      if (this.selected === bug) { // already selected
+        bug = null // deselect
+      }
       this.selected = bug
       return true
     }
@@ -131,6 +134,9 @@ export default class Game {
       }
     }
 
+    if (this.selected === bug) { // already selected
+      bug = null // deselect
+    }
     this.selected = bug
     if (bug) {
       return true
