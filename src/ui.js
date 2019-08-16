@@ -527,7 +527,7 @@ export default function uiOf(game) {
     const size = Sf*24
 
     const [x, y] = [ CNW/2,  (CNH/2 - 3*S)/2 + size/3*2 ] 
-    _ctx.font = `normal bold ${size}px arial`
+    _ctx.font = `normal ${size}px 'Titan One'`
     const w = _ctx.measureText(TITLE).width
     _ctx.fillStyle = hsl(0)(0)(80)
     _ctx.fillText(TITLE, x-w/2 +1, y +1)
