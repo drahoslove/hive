@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width">
-<link rel="icon" href="favicon.png">
+<link rel="icon" href="/img/favicon.png">
 <title>Hmyziště - hra</title>
 <meta name="description" content="Bezdesková hmyzí deskovka. Abstraktní strategická hra pro dva, založená na hře Hive.">
 <meta name="author" content="Draho.cz" />
@@ -11,8 +11,8 @@
 @font-face {
   font-family: "emoji-symbols";
   src:
-    url("Symbola.woff") format("woff"),
-    url("Symbola.ttf") format("truetype");
+    url("font/Symbola.woff") format("woff"),
+    url("font/Symbola.ttf") format("truetype");
 }
 body, html {
   margin: 0; 
@@ -21,7 +21,7 @@ body, html {
 }
 body {
   position: relative;
-  background: #111 url(./noise.png);
+  background: #111 url(img/noise.png);
   transition: background .5s ease-in-out;
 }
 body.dark {
@@ -167,8 +167,8 @@ canvas {
 </ul>
 
   </div>
-  <script type="module" src="hive.js"></script>
-  <script src="socket.io.js"></script>
+  <script src="lib/socket.io.js"></script>
+  <script type="module" src="src/hive.js"></script>
   <script nomodule src="hive-bundle.js"></script>
 </body>
 </html>

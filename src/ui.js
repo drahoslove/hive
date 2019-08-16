@@ -62,7 +62,7 @@ export default function uiOf(game) {
       // prepare cached background
       if (!_cachedBackground) {
         _cachedBackground = document.createElement('img')
-        _cachedBackground.src = 'background.png'
+        _cachedBackground.src = 'img/background.png'
         _cachedBackground.onload = (e) => {
           _invalidated = true
         }

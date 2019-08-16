@@ -2,7 +2,7 @@
   "name": "hive",
   "version": "1.0.0",
   "description": "",
-  "main": "hive.js",
+  "main": "index.html",
   "author": "draho.cz",
   "license": "ISC",
   "dependencies": {
@@ -18,8 +18,8 @@
     "webpack-dev-server": "^3.7.2"
   },
   "scripts": {
-    "build": "webpack --mode development --module-bind js=babel-loader --entry ./hive.js -o ./hive-bundle.js",
-    "start": "webpack-dev-server --module-bind js=babel-loader --entry ./hive.js -o ./hive-bundle.js",
+    "build": "webpack --mode development --module-bind js=babel-loader --entry ./src/hive.js -o ./hive-bundle.js",
+    "start": "webpack-dev-server --module-bind js=babel-loader --entry ./src/hive.js -o ./hive-bundle.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
