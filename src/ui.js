@@ -205,11 +205,15 @@ export default function uiOf(game) {
       _canvas.style.cursor = 'default'
       _invalidated = true // always animate on mousemove
       if (_showMenu) {
+        const mouseHex = eventToExactHex(event)
         game.menu.forEach(({pos, action}, i) => {
-          if (game.menu[i].active = action && eventToExactHex(event).distance(pos) <= 1) {
+          if (game.menu[i].active = action && mouseHex.distance(pos) <= 1) {
             _canvas.style.cursor = 'pointer'
           }
         })
+        const up = new Hex(1,-2)
+        const mouseAngle = up.angle(mouseHex)
+        _beeRot = mouseAngle / Math.PI * 180 + 45
         return
       }
 
@@ -627,7 +631,10 @@ export default function uiOf(game) {
       }
     })
     // bee
-    if (game.menu.every(({ active }) => !active)) {
+    if (!game.menu.some(({ active }) => active)) {
+      _beeRot += (11-rand(23))
+      _beeRot %= 360
+
       const bee = new Queen()
       const w = _ctx.measureText(bee.symbol).width
       const {x, y} = hexToScreen(new Hex(0, 0))
@@ -642,9 +649,6 @@ export default function uiOf(game) {
         _ctx.fillStyle = clr(60)
         _ctx.fillText(bee.symbol, x-w, y+25)
       })
-
-      _beeRot += (11-rand(23)) * 2
-      _beeRot %= 360
     }
   }
 

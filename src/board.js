@@ -43,6 +43,10 @@ export class Hex {
     return this.toCube().distance(hex.toCube())
   }
 
+  angle(hex) {
+    return this.toCube().angle(hex.toCube())
+  }
+
   directionTo(hex) {
     return this.toCube().directionTo(hex.toCube()).toHex()
   }
@@ -128,6 +132,20 @@ export class Cube {
 
   distance({x, y, z}) {
     return (Math.abs(this.x - x) + Math.abs(this.y - y) + Math.abs(this.z - z)) / 2
+  }
+
+  size() { // size fo the 3d vector
+    return Math.sqrt(this.x**2 + this.y**2 + this.z**2)
+  }
+
+  angle(c) { // related to 0,0,0
+    let cosPhi = (this.x*c.x + this.y*c.y + this.z*c.z)/
+      (this.size() * c.size())
+    cosPhi = Math.max(-1, Math.min(cosPhi, +1)) // keep in -1 .. +1 range
+    let a =  Math.acos(cosPhi)
+    if (c.x + c.y/2 < 0) // TODO this only work of up directed this
+      a = -a
+    return a
   }
 
   directionTo({x, y, z}) {
