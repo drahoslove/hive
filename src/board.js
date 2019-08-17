@@ -460,7 +460,7 @@ export class Space {
   }
 
   // returns array of hex position where bug of given color can land
-  possibleLandings({owner}) {
+  possibleLandings(owner) {
     if (this._stones === 0) { 
       return [new Hex(0, 0), ...Hex.directions]
     } 
@@ -471,7 +471,7 @@ export class Space {
   }
 
   __randomLandingPos(owner) {
-    const positions = this.possibleLandings({owner})
+    const positions = this.possibleLandings(owner)
     return positions[rand(positions.length)] || __randomBugPos(owner)
   }
 

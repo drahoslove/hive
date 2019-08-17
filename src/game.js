@@ -103,7 +103,7 @@ export default class Game {
       if (this.hasToPlaceQueenNow() && bug.name !== 'Queen') {
         return false
       }
-      this.landings = this.space.possibleLandings(bug)
+      this.landings = this.space.possibleLandings(bug.owner)
       if (this.selected === bug) { // already selected
         bug = null // deselect
       }
@@ -152,7 +152,9 @@ export default class Game {
     this.landings = []
     this.checkEnd() 
     this.switchPlayers()
+    this.pass = this.hasToPass()
     console.log(String(this.space))
+    console.log(this.pass)
   }
 
   checkEnd () {
@@ -177,6 +179,23 @@ export default class Game {
       this.state = 'end'
       return true
     }
+  }
+
+  hasToPass () {
+    const player = this.activePlayer()
+    let canLand = this.space.possibleLandings(player).length > 0
+    let canMove = false
+    if (this.isQueenPlaced()) {
+      this.space.each((bug) => {
+        if (
+          bug.owner === player &&
+          bug.reachablePlaces(this.space).length > 0
+        ) {
+          canMove = true
+        }
+      })
+    }
+    return !canLand && !canMove
   }
 
   isQueenPlaced() {
