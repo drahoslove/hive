@@ -154,7 +154,6 @@ export default class Game {
     this.switchPlayers()
     this.pass = this.hasToPass()
     console.log(String(this.space))
-    console.log(this.pass)
   }
 
   checkEnd () {

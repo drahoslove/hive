@@ -39,11 +39,15 @@ export class Bug {
       return null
     }
   }
-  go(path, moveType) {
+  go(path, moveType, order) {
     this.pos = path[path.length-1]
 
+    let delay = order ? order*25 : 0
     let ms = 0
     let ease = t => t
+    if (moveType === "shift") {
+      ms = 150
+    }
     if (moveType === "land") {
       ms = 250
     }
@@ -57,6 +61,7 @@ export class Bug {
       path,
       ms,
       ease,
+      delay,
     }
 
   }

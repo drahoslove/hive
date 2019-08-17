@@ -383,12 +383,6 @@ export default function uiOf(game) {
         }
 
         // end
-        _invalidated = someAnimating || false
-        if (!_invalidated && !this._oneMoreFrame || _showNames) {
-          this._oneMoreFrame = true
-        } else {
-          this._oneMoreFrame = false
-        }
 
         // call deffered drawing stuff for board
         while(_drawQue.len() > 0) {
@@ -417,8 +411,12 @@ export default function uiOf(game) {
               grad.addColorStop(1, `hsla(${(Math.floor(t/30)% 360)}, 0%, 50%, 0)`)
               _ctx.fillStyle = grad
               _ctx.fillRect(X, Y, W, H)
+
+              if (bug.animation) {
+                someAnimating = true
+              }
+              drawBug(bug, undefined, true, t)
             })
-            hand.each(b => drawBug(b, undefined, true, t))
           }
         })
 
@@ -428,7 +426,14 @@ export default function uiOf(game) {
         while(_drawQue.len() > 0) {
           _drawQue.pop()()
         }
-  
+
+         // end
+        _invalidated = someAnimating || false
+        if (!_invalidated && !this._oneMoreFrame || _showNames) {
+          this._oneMoreFrame = true
+        } else {
+          this._oneMoreFrame = false
+        }
       }
 
       // render always:
@@ -661,55 +666,54 @@ export default function uiOf(game) {
     let someAnimating = false
     const offset = new Hex(+0.0, -0.2)
     tile.forEach((bug, i) => {
-      let drawPos = bug.pos.add(offset.scale(i))
       const isTop = i === tile.length - 1
 
-      if (bug.animation) { // drawing
-        const  { ms, path, since, ease } = bug.animation
-        const sofar = performance.now() - since
-        const jumps = path.length-1
-        const duration = ms*jumps * 1
-
-        if (sofar > duration) { // destination reached
-          bug.animation = null
-        } else {
-          someAnimating = true
-
-          // compute drawPos position during animation
-          const t = ease(Math.min(sofar/duration), 1)
-          const i = Math.floor(t * jumps) // path segment index
-          const diff = (i >= jumps)
-            ? console.error('index jumped outof path') || new Hex(0,0) // this should not happen?
-            : path[i+1].sub(path[i])
-          const tSeg = (t * duration % ms)/ms // 0-1
-          drawPos = path[i].add(diff.scale(tSeg))
-        }
-      }
-
-      const draw = () => drawBug(bug, drawPos, isTop, t)
+      const draw = () => drawBug(bug, offset.scale(i), isTop, t)
 
       const isMoving = Boolean(bug.animation)
       let prio = 0 + // most bugs are grounded
         +(i > 0) + // higher elevation on top
-        +isMoving // animating draw even higher
+        +isMoving*2 // animating draw even higher
 
       _drawQue.push(draw, prio)
+      someAnimating = someAnimating || isMoving
     })
 
     return someAnimating
   }
 
-  function drawBug(bug, pos, isTop, t=0) {
+  function drawBug(bug, offset, isTop, t=0) {
     let r = S/2
 
-    if (!pos) { // hand bug
-      pos = bug.pos
-      // r *= 1.25
+    let pos = bug.pos
+    if (offset) {
+      pos = pos.add(offset)
+    }
+
+    if (bug.animation) { // drawing
+      const  { ms, path, since, ease, delay } = bug.animation
+      const sofar = performance.now() - since - delay
+      const jumps = path.length-1
+      const duration = ms*jumps * 1
+
+      if (sofar > duration) { // destination reached
+        bug.animation = null
+      } else {
+        // compute drawPos position during animation
+        const t = ease(Math.min(Math.max(0, sofar/duration), 1))
+        const i = Math.floor(t * jumps) // path segment index
+        const diff = (i >= jumps)
+          ? console.error('index jumped outof path') || new Hex(0,0) // this should not happen?
+          : path[i+1].sub(path[i])
+        const tSeg = (t * duration % ms)/ms // 0-1
+        pos = path[i].add(diff.scale(tSeg))
+      }
     }
 
     let {x, y} = hexToScreen(pos)
 
-    const highlighted = _target && _target.eq(bug.pos) && game.isClickable(_target) && isTop || game.selected === bug || bug.animation
+    const highlighted = _target && _target.eq(bug.pos) && game.isClickable(_target) && isTop ||
+    game.selected === bug
     if (highlighted) {
       r *= 1.25
     }

@@ -271,11 +271,11 @@ export class Space {
           throw Error(`Tried to move bug ${bug.toString()} from tile ${oldTile} but it is not is not ontop`)
         }
         // movement speed
-        bug.go(path, "move")
+        bug.go(path, 'move')
       } else { // placing
         bug.placed = true
         path = [bug.pos, dest]
-        bug.go(path, "land")
+        bug.go(path, 'land')
         this._stones++
       }
 
@@ -529,11 +529,23 @@ export class Hand {
 
   // remove bug from hand (if possible)
   takeBug(bug) {
+    let index
     this._hand.forEach((b, i) => {
       if (b === bug) {
         this._hand[i] = null
+        index = i
       }
     })
+    if (index !== undefined) {
+      let n = 0
+      let len = this.size()
+      this._hand.forEach((bug, i) => {
+        if (bug && i < index) {
+          const path = [bug.pos, bug.pos.add(new Hex(1, 0))]
+          bug.go(path, 'shift', (1 + len - n++))
+        }
+      })
+    }
   }
 
   __getRandomBugPos() {
