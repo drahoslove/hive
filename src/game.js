@@ -1,5 +1,5 @@
 import { rand } from './common.js'
-import { Hand, Space } from './board.js'
+import { Hex,  Hand, Space } from './board.js'
 import {
   Bug,
   Queen,
@@ -33,6 +33,15 @@ export default class Game {
     this._activePlayerIndex = 0
     this.message = ""
     this.onClick = null
+    this.canPass = false
+    this.passButton = {
+      label: 'Předat',
+      pos: new Hex(6, 0),
+      action: () => {
+        this.switchPlayers()
+        this.canPass = this.hasToPass()
+      },
+    }
   }
 
   start () {
@@ -54,8 +63,13 @@ export default class Game {
     }
 
     if (this.onClick && !silent) {
-      console.log('click',hex)
+      console.log('click', hex)
       this.onClick(hex)
+    }
+
+    if (this.canPass && this.passButton.pos.eq(hex)) {
+      this.passButton.action()
+      return
     }
 
     if (this.selected && this.landings.some(x => x.eq(hex))) {
@@ -69,6 +83,13 @@ export default class Game {
     if (this.inputDisabled || this.state === 'end') {
       return false
     }
+    // passButton
+    if (this.canPass && this.passButton.pos.eq(hex)) {
+      this.passButton.active = true
+      return true
+    } 
+    this.passButton.active = false
+
     // selectable inhand bug
     let handBug = this.activePlayer().hand.find(bug => bug.pos.eq(hex))
     if (handBug) {
@@ -152,7 +173,7 @@ export default class Game {
     this.landings = []
     this.checkEnd() 
     this.switchPlayers()
-    this.pass = this.hasToPass()
+    this.canPass = this.hasToPass()
     console.log(String(this.space))
   }
 
@@ -182,12 +203,17 @@ export default class Game {
 
   hasToPass () {
     const player = this.activePlayer()
-    let canLand = this.space.possibleLandings(player).length > 0
+    let canLand = player.hand.size() > 0 && this.space.possibleLandings(player).length > 0
     let canMove = false
     if (this.isQueenPlaced()) {
-      this.space.each((bug) => {
+      this.space.each((tile) => {
+        if (tile.length === 0) {
+          return
+        }
+        const bug = tile[tile.length-1]
         if (
           bug.owner === player &&
+          !this.space.isHiveBridge(bug.pos) &&
           bug.reachablePlaces(this.space).length > 0
         ) {
           canMove = true

@@ -135,10 +135,11 @@ export default function uiOf(game) {
         // screenToHex({x: S*SQRT2_3+8, y: S+24}),
       }
       backButtonPos = screenToHex({x: 0, y: CNH/2})
-      game.players.forEach(({hand}) => {
+      game.players.forEach(({hand}, i) => {
+        const size = hand.size()
         hand.each((bug, i) => {
           let {x, y} = hexToScreen(bug.pos)
-          x = CNW/2 - 4.5*S*SQRT3_2 + i*S*SQRT3_2 -1
+          x = CNW/2 - 4.5*S*SQRT3_2 + (11-size+i)*S*SQRT3_2 -1
           if (bug.pos.r <= 0) {
             y = CNH * 0 +S
           } else {
@@ -146,6 +147,12 @@ export default function uiOf(game) {
           }
           bug.pos = screenToHex({x, y}).round()
         })
+        if (i === game._activePlayerIndex) {
+          game.passButton.pos = screenToHex({
+            x: CNW/2 - 4.5*S*SQRT3_2 + 10*S*SQRT3_2 -1,
+            y: CNH * 1 -S*2,
+          }).round()
+        }
       })
       _invalidated = true
     }
@@ -186,9 +193,10 @@ export default function uiOf(game) {
       }
       const handTarget = eventToGuiHex(event)
       const spaceTarget = eventToSpaceHex(event)
-      const target = game.activePlayer().hand.some(({pos}) => pos.eq(handTarget))
-        ? handTarget
-        : spaceTarget
+      const target = game.activePlayer().hand.some(({pos}) => pos.eq(handTarget)) ||
+        (game.canPass && game.passButton.pos.eq(handTarget))
+          ? handTarget
+          : spaceTarget
       game.click(target)
       _invalidated = true
     }
@@ -218,9 +226,10 @@ export default function uiOf(game) {
 
       const handTarget = eventToGuiHex(event)
       const spaceTarget = eventToSpaceHex(event)
-      const target = game.activePlayer().hand.some(({pos}) => pos.eq(handTarget))
-        ? handTarget
-        : spaceTarget
+      const target = game.activePlayer().hand.some(({pos}) => pos.eq(handTarget)) ||
+        (game.canPass && game.passButton.pos.eq(handTarget))
+          ? handTarget
+          : spaceTarget
 
       if (game.isClickable(target)) {
         _canvas.style.cursor = 'pointer'
@@ -398,6 +407,7 @@ export default function uiOf(game) {
         game.players.forEach(({hand}) => {
           if (!hand.isEmpty()) {
             hand.each((bug) => {
+              // draw 'shadows'
               const which = bug.pos.r < 0 // top or bottom hand
               const {x, y} = hexToScreen(bug.pos)
               const [X, Y, W, H] = !which
@@ -412,13 +422,16 @@ export default function uiOf(game) {
               _ctx.fillStyle = grad
               _ctx.fillRect(X, Y, W, H)
 
+              // bug itself
+              drawBug(bug, undefined, true, t)
               if (bug.animation) {
                 someAnimating = true
               }
-              drawBug(bug, undefined, true, t)
             })
           }
         })
+
+        game.canPass && drawPassButton(game.passButton)
 
         drawBackButton(game.backButton)
 
@@ -501,6 +514,38 @@ export default function uiOf(game) {
     )
   }
 
+  function drawPassButton({pos, label, active}) {
+    const r = S/2
+    const textColor = '#6669'
+    const base = hsl(-10)
+    const bkg = base(active ? 65 : 0)
+    if (_disabledPlayers.includes(game._activePlayerIndex)) {
+      pos = pos.scale(1)
+      pos.r *= -1
+      pos.q -= pos.r
+    }
+    const {x, y} = hexToScreen(pos)
+    // drawStone(x, y, r, bkg(50), [bkg(80), bkg(20)])
+    game.isClickable(pos) && drawOutline(pos, HUE_CLICKABLE)
+
+    //outline
+    hexPath(_ctx, x, y, r-1)
+    _ctx.strokeStyle = bkg(40)
+    _ctx.lineWidth = 2
+    _ctx.lineCap = 'round'
+    _ctx.lineJoin = 'round'
+    _ctx.stroke()
+    // text
+    _ctx.font = `normal bold ${Sf*3.5}px monospace`
+    const w = _ctx.measureText(label).width
+    _ctx.fillStyle = bkg(80)
+    _ctx.fillText(uncolorEmoji(label), x-w/2+.5, y+2+.5)
+    _ctx.fillStyle = bkg(20)
+    _ctx.fillText(uncolorEmoji(label), x-w/2-.5, y+2-.5)
+    _ctx.fillStyle = textColor
+    _ctx.fillText(uncolorEmoji(label), x-w/2,    y+2   )
+  }
+
   function drawBackButton({pos=backButtonPos, label, active}) {
     const r = S/1.5
     const textColor = '#6669'
@@ -509,7 +554,7 @@ export default function uiOf(game) {
     const {x, y} = hexToScreen(pos)
     drawStone(x, y, r, bkg(50), [bkg(80), bkg(20)])
     //outline
-    hexPath(_ctx, 0, y, r-1)
+    hexPath(_ctx, x, y, r-1)
     _ctx.strokeStyle = bkg(40)
     _ctx.lineWidth = 2
     _ctx.lineCap = 'round'
@@ -519,11 +564,11 @@ export default function uiOf(game) {
     _ctx.font = `normal bold ${Sf*9}px emoji-symbols`
     const w = _ctx.measureText(label).width
     _ctx.fillStyle = bkg(80)
-    _ctx.fillText(uncolorEmoji(label), r/3-w/2+.5, y+4+.5)
+    _ctx.fillText(uncolorEmoji(label), x+r/3-w/2+.5, y+4+.5)
     _ctx.fillStyle = bkg(20)
-    _ctx.fillText(uncolorEmoji(label), r/3-w/2-.5, y+4-.5)
+    _ctx.fillText(uncolorEmoji(label), x+r/3-w/2-.5, y+4-.5)
     _ctx.fillStyle = textColor
-    _ctx.fillText(uncolorEmoji(label), r/3-w/2,    y+4   )
+    _ctx.fillText(uncolorEmoji(label), x+r/3-w/2,    y+4   )
   }
 
   function drawMenu() {

@@ -105,6 +105,11 @@ const autoMove = (players) => () => {
   if (!players.includes(game._activePlayerIndex)) {
     return
   }
+  if (game.canPass) {
+    console.log('canpass')
+    game.click(game.passButton.pos)
+    return
+  }
   !game.selected
     ? game.click(
       rand(game.activePlayer().hand.size()+1)
@@ -166,6 +171,8 @@ function startMultiplayer() {
         if (handBug) {
           const i = game.activePlayer().hand.indexOf(handBug)
           action =`${pi}H${i}` // hand click
+        } else if (game.passButton.pos.eq(hex)) {
+          action =`${pi}P` // pass
         } else {
           action = `${pi}S${hex.toString()}` // space click
         }
@@ -214,6 +221,9 @@ function startMultiplayer() {
           }
           if (action[1] === 'S') { // space click
             hex = Hex.fromString(action.substr(2))
+          }
+          if (action[1] === 'P') { // pass button click
+            hex = game.passButton.pos
           }
         }
         game.click(hex)
