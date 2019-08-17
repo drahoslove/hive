@@ -524,9 +524,9 @@ export default function uiOf(game) {
   function drawMenu() {
     const textColor =  '#6669'
 
-    const size = Sf*24
+    const size = Sf*22
 
-    const [x, y] = [ CNW/2,  (CNH/2 - 3*S)/2 + size/3*2 ] 
+    const [x, y] = [ CNW/2,  (CNH/2 - 3*S)/2 + size*3/4 ]
     _ctx.font = `normal ${size}px 'Titan One'`
     const w = _ctx.measureText(TITLE).width
     _ctx.fillStyle = hsl(0)(0)(80)
@@ -546,9 +546,9 @@ export default function uiOf(game) {
       drawStone(x, y, S, bkg(50), [bkg(80), bkg(20)]) // set lightness
 
       // outline
-      hexPath(_ctx, x, y, S-2)
+      hexPath(_ctx, x, y, S-1)
       _ctx.strokeStyle = bkg(40)
-      _ctx.lineWidth = 4
+      _ctx.lineWidth = 2
       _ctx.lineCap = 'round'
       _ctx.lineJoin = 'round'
       _ctx.stroke()
