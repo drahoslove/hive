@@ -53,6 +53,10 @@ export default function uiOf(game) {
 
   return new class Ui {
     constructor() {
+      document.fonts.load(`normal 1em 'Titan One'`, TITLE).then(font => {
+        console.log('font laoded', font)
+        _invalidated = true
+      })
     }
     on(canvas) {
       _canvas = canvas
@@ -582,13 +586,15 @@ export default function uiOf(game) {
 
     const [x, y] = [ CNW/2,  (CNH/2 - 3*S)/2 + size*3/4 ]
     _ctx.font = `normal ${size}px 'Titan One'`
-    const w = _ctx.measureText(TITLE).width
-    _ctx.fillStyle = hsl(0)(0)(80)
-    _ctx.fillText(TITLE, x-w/2 +1, y +1)
-    _ctx.fillStyle = hsl(0)(0)(10)
-    _ctx.fillText(TITLE, x-w/2 -1, y -1)
-    _ctx.fillStyle = hsl(0)(0)(20)
-    _ctx.fillText(TITLE, x-w/2, y)
+    if (document.fonts.check(_ctx.font, TITLE)) {
+      const w = _ctx.measureText(TITLE).width
+      _ctx.fillStyle = hsl(0)(0)(80)
+      _ctx.fillText(TITLE, x-w/2 +1, y +1)
+      _ctx.fillStyle = hsl(0)(0)(10)
+      _ctx.fillText(TITLE, x-w/2 -1, y -1)
+      _ctx.fillStyle = hsl(0)(0)(20)
+      _ctx.fillText(TITLE, x-w/2, y)
+    }
 
     game.menu.forEach(({pos, label, title, action, active}, i) => {
       const base = hsl(-60*(i-5.3)) // set hue
