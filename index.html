@@ -65,10 +65,15 @@ canvas {
   transition: left .5s ease-in-out;
   background: rgba(0, 0, 0, 0.81);
   font-family: monospace;
+  overflow: hidden;
+}
+#help .help-content {
+  box-sizing: border-box;
   font-size: 16px;
   padding: 1.5rem;
-  box-sizing: border-box;
   color: #eeeeee;
+  position: absolute;
+  height: 100%;
   overflow: auto;
 }
 #help.show {
@@ -80,19 +85,29 @@ canvas {
   font-style: normal;
 }
 #closehelp {
- width: 24px;
- height: 24px;
+ position: absolute;
+ right: 12px;
+ top: 12px;
+ z-index: 1;
+ width: 30px;
+ height: 30px;
  border-radius: 50%;
  background: rgba(238, 238, 238, 0.50);
  cursor: pointer;
  margin-left: auto;
- position: absolute;
- right: 10px;
- top: 10px;
  text-align: center;
  box-sizing: border-box;
- font-size: 20px;
+ font-size: 24px;
  color: #030303;
+}
+::-webkit-scrollbar {
+  width: 12px;
+}
+::-webkit-scrollbar-track {
+}
+::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+  background: rgba(238, 238, 238, 0.25);
 }
 </style>
 </head>
@@ -105,68 +120,71 @@ canvas {
   <div id="loader">🕛</div>
   <div id="help">
     <div id="closehelp">×</div>
-<i>🞋</i> Cíl:
-<ul>
-  <li>Cílem hry je obklopit ze všech šesti stran včelí královnu spoluhráče <i>🐝</i>.</li>
-  <li>Nemusí to být jen vlastními kameny.</li>
-</ul>
+    <div class="help-content">
+      <!-- help content start -->
+      <i>🞋</i> Cíl:
+      <ul>
+        <li>Cílem hry je obklopit ze všech šesti stran včelí královnu spoluhráče <i>🐝</i>.</li>
+        <li>Nemusí to být jen vlastními kameny.</li>
+      </ul>
 
-<i>☯</i> Pravidlo jedné kolonie:
-<ul>
-  <li>Všechny vyložené kameny musí vždy tvořit jednotný, nedělitelný útvar.</li>
-</ul>
+      <i>☯</i> Pravidlo jedné kolonie:
+      <ul>
+        <li>Všechny vyložené kameny musí vždy tvořit jednotný, nedělitelný útvar.</li>
+      </ul>
 
-<i>⬊</i> Vykládání:
-<ul>
-  <li>Nové kameny můžeš umístit pouze do sousedství těch svých. První kámen umísti libovolně.</li>
-  <li>Nové kameny nesmíš umístit do sousedství těch protihráčových. S výjimkou druhého tahu.</li>
-  <li>Stejná pravidla pro všechny kameny.</li>
-  <li>Královna musí být umístěna nejpozději ve 4. kole.</li>
-</ul>
+      <i>⬊</i> Vykládání:
+      <ul>
+        <li>Nové kameny můžeš umístit pouze do sousedství těch svých. První kámen umísti libovolně.</li>
+        <li>Nové kameny nesmíš umístit do sousedství těch protihráčových. S výjimkou druhého tahu.</li>
+        <li>Stejná pravidla pro všechny kameny.</li>
+        <li>Královna musí být umístěna nejpozději ve 4. kole.</li>
+      </ul>
 
-<i>⬌</i> Přesouvání:
-<ul>
-  <li>Kameny můžeš přesouvat až poté, co umístíš královnu.</li>
-  <li>Přesouváním kamenů nesmíš porušit pravidlo jedné kolonie <i>☯</i>, a to po celou dobu přesunu.</li>
+      <i>⬌</i> Přesouvání:
+      <ul>
+        <li>Kameny můžeš přesouvat až poté, co umístíš královnu.</li>
+        <li>Přesouváním kamenů nesmíš porušit pravidlo jedné kolonie <i>☯</i>, a to po celou dobu přesunu.</li>
 
-  <li>Různé kameny mají různá pravidla pohybu:</li>
-    <i>🐜</i> Mravenec:
-    <ul>
-      <li>může se přesunout na libovolné místo dostupné po obvodu</li>
-      <li>nejmocnější kámen ve hře</li>
-    </ul>
-    <i>🕷️</i> Pavouk:
-    <ul>
-      <li>může se přesunout na 3 kroky vzdálené místo dostupné po obvodu</li>
-    </ul>
-    <i>🐝</i> Včelí královna:
-    <ul>
-      <li>může se pohybovat jen o 1 krok</li>
-    </ul>
-    <i>🐞</i> Beruška:
-    <ul>
-      <li>může se pohybovat jen o 1 krok</li>
-      <li>navíc může vlézt na jiný kámen, a tím ho zablokovat</li>
-      <li>pro účely pravidla vykládání <i>⬊</i> se takové políčko bere jako tvé
-    </ul>
-    <i>🦗</i> Kobylka:
-    <ul>
-      <li>může přeskočit rovně přes jedno, či více obsazených políček</li>
-    </ul>
-</ul>
+        <li>Různé kameny mají různá pravidla pohybu:</li>
+          <i>🐜</i> Mravenec:
+          <ul>
+            <li>může se přesunout na libovolné místo dostupné po obvodu</li>
+            <li>nejmocnější kámen ve hře</li>
+          </ul>
+          <i>🕷️</i> Pavouk:
+          <ul>
+            <li>může se přesunout na 3 kroky vzdálené místo dostupné po obvodu</li>
+          </ul>
+          <i>🐝</i> Včelí královna:
+          <ul>
+            <li>může se pohybovat jen o 1 krok</li>
+          </ul>
+          <i>🐞</i> Beruška:
+          <ul>
+            <li>může se pohybovat jen o 1 krok</li>
+            <li>navíc může vlézt na jiný kámen, a tím ho zablokovat</li>
+            <li>pro účely pravidla vykládání <i>⬊</i> se takové políčko bere jako tvé
+          </ul>
+          <i>🦗</i> Kobylka:
+          <ul>
+            <li>může přeskočit rovně přes jedno, či více obsazených políček</li>
+          </ul>
+      </ul>
 
-<i>⚠</i> Volnost pohybu:
-<ul>
-  <li>Kameny nelze vmáčknout tam, kam se fyzicky neprocpou při posunu po zemi.</li>
-  <li>Neplatí pro:</li>
-  <ul>
-      <li>vykládání <i>⬊</i>,</li>
-      <li>kobylku, která skáče, a</li>
-      <li>berušku, když slézá.</li>
-  </ul>
+      <i>⚠</i> Volnost pohybu:
+      <ul>
+        <li>Kameny nelze vmáčknout tam, kam se fyzicky neprocpou při posunu po zemi.</li>
+        <li>Neplatí pro:</li>
+        <ul>
+            <li>vykládání <i>⬊</i>,</li>
+            <li>kobylku, která skáče, a</li>
+            <li>berušku, když slézá.</li>
+        </ul>
 
-</ul>
-
+      </ul>
+      <!-- help content end -->
+    </div>
   </div>
   <script src="lib/socket.io.js"></script>
   <script type="module" src="src/hive.js"></script>
