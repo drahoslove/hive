@@ -26,18 +26,7 @@ const canvas = document.getElementById('hiveCanvas')
 
 let AiInterval
 const game = new Game(12)
-game.backButton = {
-  label: '🠸',
-  action: () => {
-    disconnect()
-    clearInterval(AiInterval)
-    ui.showMenu()
-    window.location.hash = ''
-    ui.off()
-    game.reset()
-    ui.on(canvas)
-  }
-}
+
 game.menu = [
   {
     label: '⚙',
@@ -83,6 +72,34 @@ game.menu = [
     title: 'ukázka',
     pos: new Hex(0, +2),
     action: AIvAI,
+  },
+]
+
+game.sideMenu = [
+  {
+    label: '🡰',
+    title: 'odejít',
+    pos: new Hex(0,0),
+    action: () => {
+      const ok = window.confirm("Opustit nenávratně rozehranou hru?")
+      if (ok) {
+        disconnect()
+        clearInterval(AiInterval)
+        ui.showMenu()
+        window.location.hash = ''
+        ui.off()
+        game.reset()
+        ui.on(canvas)
+      }
+    },
+  },
+  {
+    ...game.menu[0],
+    pos: new Hex(-1, 2)
+  },
+  {
+    ...game.menu[1],
+    pos: new Hex(1,-2),
   },
 ]
 

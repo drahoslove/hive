@@ -24,7 +24,7 @@ export default function uiOf(game) {
     top: new Hex(-2, -7),
     bottom: new Hex(-9, 7),
   }
-  let backButtonPos = new Hex(-6, 0)
+  let sideMenuPos = new Hex(-6, 0)
 
   const FPS = 60
   const skipFrame = {
@@ -138,7 +138,7 @@ export default function uiOf(game) {
         // screenToHex({x: S*SQRT2_3+8, y: CNH-(S+24)}),
         // screenToHex({x: S*SQRT2_3+8, y: S+24}),
       }
-      backButtonPos = screenToHex({x: 0, y: CNH/2})
+      sideMenuPos = screenToHex({x: 0, y: CNH/2})
       game.players.forEach(({hand}, i) => {
         const size = hand.size()
         hand.each((bug, i) => {
@@ -189,9 +189,11 @@ export default function uiOf(game) {
         })
         return
       }
-      if (eventToExactHex(event).distance(game.backButton.pos||backButtonPos) <= .75) {
-        game.backButton.action()
-      }
+      game.sideMenu.forEach(button => {
+        if (button.pos.add(sideMenuPos).distance(eventToExactHex(event)) <= .75) {
+          button.action()
+        }
+      })
 
       if (_disabledPlayers.includes(game._activePlayerIndex)) {
         return
@@ -225,9 +227,11 @@ export default function uiOf(game) {
       if (_showNames = Object.values(loaderPos).some(pos => eventToExactHex(event).distance(pos) <= .4)) {
         return
       }
-      if (game.backButton.active = eventToExactHex(event).distance(game.backButton.pos||backButtonPos) <= .75) {
+      if (game.sideMenu.some(button =>
+        button.active = button.pos.add(sideMenuPos).distance(eventToExactHex(event)) <= .75
+      )) {
         _canvas.style.cursor = 'pointer'
-        return 
+        return
       }
       if (_disabledPlayers.includes(game._activePlayerIndex)) {
         return
@@ -442,7 +446,7 @@ export default function uiOf(game) {
 
         game.canPass && drawPassButton(game.passButton)
 
-        drawBackButton(game.backButton)
+        drawSideMenu(game.sideMenu)
 
         // call deffered drawing stuff for gui
         while(_drawQue.len() > 0) {
@@ -561,29 +565,44 @@ export default function uiOf(game) {
     _ctx.fillText(label, x-w/2,    y+2   )
   }
 
-  function drawBackButton({pos=backButtonPos, label, active}) {
-    const r = S/1.5
-    const textColor = '#6669'
-    const base = hsl(-10)
-    const bkg = base(active ? 65 : 0)
-    const {x, y} = hexToScreen(pos)
-    drawStone(x, y, r, bkg(50), [bkg(80), bkg(20)])
-    //outline
-    hexPath(_ctx, x, y, r-1)
-    _ctx.strokeStyle = bkg(40)
-    _ctx.lineWidth = 2
-    _ctx.lineCap = 'round'
-    _ctx.lineJoin = 'round'
-    _ctx.stroke()
-    // text
-    _ctx.font = `normal bold ${Sf*9}px emoji-symbols`
-    const w = _ctx.measureText(label).width
-    _ctx.fillStyle = bkg(80)
-    _ctx.fillText(label, x+r/3-w/2+.5, y+4+.5)
-    _ctx.fillStyle = bkg(20)
-    _ctx.fillText(label, x+r/3-w/2-.5, y+4-.5)
-    _ctx.fillStyle = textColor
-    _ctx.fillText(label, x+r/3-w/2,    y+4   )
+  function drawSideMenu(menu) {
+    const hues = [10, 318, 258]
+    menu.forEach(({pos, label, title, active}, i) => {
+      pos = sideMenuPos.add(pos)
+      const r = S/1.75
+      const textColor = '#6669'
+      const base = hsl(hues[i])
+      const bkg = base(active ? 65 : 0)
+      const {x, y} = hexToScreen(pos)
+      drawStone(x, y, r, bkg(50), [bkg(80), bkg(20)])
+      //outline
+      hexPath(_ctx, x, y, r-1)
+      _ctx.strokeStyle = bkg(40)
+      _ctx.lineWidth = 2
+      _ctx.lineCap = 'round'
+      _ctx.lineJoin = 'round'
+      _ctx.stroke()
+      // text
+      _ctx.font = `normal bold ${Sf*6}px emoji-symbols`
+      const w = _ctx.measureText(label).width
+      _ctx.fillStyle = bkg(80)
+      _ctx.fillText(label, x+r/2.5-w/2+.5, y+2+.5)
+      _ctx.fillStyle = bkg(20)
+      _ctx.fillText(label, x+r/2.5-w/2-.5, y+2-.5)
+      _ctx.fillStyle = textColor
+      _ctx.fillText(label, x+r/2.5-w/2,    y+2   )
+      // title
+      if (active) {
+        _ctx.font = `normal ${Sf*5}px monospace`
+        _ctx.filter = 'none'
+        _ctx.fillStyle = bkg(20)
+        _ctx.fillText(title, x+S+1, y+4+1)
+        _ctx.fillStyle = bkg(80)
+        _ctx.fillText(title, x+S-1, y+4-1)
+        _ctx.fillStyle = bkg(50)
+        _ctx.fillText(title, x+S, y+4)
+      }
+    })
   }
 
   function drawMenu() {
