@@ -81,7 +81,7 @@ game.sideMenu = [
     title: 'odejít',
     pos: new Hex(0,0),
     action: () => {
-      const ok = window.confirm("Opustit nenávratně rozehranou hru?")
+      const ok = game.space.size() === 0 || window.confirm("Opustit nenávratně rozehranou hru?")
       if (ok) {
         disconnect()
         clearInterval(AiInterval)

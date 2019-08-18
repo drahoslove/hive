@@ -176,6 +176,10 @@ export class Space {
     )
   }
 
+  size() {
+    return this._stones
+  }
+
   // moves bug closer to the center
   centralize() {
     const max = new Cube(-Infinity, -Infinity, -Infinity)
