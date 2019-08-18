@@ -1,6 +1,6 @@
 // Everything what has something to do with producing visual output or handling user input is in this file
 
-import { PriorityQueue, uncolorEmoji, rand } from './common.js'
+import { PriorityQueue, rand } from './common.js'
 import { Hex } from './board.js'
 import { Queen } from './bugs.js';
 
@@ -165,6 +165,7 @@ export default function uiOf(game) {
       if (_showMenu) {
         return
       }
+      event.preventDefault()
       _zoomStart = _zoom
       _zoomSince = performance.now()
       if (event.deltaY < 0) {
@@ -515,11 +516,17 @@ export default function uiOf(game) {
     const SX = (CNW-CNW/z)/2
     const SY = (CNH-CNH/z)/2
     noclear || _ctx.clearRect(-CNW, -CNH, +CNW*3, +CNH*3)
-    _ctx.drawImage(_cachedBackground,
-      // some magic here
-      (width-CNW)/2/z-OX+SX*(width/CNW), (height-CNH)/2/z-OY+SY*(height/CNH), CNW/z+OX*2, CNH/z+OY*2, // src
-      -OX+SX, -OY+SY, CNW/z+OX*2, CNH/z+OY*2, // dest
-    )
+    try {
+      _ctx.drawImage(_cachedBackground,
+        // some magic here
+        (width-CNW)/2/z-OX+SX*(width/CNW), (height-CNH)/2/z-OY+SY*(height/CNH), CNW/z+OX*2, CNH/z+OY*2, // src
+        -OX+SX, -OY+SY, CNW/z+OX*2, CNH/z+OY*2, // dest
+      )
+    } catch(e) { // IE issues with negative coords
+      console.warn("Can't zoom in IE", e)
+      _zoom = 1
+      _zoomStart = 1
+    }
   }
 
   function drawPassButton({pos, label, active}) {
@@ -547,11 +554,11 @@ export default function uiOf(game) {
     _ctx.font = `normal bold ${Sf*3.5}px monospace`
     const w = _ctx.measureText(label).width
     _ctx.fillStyle = bkg(80)
-    _ctx.fillText(uncolorEmoji(label), x-w/2+.5, y+2+.5)
+    _ctx.fillText(label, x-w/2+.5, y+2+.5)
     _ctx.fillStyle = bkg(20)
-    _ctx.fillText(uncolorEmoji(label), x-w/2-.5, y+2-.5)
+    _ctx.fillText(label, x-w/2-.5, y+2-.5)
     _ctx.fillStyle = textColor
-    _ctx.fillText(uncolorEmoji(label), x-w/2,    y+2   )
+    _ctx.fillText(label, x-w/2,    y+2   )
   }
 
   function drawBackButton({pos=backButtonPos, label, active}) {
@@ -572,11 +579,11 @@ export default function uiOf(game) {
     _ctx.font = `normal bold ${Sf*9}px emoji-symbols`
     const w = _ctx.measureText(label).width
     _ctx.fillStyle = bkg(80)
-    _ctx.fillText(uncolorEmoji(label), x+r/3-w/2+.5, y+4+.5)
+    _ctx.fillText(label, x+r/3-w/2+.5, y+4+.5)
     _ctx.fillStyle = bkg(20)
-    _ctx.fillText(uncolorEmoji(label), x+r/3-w/2-.5, y+4-.5)
+    _ctx.fillText(label, x+r/3-w/2-.5, y+4-.5)
     _ctx.fillStyle = textColor
-    _ctx.fillText(uncolorEmoji(label), x+r/3-w/2,    y+4   )
+    _ctx.fillText(label, x+r/3-w/2,    y+4   )
   }
 
   function drawMenu() {
@@ -617,11 +624,11 @@ export default function uiOf(game) {
       _ctx.font = `normal bold ${Sf*9}px emoji-symbols`
       const w = _ctx.measureText(label).width
       _ctx.fillStyle = bkg(80)
-      _ctx.fillText(uncolorEmoji(label), x-w/2+.5, y+12+.5)
+      _ctx.fillText(label, x-w/2+.5, y+12+.5)
       _ctx.fillStyle = bkg(20)
-      _ctx.fillText(uncolorEmoji(label), x-w/2-.5, y+12-.5)
+      _ctx.fillText(label, x-w/2-.5, y+12-.5)
       _ctx.fillStyle = textColor
-      _ctx.fillText(uncolorEmoji(label), x-w/2, y+12)
+      _ctx.fillText(label, x-w/2, y+12)
 
       if (active) {
         _ctx.font = `normal ${Sf*5}px monospace`
