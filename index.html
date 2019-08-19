@@ -2,11 +2,13 @@
 <html>
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width">
-<link rel="icon" href="/img/favicon.png">
 <title>Hmyziště - hra</title>
-<meta name="description" content="Bezdesková hmyzí deskovka. Abstraktní strategická hra pro dva, založená na hře Hive.">
-<meta name="author" content="Draho.cz" />
+<meta name="viewport" content="width=device-width" />
+<meta name="author" content="Drahoslav Bednář, Draho.cz" />
+<meta name="application-name" content="Hmyziště" />
+<meta name="description" content="Bezdesková hmyzí deskovka. Abstraktní strategická hra pro dva, založená na hře Hive." />
+<meta name="keywords" content="Hive, hmyziště, hra, deskovka, multiplayer, hexagon" />
+<link rel="icon" href="/img/favicon.png" />
 <style>
 @import url('https://fonts.googleapis.com/css?family=Titan+One&subset=latin-ext');
 @font-face {
@@ -16,8 +18,7 @@
     url("font/Symbola.ttf") format("truetype");
 }
 body, html {
-  margin: 0; 
-  font-family: emoji-symbols; 
+  margin: 0;
   display: flex;
 }
 body {
@@ -67,6 +68,9 @@ canvas {
   font-family: monospace;
   overflow: hidden;
 }
+#help.show {
+  left: 0%;
+}
 #help .help-content {
   box-sizing: border-box;
   font-size: 16px;
@@ -76,9 +80,6 @@ canvas {
   height: 100%;
   width: 100%;
   overflow: auto;
-}
-#help.show {
-  left: 0%;
 }
 #help i {
   font-family: emoji-symbols;
