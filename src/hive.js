@@ -177,7 +177,11 @@ function startMultiplayer() {
 
     window.location.hash = room
     if (!origHash) {
-      window.prompt('Tento link pošli protihráči', window.location)
+      const inFrame = window.parent !== window
+      const link = inFrame
+        ? document.referrer + '#' + room
+        : window.location.href
+      window.prompt('Tento link pošli protihráči', link)
     }
 
     game.onClick = (hex) => {
