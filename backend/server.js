@@ -3,7 +3,7 @@ const ORIGINS = [
 	'https://hive.draho.cz',
 	'https://www.alik.cz',
 ]
-const PORT = process.env.PORT || 3000
+const PORT = process.env.PORT || 3003
 
 const crypto = require('crypto')
 const io = require('socket.io')(PORT, { serveClient: false })
@@ -28,13 +28,13 @@ gameNamespace.on('connect', (socket) => {
 	console.log(`connected to room ${room} with secret ${secret}`)
 
 	if (!secret) {
-		secret = randomToken(24) // client will store for auth on subsequent connects  
+		secret = randomToken(16) // client will store for auth on subsequent connects  
 		socket.emit('new_secret', secret)
 	}
 
 	if (!room) { // create new room
 		do {
-			room = randomToken(12)
+			room = randomToken(8)
 		} while(room in rooms)
 		rooms[room] = [ secret ] // seat yourself
 	} else { // join existing room
@@ -68,6 +68,14 @@ gameNamespace.on('connect', (socket) => {
 	})
 })
 
+
 function randomToken(n) {
-	return crypto.randomBytes(n).toString('base64')
+	const chars = 'abcdefghijklmnopqrstuvwxyz234567'
+	const result = new Array(n)
+	const randomBites = crypto.randomBytes(n)
+	for (let i = 0, cursor = 0; i < n; i++) {
+		cursor += randomBites[i]
+		result[i] = chars[cursor % chars.length]
+	}
+	return result.join('')
 }

@@ -3,7 +3,7 @@
 // import io from './socket.io.dev.js'
 
 const BACKEND = window.location.origin.includes('localhost')
-	? 'http://localhost:3000'
+	? 'http://localhost:3003'
 	: 'https://gamsoc.draho.cz'
 
 const io = window.io
