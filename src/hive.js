@@ -86,7 +86,7 @@ game.sideMenu = [
         disconnect()
         clearInterval(AiInterval)
         ui.showMenu()
-        window.location.hash = ''
+        setHashRoom('')
         ui.off()
         game.reset()
         ui.on(canvas)
@@ -110,7 +110,7 @@ window.onload = () => {
   setTimeout(() => {
     cancelAnimationFrame(loaderInterval)
     document.getElementById("loader").innerHTML = ''
-    if (window.location.hash) {
+    if (window.location.hash && window.location.hash.substr(1)[0] !== ';') {
       startMultiplayer()
     }
   }, 100)
@@ -161,22 +161,28 @@ function vAI() {
   AiInterval = setInterval(autoMove([1]), 800)
 }
 
+function setHashRoom(room) {
+  const origHashdata = window.location.hash.substr(1)
+  window.location.hash = [room, ...origHashdata.split(';').splice(1)].join(';')
+  return origHashdata
+}
+
 function startMultiplayer() {
-  const origHash = window.location.hash.substr(1)
-  connect(origHash, (room, playerIndex, sendAction, onIncomingAction) => {
+  const origHashdata = setHashRoom('')
+  connect(origHashdata, (room, nick, gender, playerIndex, sendAction, onIncomingAction) => {
     ui.disableInputFor([0, 1]) // disable all input until ready/go
     game.message = 'Čekej na spoluhráče'
     game.state = 'wait'
     if (playerIndex === 1) { // swap the sides to ensure "you" is always at bottom
       ;[ game.players[1], game.players[0] ] = [ game.players[0], game.players[1] ]
     }
-    game.players[playerIndex].name = 'Tvé já'
+    game.players[playerIndex].name = nick || ''
     game.players[+!playerIndex].name = 'Soupeř'
     ui.hideMenu()
     let lastSentAction = ''
 
-    window.location.hash = room
-    if (!origHash) {
+    setHashRoom(room)
+    if (!origHashdata) {
       const inFrame = window.parent !== window
       const link = inFrame
         ? document.referrer + '#' + room

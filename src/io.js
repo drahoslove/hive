@@ -17,13 +17,13 @@ export function disconnect() {
 	socket = null
 }
 
-export function connect (room, driver) {
+export function connect (hashdata, driver) {
 	if (socket) {
 		socket.close()
 	}
 	socket = io(`${BACKEND}/game`, {
 		query: {
-			room: room,
+			hashdata,
 			secret: localStorage['user_secret'] || '',
 		}
 	})
@@ -45,10 +45,12 @@ export function connect (room, driver) {
 		console.warn('err', ...data)
 	})
 
-	socket.on('room_joined', (room, playerIndex) => {
+	socket.on('room_joined', (room, playerIndex, nick, gender) => {
 		console.log('room_joined', room)
 		driver(
 			room,
+			nick,
+			gender,
 			playerIndex,
 			(action) => { socket.emit('action', action) },
 			(handleAction) => { socket.on('action', handleAction) },

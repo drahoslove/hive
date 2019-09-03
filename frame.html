@@ -30,10 +30,12 @@ iframe {
   <iframe src="/" width="100%" height="33%" scrolling="no"></iframe>
 </body>
 <script>
+  const token = window.location.hash.substr(1)
+  document.querySelector('iframe').src = `/#${token};YOYO;M;d06f00d40a976aecc414190e21e6b1cf`
   window.frames[0].onhashchange = (event) => {
-    console.log('event', event)
-    const [_, hash] = event.newURL.split('#')
-    window.location.hash = hash
-  } 
+    const [_, hashdata] = event.newURL.split('#')
+    const [ room, ] = hashdata.split(';')
+    window.location.hash = room
+  }
 </script>
 </html>

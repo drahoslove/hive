@@ -4,6 +4,7 @@ const ORIGINS = [
 	'https://www.alik.cz',
 ]
 const PORT = process.env.PORT || 3003
+const SALT = process.env.SALT || 'SALT'
 
 const crypto = require('crypto')
 const io = require('socket.io')(PORT, { serveClient: false })
@@ -23,9 +24,19 @@ console.log('listening', PORT)
 const gameNamespace = io.of('/game')
 
 gameNamespace.on('connect', (socket) => {
-	let { room, secret } = socket.handshake.query
+	let { hashdata, secret } = socket.handshake.query
+	let [ room, nick, gender, hash ] = (hashdata || '').split(';')
+	console.log('hashdata:', hashdata)
 
-	console.log(`connected to room ${room} with secret ${secret}`)
+	if (md5([ nick, gender, SALT ].join(';')) === hash) {
+    console.log('hash matches')
+	} else {
+		nick = '???'
+		gender = ''
+		console.log(hash, md5([nick, gender, SALT].join(';')))
+	}
+
+	console.log(`connected to room ${room} as ${nick}/${gender} with secret ${secret}`)
 
 	if (!secret) {
 		secret = randomToken(16) // client will store for auth on subsequent connects  
@@ -51,7 +62,7 @@ gameNamespace.on('connect', (socket) => {
 
 	socket.join(room, () => { // start listening in room
 		const playerIndex = rooms[room].indexOf(secret)
-		socket.emit('room_joined', room, playerIndex) // TODO pass username
+		socket.emit('room_joined', room, playerIndex, nick, gender)
 
 		socket.on('chat', (data) => {
 			// broadcast incoming chat messages to everyone in room including own socket
@@ -78,4 +89,8 @@ function randomToken(n) {
 		result[i] = chars[cursor % chars.length]
 	}
 	return result.join('')
+}
+
+function md5(txt) {
+  return crypto.createHash('md5').update(txt).digest('hex')
 }
