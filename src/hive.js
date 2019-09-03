@@ -49,7 +49,18 @@ game.menu = [
     label: '👤🌐👤',
     title: 's někým',
     pos: new Hex(0, -2),
-    action: startMultiplayer,
+    action: function() {
+      if (this.loading) {
+        return
+      }
+      this.loading = true
+      ui.touch()
+      startMultiplayer(() => {
+        this.loading = false
+        ui.touch()
+      })
+    },
+    loading: false,
   },
   {
     label: '👤×👽',
@@ -170,7 +181,7 @@ function setGetHashRoom(room) {
   return origRoom
 }
 
-function startMultiplayer() {
+function startMultiplayer(onConnect) {
   const origHashdata = window.location.hash.substr(1)
   const origRoom = setGetHashRoom('')
   connect(origHashdata, (room, nick, gender, playerIndex, sendAction, onIncomingAction) => {
@@ -193,6 +204,8 @@ function startMultiplayer() {
         : window.location.origin + window.location.pathname + '#' + room
       window.prompt('Tento link pošli protihráči', link)
     }
+
+    onConnect && onConnect()
 
     game.onClick = (hex) => {
       let action

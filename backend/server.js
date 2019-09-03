@@ -33,7 +33,6 @@ gameNamespace.on('connect', (socket) => {
 	} else {
 		nick = '???'
 		gender = ''
-		console.log(hash, md5([nick, gender, SALT].join(';')))
 	}
 
 	console.log(`connected to room ${room} as ${nick}/${gender} with secret ${secret}`)
@@ -62,7 +61,9 @@ gameNamespace.on('connect', (socket) => {
 
 	socket.join(room, () => { // start listening in room
 		const playerIndex = rooms[room].indexOf(secret)
+		// setTimeout(() => {
 		socket.emit('room_joined', room, playerIndex, nick, gender)
+		// }, 10000) // simulate delay
 
 		socket.on('chat', (data) => {
 			// broadcast incoming chat messages to everyone in room including own socket

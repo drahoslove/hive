@@ -41,6 +41,7 @@ export default function uiOf(game) {
   let _drawQue = new PriorityQueue()
 
   let _invalidated = true
+  let _someAnimating = false
   let _showMenu = true
   let _showNames = false
   let _disabledPlayers = []
@@ -184,14 +185,14 @@ export default function uiOf(game) {
 
     mouseClick(event) {
       if (_showMenu) {
-        game.menu.forEach(({pos, action}, i) => {
-          action && eventToExactHex(event).distance(pos) <= 1 && action()
+        game.menu.forEach((btn, i) => {
+          btn.action && eventToExactHex(event).distance(btn.pos) <= 1 && btn.action()
         })
         return
       }
-      game.sideMenu.forEach(button => {
-        if (button.pos.add(sideMenuPos).distance(eventToExactHex(event)) <= .75) {
-          button.action()
+      game.sideMenu.forEach(btn => {
+        if (btn.pos.add(sideMenuPos).distance(eventToExactHex(event)) <= .75) {
+          btn.action()
         }
       })
 
@@ -298,8 +299,9 @@ export default function uiOf(game) {
       if (_showMenu) {
         if (_invalidated) {
           drawBackground()
-          drawMenu()
-          _invalidated = false
+          drawMenu(t)
+          _invalidated = _someAnimating || false
+          _someAnimating = false
         }
         return
       }
@@ -309,10 +311,8 @@ export default function uiOf(game) {
       let [offsetX, offsetY] = [0, 0] 
 
       if (_invalidated || this._oneMoreFrame) {
-        let someAnimating = false
-
         if (zoom !== _zoom) {
-          someAnimating = true
+          continueAnimation()
         }
 
         // DRAW SPACE
@@ -329,7 +329,7 @@ export default function uiOf(game) {
           if (progress > 1) { // destination reached
             game.space.animation = null
           } else {
-            someAnimating = true
+            continueAnimation()
             offsetX = x-CNW/2
             offsetY = y-CNH/2
           }
@@ -346,10 +346,10 @@ export default function uiOf(game) {
 
         // bugs
         game.space.each((tile, hex) => {
-          someAnimating = drawBugsOftile(tile, hex, t) || someAnimating
+          drawBugsOftile(tile, hex, t)
         })
 
-        if (someAnimating) {
+        if (_someAnimating) {
           game.disableInput()
         } else {
           game.enableInput()
@@ -438,7 +438,7 @@ export default function uiOf(game) {
               // bug itself
               drawBug(bug, undefined, true, t)
               if (bug.animation) {
-                someAnimating = true
+                continueAnimation()
               }
             })
           }
@@ -454,7 +454,8 @@ export default function uiOf(game) {
         }
 
          // end
-        _invalidated = someAnimating || false
+        _invalidated = _someAnimating || false
+        _someAnimating = false
         if (!_invalidated && !this._oneMoreFrame || _showNames) {
           this._oneMoreFrame = true
         } else {
@@ -480,6 +481,10 @@ export default function uiOf(game) {
       link.click()
     }
 
+  }
+
+  function continueAnimation() {
+    _someAnimating = true
   }
 
   // canvas related functions
@@ -605,7 +610,7 @@ export default function uiOf(game) {
     })
   }
 
-  function drawMenu() {
+  function drawMenu(t) {
     const textColor =  '#6669'
 
     const size = Sf*22
@@ -622,10 +627,10 @@ export default function uiOf(game) {
       _ctx.fillText(TITLE, x-w/2, y)
     }
 
-    game.menu.forEach(({pos, label, title, action, active}, i) => {
+    game.menu.forEach(({pos, label, title, action, active, loading}, i) => {
       const base = hsl(-60*(i-5.3)) // set hue
       const bkg = base(active ? 80 : 50) // set saturation
-      _ctx.filter = action ? 'none' : 'brightness(150%) grayscale(95%) opacity(30%)'
+      _ctx.filter = (action) ? 'none' : 'brightness(150%) grayscale(95%) opacity(30%)'
 
       const {x, y} = hexToScreen(pos)
 
@@ -649,7 +654,7 @@ export default function uiOf(game) {
       _ctx.fillStyle = textColor
       _ctx.fillText(label, x-w/2, y+12)
 
-      if (active) {
+      if (active && !loading) {
         _ctx.font = `normal ${Sf*5}px monospace`
         const w = _ctx.measureText(title).width
         const {x, y} = hexToScreen(new Hex(0, 0))
@@ -662,25 +667,36 @@ export default function uiOf(game) {
         _ctx.fillText(title, x-w/2, y+4)
       }
     })
-    // bee
-    if (!game.menu.some(({ active }) => active)) {
-      _beeRot += (11-rand(23))
-      _beeRot %= 360
-
-      const bee = new Queen()
-      const w = _ctx.measureText(bee.symbol).width
+    if (game.menu.some(({ loading }) => loading)) {
+      const angle = t / 4 % 360
+      const globe = '🌐'
+      _ctx.font = `normal ${Sf*20}px emoji-symbols`
+      const w = _ctx.measureText(globe).width
       const {x, y} = hexToScreen(new Hex(0, 0))
 
-      doRatated(x, y, _beeRot, (xo, yo) => {
-        const clr = hsl(bee.hue)(0)
+      doRatated(x, y, angle, (xo, yo) => {
+          const clr = hsl(0)(0)
+          _ctx.fillStyle = clr(60)
+          _ctx.fillText(globe, x-w/2-1, y+24)
+        })
+      continueAnimation()
+    } else {
+      // bee
+      if (!game.menu.some(({ active }) => active)) {
+        _beeRot += (11-rand(23))
+        _beeRot %= 360
+
+        const bee = new Queen()
         _ctx.font = `normal ${Sf*20}px emoji-symbols`
-        // _ctx.fillStyle = clr(40)
-        // _ctx.fillText(bee.symbol, x-w+.5*xo, y+25+.5*yo)
-        // _ctx.fillStyle = clr(80)
-        // _ctx.fillText(bee.symbol, x-w-.5*xo, y+25-.5*yo)
-        _ctx.fillStyle = clr(60)
-        _ctx.fillText(bee.symbol, x-w, y+25)
-      })
+        const w = _ctx.measureText(bee.symbol).width
+        const {x, y} = hexToScreen(new Hex(0, 0))
+
+        doRatated(x, y, _beeRot, (xo, yo) => {
+          const clr = hsl(bee.hue)(0)
+          _ctx.fillStyle = clr(60)
+          _ctx.fillText(bee.symbol, x-w/2, y+25)
+        })
+      }
     }
   }
 
@@ -744,7 +760,6 @@ export default function uiOf(game) {
   }
 
   function drawBugsOftile(tile, hex, t) {
-    let someAnimating = false
     const offset = new Hex(+0.0, -0.2)
     tile.forEach((bug, i) => {
       const isTop = i === tile.length - 1
@@ -757,10 +772,10 @@ export default function uiOf(game) {
         +isMoving*2 // animating draw even higher
 
       _drawQue.push(draw, prio)
-      someAnimating = someAnimating || isMoving
+      if (isMoving){
+        continueAnimation()
+      }
     })
-
-    return someAnimating
   }
 
   function drawBug(bug, offset, isTop, t=0) {
