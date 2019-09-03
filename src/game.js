@@ -42,6 +42,12 @@ export default class Game {
         this.canPass = this.hasToPass()
       },
     }
+    if (Array.isArray(this.menu)) {
+      this.menu.forEach(btn => { btn.active = false })
+    }
+    if (Array.isArray(this.sideMenu)) {
+      this.sideMenu.forEach(btn => { btn.active = false })
+    }
   }
 
   start () {
