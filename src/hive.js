@@ -165,7 +165,7 @@ function setGetHashRoom(room) {
   const origHashdata = window.location.hash.substr(1)
   const [ origRoom, ...rest ] = origHashdata.split(';')
   const hashdata = [room, ...rest].join(';')
-  window.parent.postMessage({ room })
+  window.parent.postMessage({ room }, '*')
   window.location.hash = hashdata
   return origRoom
 }
