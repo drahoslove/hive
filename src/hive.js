@@ -86,7 +86,7 @@ game.sideMenu = [
         disconnect()
         clearInterval(AiInterval)
         ui.showMenu()
-        setHashRoom('')
+        setGetHashRoom('')
         ui.off()
         game.reset()
         ui.on(canvas)
@@ -161,14 +161,18 @@ function vAI() {
   AiInterval = setInterval(autoMove([1]), 800)
 }
 
-function setHashRoom(room) {
+function setGetHashRoom(room) {
   const origHashdata = window.location.hash.substr(1)
-  window.location.hash = [room, ...origHashdata.split(';').splice(1)].join(';')
-  return origHashdata
+  const [ origRoom, ...rest ] = origHashdata.split(';')
+  const hashdata = [room, ...rest].join(';')
+  window.parent.postMessage({ room })
+  window.location.hash = hashdata
+  return origRoom
 }
 
 function startMultiplayer() {
-  const origHashdata = setHashRoom('')
+  const origHashdata = window.location.hash.substr(1)
+  const origRoom = setGetHashRoom('')
   connect(origHashdata, (room, nick, gender, playerIndex, sendAction, onIncomingAction) => {
     ui.disableInputFor([0, 1]) // disable all input until ready/go
     game.message = 'Čekej na spoluhráče'
@@ -181,12 +185,12 @@ function startMultiplayer() {
     ui.hideMenu()
     let lastSentAction = ''
 
-    setHashRoom(room)
-    if (!origHashdata) {
+    setGetHashRoom(room)
+    if (!origRoom) {
       const inFrame = window.parent !== window
       const link = inFrame
-        ? document.referrer + '#' + room
-        : window.location.href
+        ? document.referrer + '/' + room
+        : window.location.origin + window.location.pathname + '#' + room
       window.prompt('Tento link pošli protihráči', link)
     }
 
