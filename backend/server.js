@@ -51,11 +51,15 @@ gameNamespace.on('connect', (socket) => {
 		if (!(room in rooms)) {
 			return socket.emit('err', `Room ${room} does not exist`)
 		}
-		if (!rooms[room].map(({secret}) => secret).includes(secret)) {
+		const myself = rooms[room].find(({secret: s}) => secret === s)
+		if (!myself) {
 				if (rooms[room].length >= 2) {
 				return socket.emit('err', `Room ${room} is full`)
 			}
 			rooms[room].push({ secret, nick, gender }) // take your place in a room
+		} else { // update me
+			myself.nick = nick
+			myself.gender = gender
 		}
 	}
 
