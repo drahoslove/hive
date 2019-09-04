@@ -4,7 +4,7 @@ import { PriorityQueue, rand } from './common.js'
 import { Hex } from './board.js'
 import { Queen } from './bugs.js';
 
-export const hsl = (hue) => (sat) => (lig) => `hsl(${hue}, ${sat}%, ${lig}%)`; 
+export const hsl = (hue) => (sat) => (lig) => `hsl(${hue}, ${sat}%, ${lig}%)`;
 
 // returns new Ui class for given space
 export default function uiOf(game) {
@@ -308,7 +308,7 @@ export default function uiOf(game) {
 
       let zoom = getAnimatedZoomLLevel()
 
-      let [offsetX, offsetY] = [0, 0] 
+      let [offsetX, offsetY] = [0, 0]
 
       if (_invalidated || this._oneMoreFrame) {
         if (zoom !== _zoom) {
@@ -473,7 +473,7 @@ export default function uiOf(game) {
         drawLoader(t, loaderPos[game.players[1].pos], game.players[1])
       }
     }
-    
+
     downloadBackground() {
       const link = document.createElement('a')
       link.download = 'background.png'
@@ -909,7 +909,7 @@ export default function uiOf(game) {
     const b = (t/2%1 * Math.PI*4) - Math.PI/2
     let {x, y} = hexToScreen(pos)
 
-    const txtLim = 10
+    const txtLim = 12
     const name = player.name.length <= txtLim
        ? player.name
        : player.name.substr(0, txtLim-1) + '…'
@@ -977,15 +977,15 @@ export default function uiOf(game) {
     { // name label
       let r = s/2 - 12
       _ctx.beginPath()
-      // _ctx.moveTo(x, y-r)
-      _ctx.lineTo(x+txtW, y-r)
-      _ctx.lineTo(x+SQRT3_2*r+txtW, y - SQRT2_3 * r)
-      // _ctx.lineTo(x+SQRT3_2*r+txtW-r/2, y                )
-      _ctx.lineTo(x+SQRT3_2*r+txtW, y + SQRT2_3 * r)
-      _ctx.lineTo(x+txtW, y+r)
+      _ctx.moveTo(x-SQRT3_2*r,  y - SQRT2_3 * r*1.75)
+      // _ctx.lineTo(x, y-r)
+      // _ctx.lineTo(x+txtW, y-r)
+      _ctx.lineTo(x+txtW+SQRT3_2*r+r/4, y - SQRT2_3 * r*1.75)
+      _ctx.lineTo(x+txtW+SQRT3_2*r-r/4, y                )
+      _ctx.lineTo(x+txtW+SQRT3_2*r+r/4, y + SQRT2_3 * r*1.75)
+      // _ctx.lineTo(x+txtW, y+r)
       // _ctx.lineTo(x, y+r)
-      _ctx.lineTo(x-SQRT3_2*r,  y + SQRT2_3 * r*1.5)
-      _ctx.lineTo(x-SQRT3_2*r,  y - SQRT2_3 * r*1.5)
+      _ctx.lineTo(x-SQRT3_2*r,  y + SQRT2_3 * r*1.75)
       _ctx.closePath()
       _ctx.save()
       _ctx.clip()

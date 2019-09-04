@@ -155,8 +155,8 @@ const autoMove = (players) => () => {
 }
 
 function AIvAI() {
-  game.players[0].name = "Silly AI"
-  game.players[1].name = "Dull AI"
+  game.players[0].name = uncolorEmoji("Blbější 👽")
+  game.players[1].name = uncolorEmoji("Blbý 👽")
   ui.hideMenu()
   ui.disableInputFor([0,1])
   game.start()
@@ -164,8 +164,10 @@ function AIvAI() {
 }
 
 function vAI() {
-  game.players[0].name = "Tvé IQ"
-  game.players[1].name = "Hloupé AI"
+  game.players[0].name = "Ty"
+  game.players[0].gender = '2'
+  game.players[1].name = uncolorEmoji("Hra 👽")
+  game.players[1].gender = 'F'
   ui.hideMenu()
   ui.disableInputFor([1])
   game.start()
@@ -204,28 +206,48 @@ function getParentLink(room) {
 function startMultiplayer(onConnect) {
   const origHashdata = window.location.hash.substr(1)
   const origRoom = setGetHashRoom('')
-  connect(origHashdata, async (room, nick, gender, playerIndex, sendAction, onIncomingAction) => {
+  connect(origHashdata, async (
+    room,
+    playerIndex,
+    sendAction,
+    onIncomingAction,
+    onPlayerInfo,
+  ) => {
     ui.disableInputFor([0, 1]) // disable all input until ready/go
     game.message = 'Čekej na spoluhráče'
     game.state = 'wait'
     if (playerIndex === 1) { // swap the sides to ensure "you" is always at bottom
-      ;[ game.players[1], game.players[0] ] = [ game.players[0], game.players[1] ]
+      [ game.players[1], game.players[0] ] = [ game.players[0], game.players[1] ]
     }
-    game.players[playerIndex].name = nick || ''
-    game.players[+!playerIndex].name = 'Soupeř'
+    game.players[playerIndex].name = '!!!'
+    game.players[+!playerIndex].name = '???'
     let lastSentAction = ''
+
+    onPlayerInfo(({playerIndex: i, nick, gender}) => {
+      if (playerIndex === 1) { // corect index for previous swapping
+        i = +!i
+      }
+      const player = game.players[i]
+      if (nick) {
+        player.name = nick
+      }
+      if (gender) {
+        player.gender = gender
+      }
+    })
 
     setGetHashRoom(room)
     if (!origRoom) {
       const inFrame = window.parent !== window
       const link = inFrame
         ? await getParentLink(room)
-        : link = window.location.origin + window.location.pathname + '#' + room
+        : window.location.origin + window.location.pathname + '#' + room
       window.prompt('Tento link pošli protihráči', link)
     }
     ui.hideMenu()
 
     onConnect && onConnect()
+
 
     game.onClick = (hex) => {
       let action

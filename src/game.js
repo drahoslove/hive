@@ -23,7 +23,7 @@ export default class Game {
     this.landings = []
     this.players = ['#112', '#eed'].map((color, i) => {
       const player = {
-        name: `Player ${"AB"[i]}`,
+        name: `Hráč ${i+1}`,
         color,
         pos: i ? 'top' : 'bottom', // for loader & label positioning
       }
@@ -93,7 +93,7 @@ export default class Game {
     if (this.canPass && this.passButton.pos.eq(hex)) {
       this.passButton.active = true
       return true
-    } 
+    }
     this.passButton.active = false
 
     // selectable inhand bug
@@ -177,7 +177,7 @@ export default class Game {
     this.space.putAt(bug, hex)
     this.selected = null
     this.landings = []
-    this.checkEnd() 
+    this.checkEnd()
     this.switchPlayers()
     this.canPass = this.hasToPass()
     console.log(String(this.space))
@@ -191,17 +191,19 @@ export default class Game {
       return queen && this.space.posOfNeighbors(queen.pos).length === 6
     })
     if (dead[0] && dead[1]) {
-      this.message = "Tie!"
+      this.message = "Remíza!"
       this.state = 'end'
       return true
     }
     if (dead[this._activePlayerIndex]) {
-      this.message = `${this.players[+!this._activePlayerIndex].name} vyhrává!`
+      const player = this.players[+!this._activePlayerIndex]
+      this.message = `${player.name} ${verb('win', player.gender)}!`
       this.state = 'end'
       return true
     }
     if (dead[+!this._activePlayerIndex]) {
-      this.message = `${this.players[this._activePlayerIndex].name} vyhrává!`
+      const player = this.players[this._activePlayerIndex]
+      this.message = `${player.name} ${verb('win', player.gender)}!`
       this.state = 'end'
       return true
     }
@@ -259,3 +261,17 @@ Game.basicBugPack =  [
   Ant, Ant, Ant,
   Grasshopper, Grasshopper, Grasshopper,
 ]
+
+
+// TOOD move to another module
+function verb(key, gender) {
+  switch(key) {
+    case 'win':
+      return {
+        2: 'jsi vyhrál/a',
+        M: 'vyhrál',
+        F: 'vyhrála',
+        N: 'vyhrálo',
+      }[gender] || 'vyhrálo'
+  }
+}

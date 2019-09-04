@@ -40,7 +40,7 @@ iframe {
     }
     if ('room' in event.data) {
       var room = event.data.room || ''
-      var link = window.location.origin + '/h/hmyziste' + (room && ('/' + room))
+      var link = window.location.origin + window.location.pathname + (room && ('#' + room))
       window.history.replaceState(null, null, link)
       if (room) {
         event.source.postMessage({ link: link }, endpoint)

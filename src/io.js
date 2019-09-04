@@ -45,16 +45,16 @@ export function connect (hashdata, driver) {
 		console.warn('err', ...data)
 	})
 
-	socket.on('room_joined', (room, playerIndex, nick, gender) => {
+	socket.on('room_joined', (room, playerIndex, ack) => {
 		console.log('room_joined', room)
 		driver(
 			room,
-			nick,
-			gender,
 			playerIndex,
 			(action) => { socket.emit('action', action) },
 			(handleAction) => { socket.on('action', handleAction) },
+			(handlePlayerInfo) => { socket.on('player_info', handlePlayerInfo) },
 		)
+		ack && ack()
 	})
 
 	socket.on('chat', (msg) => {

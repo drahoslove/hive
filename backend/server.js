@@ -16,7 +16,7 @@ io.origins((origin, callback) => {
 })
 
 const rooms = {
-	// [room]: [secret, secret],
+	// [room]: [{ nick, gender, secret }, [secret]: { nick, gender, secret}],
 }
 
 console.log('listening', PORT)
@@ -31,14 +31,14 @@ gameNamespace.on('connect', (socket) => {
 	if (md5([ nick, gender, SALT ].join(';')) === hash) {
     console.log('hash matches')
 	} else {
-		nick = '???'
+		nick = ''
 		gender = ''
 	}
 
 	console.log(`connected to room ${room} as ${nick}/${gender} with secret ${secret}`)
 
 	if (!secret) {
-		secret = randomToken(16) // client will store for auth on subsequent connects  
+		secret = randomToken(16) // client will store for auth on subsequent connects
 		socket.emit('new_secret', secret)
 	}
 
@@ -46,28 +46,34 @@ gameNamespace.on('connect', (socket) => {
 		do {
 			room = randomToken(8)
 		} while(room in rooms)
-		rooms[room] = [ secret ] // seat yourself
+		rooms[room] = [{ secret, nick, gender }] // seat yourself
 	} else { // join existing room
 		if (!(room in rooms)) {
 			return socket.emit('err', `Room ${room} does not exist`)
 		}
-		if (!rooms[room].includes(secret)) {
-			if (rooms[room].length >= 2) {
+		if (!rooms[room].map(({secret}) => secret).includes(secret)) {
+				if (rooms[room].length >= 2) {
 				return socket.emit('err', `Room ${room} is full`)
 			}
-			rooms[room].push(secret) // take your place in a room
+			rooms[room].push({ secret, nick, gender }) // take your place in a room
 		}
 	}
 
 	socket.join(room, () => { // start listening in room
-		const playerIndex = rooms[room].indexOf(secret)
-		// setTimeout(() => {
-		socket.emit('room_joined', room, playerIndex, nick, gender)
-		// }, 10000) // simulate delay
+		const playerIndex = rooms[room].map(({secret}) => secret).indexOf(secret)
+		socket.emit('room_joined', room, playerIndex, () => {
+			rooms[room].forEach((player, i) => {
+				gameNamespace.to(room).emit('player_info', {
+					playerIndex: i,
+					nick: player.nick,
+					gender: player.gender,
+				})
+			})
+		})
 
 		socket.on('chat', (data) => {
 			// broadcast incoming chat messages to everyone in room including own socket
-			gameNamespace.to(room).emit('chat', data) 
+			gameNamespace.to(room).emit('chat', data)
 		})
 
 		socket.on('action', (data) => {
