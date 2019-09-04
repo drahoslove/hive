@@ -224,9 +224,6 @@ function startMultiplayer(onConnect) {
     let lastSentAction = ''
 
     onPlayerInfo(({playerIndex: i, nick, gender}) => {
-      if (playerIndex === 1) { // corect index for previous swapping
-        i = +!i
-      }
       const player = game.players[i]
       if (nick) {
         player.name = nick
