@@ -393,7 +393,7 @@ export default function uiOf(game) {
               })
             })
             // text
-            _ctx.font = "normal 48px monospace"
+            _ctx.font = "normal 42px monospace"
             const w = _ctx.measureText(game.message).width
             _ctx.fillStyle = '#eee'
             _ctx.fillText(game.message, x-w/2 -.5, y -.5)
