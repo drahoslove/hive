@@ -213,7 +213,6 @@ function startMultiplayer(onConnect) {
     }
     game.players[playerIndex].name = nick || ''
     game.players[+!playerIndex].name = 'Soupeř'
-    ui.hideMenu()
     let lastSentAction = ''
 
     setGetHashRoom(room)
@@ -224,6 +223,7 @@ function startMultiplayer(onConnect) {
         : link = window.location.origin + window.location.pathname + '#' + room
       window.prompt('Tento link pošli protihráči', link)
     }
+    ui.hideMenu()
 
     onConnect && onConnect()
 
