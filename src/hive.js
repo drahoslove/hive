@@ -181,10 +181,30 @@ function setGetHashRoom(room) {
   return origRoom
 }
 
+function getParentLink(room) {
+  return new Promise((confirm) => {
+    const timeout = setTimeout(() => {
+      window.removeEventListener('message', receiveLink)
+      confirm(document.referrer + '/' + room) // fallback
+    }, 1000)
+    const receiveLink = (event) => {
+      if ('link' in event.data) {
+        confirm(event.data.link || '')
+      } else {
+        confirm('')
+      }
+      clearTimeout(timeout)
+      window.removeEventListener('message', receiveLink)
+    }
+    window.addEventListener('message', receiveLink)
+    window.parent.postMessage({ room }, '*')
+  })
+}
+
 function startMultiplayer(onConnect) {
   const origHashdata = window.location.hash.substr(1)
   const origRoom = setGetHashRoom('')
-  connect(origHashdata, (room, nick, gender, playerIndex, sendAction, onIncomingAction) => {
+  connect(origHashdata, async (room, nick, gender, playerIndex, sendAction, onIncomingAction) => {
     ui.disableInputFor([0, 1]) // disable all input until ready/go
     game.message = 'Čekej na spoluhráče'
     game.state = 'wait'
@@ -200,8 +220,8 @@ function startMultiplayer(onConnect) {
     if (!origRoom) {
       const inFrame = window.parent !== window
       const link = inFrame
-        ? document.referrer + '/' + room
-        : window.location.origin + window.location.pathname + '#' + room
+        ? await getParentLink(room)
+        : link = window.location.origin + window.location.pathname + '#' + room
       window.prompt('Tento link pošli protihráči', link)
     }
 

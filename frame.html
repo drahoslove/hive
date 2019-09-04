@@ -34,12 +34,17 @@ iframe {
   document.querySelector('iframe').src = `/#${token};YOYO;M;d06f00d40a976aecc414190e21e6b1cf`
 
   window.addEventListener('message', function(event) {
-    if (event.origin !== 'http://localhost:8080' && event.origin !== 'https://hive.draho.cz') {
+    var endpoint = window.location.origin // 'https://hive.draho.cz'
+    if (event.origin !== endpoint || !(event.data instanceof Object)) {
       return
     }
     if ('room' in event.data) {
       var room = event.data.room || ''
-      window.history.replaceState(null, null, '/h/hmyziste' + (room && ('/' + room)))
+      var link = window.location.origin + '/h/hmyziste' + (room && ('/' + room))
+      window.history.replaceState(null, null, link)
+      if (room) {
+        event.source.postMessage({ link: link }, endpoint)
+      }
     }
   })
 </script>
