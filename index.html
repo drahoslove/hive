@@ -58,20 +58,20 @@ canvas {
     height: 100vh;
   }
 }
-#help {
+.drawer {
   position: absolute;
   width: 50%;
   height: 100%;
   left: -50%;
   transition: left .5s ease-in-out;
-  background: rgba(0, 0, 0, 0.81);
+  background: rgba(25, 25, 25, 0.95);
   font-family: monospace;
   overflow: hidden;
 }
-#help.show {
+.drawer.show {
   left: 0%;
 }
-#help .help-content {
+.drawer .content {
   box-sizing: border-box;
   font-size: 16px;
   padding: 1.5rem;
@@ -81,26 +81,28 @@ canvas {
   width: 100%;
   overflow: auto;
 }
-#help i {
+.content i {
   font-family: emoji-symbols;
   font-size: 125%;
   font-style: normal;
+  display: inline-block;
+  width: 1.1em;
 }
-#closehelp {
- position: absolute;
- right: 18px;
- top: 12px;
- z-index: 1;
- width: 30px;
- height: 30px;
- border-radius: 50%;
- background: rgba(238, 238, 238, 0.50);
- cursor: pointer;
- margin-left: auto;
- text-align: center;
- box-sizing: border-box;
- font-size: 24px;
- color: #030303;
+.close {
+  position: absolute;
+  right: 18px;
+  top: 12px;
+  z-index: 1;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: rgba(238, 238, 238, 0.50);
+  cursor: pointer;
+  margin-left: auto;
+  text-align: center;
+  box-sizing: border-box;
+  font-size: 24px;
+  color: #030303;
 }
 ::-webkit-scrollbar {
   width: 12px;
@@ -111,6 +113,43 @@ canvas {
   border-radius: 10px;
   background: rgba(238, 238, 238, 0.25);
 }
+
+#settings {
+  /* background: rgba(255, 255, 255, 0.81);
+  color: #111; */
+}
+
+fieldset {
+  display: flex;
+  margin: 1rem 0;
+  border: none;
+}
+legend {
+  margin: .5rem 0;
+}
+label {
+  cursor: pointer;
+  color: #888;
+}
+label::before {
+  content: ' ';
+  display: inline-block;
+  width: 1rem;
+  font-size: 120%;
+}
+label:hover,
+input[type=radio]:checked + label {
+  font-weight: bolder;
+  color: #eee;
+}
+input[type=radio]:checked + label::before {
+  content: '✔';
+}
+input[type=radio] {
+  width: 16px;
+  height: 16px;
+  display: none;
+}
 </style>
 </head>
 <body>
@@ -120,10 +159,11 @@ canvas {
   <canvas id="hiveCanvas" width="685" height="auto">
   </canvas>
   <div id="loader">🕛</div>
-  <div id="help">
-    <div id="closehelp">×</div>
-    <div class="help-content">
+  <div id="help" class="drawer">
+    <div class="close">×</div>
+    <div class="content">
       <!-- help content start -->
+      <h2>Pravidla</h2>
       <i>🞋</i> Cíl:
       <ul>
         <li>Cílem hry je obklopit ze všech šesti stran včelí královnu spoluhráče <i>🐝</i>.</li>
@@ -186,6 +226,56 @@ canvas {
 
       </ul>
       <!-- help content end -->
+    </div>
+  </div>
+  <div id="settings" class="drawer">
+    <div class="close">×</div>
+    <div class="content">
+      <h2>Nastavení</h2>
+      <fieldset>
+        <legend>Zvuky</legend>
+        <input type="radio" name="sound" value="on" id="sound-on" />
+        <label for="sound-on">
+          <i>🔊</i> zapnuté
+        </label>
+        <input type="radio" name="sound" value="off" id="sound-off" />
+        <label for="sound-off">
+          <i>🔈</i> vypnuté
+        </label>
+      </fieldset>
+      <fieldset>
+        <legend>Jazyk</legend>
+        <input type="radio" name="lang" value="cs" id="lang-cs" />
+        <label for="lang-cs">
+          <i>🇨🇿</i> čeština
+        </label>
+        <input type="radio" name="lang" value="en" id="lang-en" />
+        <label for="lang-en">
+          <i>🇺🇸</i> angličtina
+        </label>
+      </fieldset>
+      <fieldset>
+        <legend>Barva</legend>
+        <input type="radio" name="color" value="black" id="color-black" />
+        <label for="color-black">
+          ⚫ černá
+        </label>
+        <input type="radio" name="color" value="white" id="color-white" />
+        <label for="color-white">
+          ⚪ bílá
+        </label>
+      </fieldset>
+      <fieldset>
+        <legend>Animace</legend>
+        <input type="radio" name="fps" value="1" id="fps-1" />
+        <label for="fps-1">
+          🐇 hezky plynulé (60fps)
+        </label>
+        <input type="radio" name="fps" value="4" id="fps-4" />
+        <label for="fps-4">
+          🐌 šetřící baterku (15fps)
+        </label>
+      </fieldset>
     </div>
   </div>
   <script src="lib/socket.io.js"></script>

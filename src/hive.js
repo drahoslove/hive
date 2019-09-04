@@ -27,12 +27,20 @@ const canvas = document.getElementById('hiveCanvas')
 let AiInterval
 const game = new Game(12)
 
+;[...document.querySelectorAll('.close')].map(button => {
+  button.onclick = () => {
+    document.querySelector('.show').classList.remove('show')
+  }
+})
+
 game.menu = [
   {
     label: '⚙',
-    title: 'možnosti',
+    title: 'nastavení',
     pos: new Hex(-2, +2),
-    action: () => { alert("Zatím není co nastavovat")}
+    action: () => {
+      document.getElementById('settings').classList.add('show')
+    }
   },
   {
     label: '❓',
@@ -40,9 +48,6 @@ game.menu = [
     pos: new Hex(-2, 0),
     action: () => {
       document.getElementById('help').classList.add('show')
-      document.getElementById('closehelp').onclick = () => {
-        document.getElementById('help').classList.remove('show')
-      }
     }
   },
   {
