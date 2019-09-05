@@ -115,11 +115,6 @@ canvas {
   background: rgba(238, 238, 238, 0.25);
 }
 
-#settings {
-  /* background: rgba(255, 255, 255, 0.81);
-  color: #111; */
-}
-
 fieldset {
   display: flex;
   margin: 1rem 0;
@@ -212,7 +207,7 @@ input[type=radio] {
   <canvas id="hiveCanvas" width="685" height="auto">
   </canvas>
   <div id="loader">🕛</div>
-  <div id="chat">
+  <div id="chat" class="disabled">
     <div id="chat-log"></div>
     <input type="text" id="chat-input" autocomplete="off" required />
   </div>
@@ -380,22 +375,22 @@ input[type=radio] {
         <legend>{{ 'Color', 'Barva' |_ }}</legend>
         <input type="radio" name="color" value="black" id="color-black" v-model="color" />
         <label for="color-black">
-          &ensp; ⚫ &emsp; {{ 'Black', 'Černá' |_}}
+          &ensp;&nbsp;<i>⚫</i> &emsp; {{ 'Black', 'Černá' |_}}
         </label>
         <input type="radio" name="color" value="white" id="color-white" v-model="color" />
         <label for="color-white">
-          &ensp; ⚪ &emsp; {{ 'White', 'Bílá' |_}}
+          &ensp;&nbsp;<i>⚪</i> &emsp; {{ 'White', 'Bílá' |_}}
         </label>
       </fieldset>
       <fieldset>
         <legend>{{ 'Animations', 'Animace' |_ }}</legend>
         <input type="radio" name="fps" value="60" id="fps-h" v-model="fps" />
         <label for="fps-h">
-          &ensp; 🐇 &emsp; {{ 'Nice & smooth', 'Hezky plynulé' |_}} (60 fps)
+          &ensp;&nbsp;<i>🐇</i> &emsp; {{ 'Nice & smooth', 'Hezky plynulé' |_}} (60 fps)
         </label>
         <input type="radio" name="fps" value="12" id="fps-l" v-model="fps" />
         <label for="fps-l">
-          &ensp; 🐌 &emsp; {{ 'Battery saving', 'Šetřící baterii' |_}} (12 fps)
+          &ensp;&nbsp;<i>🐌</i> &emsp; {{ 'Battery saving', 'Šetřící baterii' |_}} (12 fps)
         </label>
       </fieldset>
     </div>
