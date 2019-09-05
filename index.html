@@ -20,6 +20,7 @@
 body, html {
   margin: 0;
   display: flex;
+  overflow: hidden;
 }
 body {
   position: relative;
@@ -151,6 +152,54 @@ input[type=radio] {
   height: 16px;
   display: none;
 }
+
+#chat {
+  font-weight: bold;
+  font-family: sans-serif;
+  position: absolute;
+  bottom: 75px;
+  left: 50px;
+  width: 5rem;
+  height: 8rem;
+  background: rgba(238, 238, 238, 0.0);
+  opacity: .5;
+  transition: all 0.2s ease;
+  padding: .5rem;
+  display: flex;
+  flex-direction: column;
+  border-radius: 5px;
+}
+#chat.disabled {
+  display: none;
+}
+#chat:hover {
+  background: rgba(238, 238, 238, 0.25);
+  width: 20rem;
+  opacity: 1;
+}
+#chat-log {
+  flex-grow: 1;
+  padding: 0 .25rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+#chat-input {
+  border-radius: 3px;
+  height: 1.75rem;
+  line-height: 1.75rem;
+  background: #eee;
+  padding: 0 .25rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+#chat-input:empty {
+  background: transparent;
+}
+#chat:hover #chat-input {
+  background: #eee;
+}
 </style>
 </head>
 <body>
@@ -160,6 +209,10 @@ input[type=radio] {
   <canvas id="hiveCanvas" width="685" height="auto">
   </canvas>
   <div id="loader">🕛</div>
+  <div id="chat">
+    <div id="chat-log"></div>
+    <div id="chat-input"></div>
+  </div>
   <div id="help" class="drawer">
     <div class="close">×</div>
     <div class="content" v-if="lang === 'cs'" lang="cs">

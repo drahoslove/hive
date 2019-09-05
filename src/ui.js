@@ -103,7 +103,7 @@ export default function uiOf(game) {
       canvas.addEventListener('mousemove', this.mouseMove)
       canvas.addEventListener('mousedown', this.mouseClick)
       canvas.addEventListener('mousewheel', this.mouseWheel)
-      document.addEventListener('keypress', this.keyPress)
+      // document.addEventListener('keypress', this.keyPress)
       window.addEventListener('resize', this.resize)
       _invalidated = true
       this.startRenderLoop()
@@ -116,7 +116,7 @@ export default function uiOf(game) {
       canvas.removeEventListener('mousemove', this.mouseMove)
       canvas.removeEventListener('mousedown', this.mouseClick)
       canvas.removeEventListener('mousewheel', this.mouseWheel)
-      document.removeEventListener('keypress', this.keyPress)
+      // document.removeEventListener('keypress', this.keyPress)
       window.removeEventListener('resize', this.resize)
       return this
     }

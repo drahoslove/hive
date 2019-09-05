@@ -59,6 +59,36 @@ export function connect (hashdata, driver) {
 
 	socket.on('chat', (msg) => {
 		console.log('chat', msg)
+			log.push(msg)
+			log.shift()
+			document.getElementById('chat-log').innerHTML = log.join('<br/>')
 	})
 
 }
+
+export function chat(msg) {
+	if (socket) {
+		socket.emit('chat', msg)
+	}
+}
+
+document.getElementById('chat').classList.add('disabled')
+
+let log = ['','','','','']
+let acc = ''
+document.getElementById('chat-log').innerHTML = log.join('<br/>')
+
+window.addEventListener('keydown', ({ key }) => {
+	if (key === 'Backspace') {
+		acc = acc.slice(0, -1)
+	} else
+	if (key === "Enter") {
+		acc && chat(acc)
+		acc = ''
+	} else
+	if (key.length === 1) {
+		acc += key
+		document.getElementById('chat').classList.remove('disabled')
+	}
+	document.getElementById('chat-input').innerText = acc
+})
