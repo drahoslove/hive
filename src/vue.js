@@ -1,6 +1,7 @@
 import * as settings from './settings.js'
 import { _ } from './lang.js'
 
+
 const help = new Vue({
   el: '#help',
   data: settings.getAll(),
