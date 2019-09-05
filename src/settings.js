@@ -1,6 +1,6 @@
 const SETTINGS_KEY = 'hive-settings'
 const defaults = {
-  lang: 'cs',
+  lang: navigator.languages.includes('en') ? 'en' : navigator.languages.includes('cs') ? 'cs' : 'en',
   sound: 'on',
   color: 'black',
   fps: 60,
@@ -10,22 +10,15 @@ const handlers = []
 let settings = defaults
 
 loadSettings()
-
-// ;[...document.querySelectorAll('input[type=radio]')].forEach(radio => {
-//   set checkboxes according to saved values
-//   if (radio.value == settings[radio.name]) { // == is intentional here
-//     radio.checked = true;
-//   }
-//   radio.onchange = () => {
-//     set(radio.name)(radio.value)
-//   }
-// })
+window.onbeforeunload = saveSettings
 
 function loadSettings() {
   let stored = {}
   try {
     stored = JSON.parse(window.localStorage[SETTINGS_KEY])
-  } catch {};
+  } catch {
+    stored = defaults
+  };
   settings = {
     ...defaults,
     ...stored,
