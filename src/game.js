@@ -8,6 +8,7 @@ import {
   Ant,
   Grasshopper,
 } from './bugs.js'
+import { _, verb } from './lang.js'
 
 // class carring state of the game and prviding commands for game interaction
 export default class Game {
@@ -261,17 +262,3 @@ Game.basicBugPack =  [
   Ant, Ant, Ant,
   Grasshopper, Grasshopper, Grasshopper,
 ]
-
-
-// TOOD move to another module
-function verb(key, gender) {
-  switch(key) {
-    case 'win':
-      return {
-        2: 'jsi vyhrál/a',
-        M: 'vyhrál',
-        F: 'vyhrála',
-        N: 'vyhrálo',
-      }[gender] || 'vyhrálo'
-  }
-}

@@ -162,7 +162,7 @@ input[type=radio] {
   <div id="loader">🕛</div>
   <div id="help" class="drawer">
     <div class="close">×</div>
-    <div class="content">
+    <div class="content" v-if="lang === 'cs'" lang="cs">
       <!-- help content start -->
       <h2>Pravidla</h2>
       <i>🞋</i> Cíl:
@@ -228,57 +228,124 @@ input[type=radio] {
       </ul>
       <!-- help content end -->
     </div>
+    <div class="content" v-if="lang === 'en'" lang="en">
+        <!-- help content start -->
+        <h2>Rules</h2>
+        <i>🞋</i> Target:
+        <ul>
+          <li>Cílem hry je obklopit ze všech šesti stran včelí královnu spoluhráče <i>🐝</i>.</li>
+          <li>Nemusí to být jen vlastními kameny.</li>
+        </ul>
+
+        <i>☯</i> One hive rule:
+        <ul>
+          <li>Všechny vyložené kameny musí vždy tvořit jednotný, nedělitelný útvar.</li>
+        </ul>
+
+        <i>⬊</i> Placing:
+        <ul>
+          <li>Nové kameny můžeš umístit pouze do sousedství těch svých. První kámen umísti libovolně.</li>
+          <li>Nové kameny nesmíš umístit do sousedství těch protihráčových. S výjimkou druhého tahu.</li>
+          <li>Stejná pravidla pro všechny kameny.</li>
+          <li>Královna musí být umístěna nejpozději ve 4. kole.</li>
+        </ul>
+
+        <i>⬌</i> Moving:
+        <ul>
+          <li>Kameny můžeš přesouvat až poté, co umístíš královnu.</li>
+          <li>Přesouváním kamenů nesmíš porušit pravidlo jedné kolonie <i>☯</i>, a to po celou dobu přesunu.</li>
+
+          <li>Různé kameny mají různá pravidla pohybu:</li>
+            <i>🐜</i> Ant:
+            <ul>
+              <li>může se přesunout na libovolné místo dostupné po obvodu</li>
+              <li>nejmocnější kámen ve hře</li>
+            </ul>
+            <i>🕷️</i> Spider:
+            <ul>
+              <li>může se přesunout na 3 kroky vzdálené místo dostupné po obvodu</li>
+            </ul>
+            <i>🐝</i> Bee queen:
+            <ul>
+              <li>může se pohybovat jen o 1 krok</li>
+            </ul>
+            <i>🐞</i> Ladybug:
+            <ul>
+              <li>může se pohybovat jen o 1 krok</li>
+              <li>navíc může vlézt na jiný kámen, a tím ho zablokovat</li>
+              <li>pro účely pravidla vykládání <i>⬊</i> se takové políčko bere jako tvé
+            </ul>
+            <i>🦗</i> Grasshopper:
+            <ul>
+              <li>může přeskočit rovně přes jedno, či více obsazených políček</li>
+            </ul>
+        </ul>
+
+        <i>⚠</i> Freedom of movement:
+        <ul>
+          <li>Kameny nelze vmáčknout tam, kam se fyzicky neprocpou při posunu po zemi.</li>
+          <li>Neplatí pro:</li>
+          <ul>
+              <li>vykládání <i>⬊</i>,</li>
+              <li>kobylku, která skáče, a</li>
+              <li>berušku, když slézá.</li>
+          </ul>
+
+        </ul>
+        <!-- help content end -->
+      </div>
   </div>
   <div id="settings" class="drawer">
     <div class="close">×</div>
     <div class="content">
-      <h2>Nastavení</h2>
-      <fieldset>
-        <legend>Zvuky</legend>
-        <input type="radio" name="sound" value="on" id="sound-on" />
+        <h2>{{ 'Settings', 'Nastavení' |_ }}</h2>
+        <fieldset>
+        <legend>{{ 'Sounds', 'Zvuky' |_ }}</legend>
+        <input type="radio" name="sound" value="on" id="sound-on" v-model="sound" />
         <label for="sound-on">
-          &ensp; <i>🔊</i> &emsp; zapnuté
+          &ensp; <i>🔊</i> &emsp; {{ 'On', 'Zapnuté' |_}}
         </label>
-        <input type="radio" name="sound" value="off" id="sound-off" />
+        <input type="radio" name="sound" value="off" id="sound-off" v-model="sound" />
         <label for="sound-off">
-          &ensp; <i>🔈</i> &emsp; vypnuté
+          &ensp; <i>🔈</i> &emsp; {{ 'Off', 'Vypnuté' |_}}
         </label>
       </fieldset>
       <fieldset>
-        <legend>Jazyk</legend>
-        <input type="radio" name="lang" value="cs" id="lang-cs" />
+        <legend>{{ 'Language', 'Jazyk' |_ }}</legend>
+        <input type="radio" name="lang" value="cs" id="lang-cs" v-model="lang" />
         <label for="lang-cs">
-          &ensp; <i>🇨🇿</i> &emsp; čeština
+          &ensp; <i>🇨🇿</i> &emsp; {{ 'Czech', 'Čeština' |_}}
         </label>
-        <input type="radio" name="lang" value="en" id="lang-en" />
+        <input type="radio" name="lang" value="en" id="lang-en" v-model="lang" />
         <label for="lang-en">
-          &ensp; <i>🇺🇸</i> &emsp; angličtina
+          &ensp; <i>🇺🇸</i> &emsp; {{ 'English', 'Angličtina' |_}}
         </label>
       </fieldset>
       <fieldset>
-        <legend>Tvá barva</legend>
-        <input type="radio" name="color" value="black" id="color-black" />
+        <legend>{{ 'Color', 'Barva' |_ }}</legend>
+        <input type="radio" name="color" value="black" id="color-black" v-model="color" />
         <label for="color-black">
-          &ensp; ⚫ &emsp; černá
+          &ensp; ⚫ &emsp; {{ 'Black', 'Černá' |_}}
         </label>
-        <input type="radio" name="color" value="white" id="color-white" />
+        <input type="radio" name="color" value="white" id="color-white" v-model="color" />
         <label for="color-white">
-          &ensp; ⚪ &emsp; bílá
+          &ensp; ⚪ &emsp; {{ 'White', 'Bílá' |_}}
         </label>
       </fieldset>
       <fieldset>
-        <legend>Animace</legend>
-        <input type="radio" name="fps" value="60" id="fps-h" />
+        <legend>{{ 'Animations', 'Animace' |_ }}</legend>
+        <input type="radio" name="fps" value="60" id="fps-h" v-model="fps" />
         <label for="fps-h">
-          &ensp; 🐇 &emsp; hezky plynulé (60 fps)
+          &ensp; 🐇 &emsp; {{'Nice & smooth', 'Hezky plynulé' |_}} (60 fps)
         </label>
-        <input type="radio" name="fps" value="12" id="fps-l" />
+        <input type="radio" name="fps" value="12" id="fps-l" v-model="fps" />
         <label for="fps-l">
-          &ensp; 🐌 &emsp; šetřící baterii (12 fps)
+          &ensp; 🐌 &emsp; {{'Battery saving','Šetřící baterii' |_}} (12 fps)
         </label>
       </fieldset>
     </div>
   </div>
+  <script src="https://cdn.jsdelivr.net/npm/vue"></script>
   <script src="lib/socket.io.js"></script>
   <script type="module" src="src/hive.js"></script>
   <script nomodule src="hive-bundle.js"></script>

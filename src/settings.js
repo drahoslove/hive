@@ -6,20 +6,20 @@ const defaults = {
   fps: 60,
 }
 
-
+const handlers = []
 let settings = defaults
 
 loadSettings()
 
-;[...document.querySelectorAll('input[type=radio]')].forEach(radio => {
-  // set checkboxes according to saved values
-  if (radio.value == settings[radio.name]) { // == is intentional here
-    radio.checked = true;
-  }
-  radio.onchange = () => {
-    set(radio.name, radio.value)
-  }
-})
+// ;[...document.querySelectorAll('input[type=radio]')].forEach(radio => {
+//   set checkboxes according to saved values
+//   if (radio.value == settings[radio.name]) { // == is intentional here
+//     radio.checked = true;
+//   }
+//   radio.onchange = () => {
+//     set(radio.name)(radio.value)
+//   }
+// })
 
 function loadSettings() {
   let stored = {}
@@ -37,13 +37,32 @@ function saveSettings() {
     ...defaults,
     ...settings,
   })
+  handlers.forEach(handler => {
+    handler(settings)
+  })
 }
 
-export function get(key) {
-  return settings[key]
-}
+export const get = (key) => settings[key]
 
-export function set(key, val) {
+
+export const set = key => val => {
   settings[key] = val
   saveSettings()
+}
+
+export function getAll() {
+  return {
+    ...settings,
+  }
+}
+
+export function setAll() {
+  return Object.keys(settings).reduce((all, key) => ({...all, [key]: set(key)}), {})
+}
+
+
+export function subscribe(handler) {
+  if (handler instanceof Function) {
+    handlers.push(handler)
+  }
 }

@@ -1,4 +1,5 @@
 import './settings.js'
+import './vue.js'
 import Game from './game.js'
 import uiOf from './ui.js'
 import { connect, disconnect } from './io.js'
