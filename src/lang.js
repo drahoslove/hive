@@ -6,6 +6,7 @@ export const _ = (...variants) => {
   return variants[langs.indexOf(settings.get('lang'))]
 }
 
+export const __ = (...variants) => () => _(...variants)
 
 export function verb(key, gender) {
   switch(key) {

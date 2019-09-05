@@ -8,7 +8,7 @@ import {
   Ant,
   Grasshopper,
 } from './bugs.js'
-import { _, verb } from './lang.js'
+import { _, __, verb } from './lang.js'
 
 // class carring state of the game and prviding commands for game interaction
 export default class Game {
@@ -24,7 +24,7 @@ export default class Game {
     this.landings = []
     this.players = ['black', 'white'].map((color, i) => {
       const player = {
-        name: `Hráč ${i+1}`,
+        name: _('Player', 'Hráč') + ` ${i+1}`,
         color,
         pos: i ? 'top' : 'bottom', // for loader & label positioning
       }
@@ -36,7 +36,7 @@ export default class Game {
     this.onClick = null
     this.canPass = false
     this.passButton = {
-      label: 'Předat',
+      label: __('Pass', 'Předat'),
       pos: new Hex(6, 0),
       action: () => {
         this.switchPlayers()
@@ -192,7 +192,7 @@ export default class Game {
       return queen && this.space.posOfNeighbors(queen.pos).length === 6
     })
     if (dead[0] && dead[1]) {
-      this.message = "Remíza!"
+      this.message = _("Tie!", "Remíza!")
       this.state = 'end'
       return true
     }

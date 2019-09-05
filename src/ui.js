@@ -4,6 +4,7 @@ import * as settings from './settings.js'
 import { PriorityQueue, rand } from './common.js'
 import { Hex } from './board.js'
 import { Queen } from './bugs.js'
+import { __ } from './lang.js'
 
 export const hsl = (hue) => (sat) => (lig) => `hsl(${hue}, ${sat}%, ${lig}%)`;
 
@@ -27,7 +28,7 @@ const darker = {
 
 // returns new Ui class for given space
 export default function uiOf(game) {
-  const TITLE = "Hmyziště"
+  const TITLE = __("Hmyz.it", "Hmyziště")
   const S = 64 // size of stone from point to point
   const Sf = S/16
   let CNW = 685
@@ -68,7 +69,7 @@ export default function uiOf(game) {
 
   return new class Ui {
     constructor() {
-      document.fonts && document.fonts.load(`normal 1em 'Titan One'`, TITLE).then(font => {
+      document.fonts && document.fonts.load(`normal 1em 'Titan One'`, TITLE()).then(font => {
         console.log('font laoded', font)
         _invalidated = true
       })
@@ -556,6 +557,7 @@ export default function uiOf(game) {
   }
 
   function drawPassButton({pos, label, active}) {
+    label = label()
     const r = S/2
     const textColor = '#6669'
     const base = hsl(-10)
@@ -590,6 +592,7 @@ export default function uiOf(game) {
   function drawSideMenu(menu) {
     const hues = [10, 318, 258]
     menu.forEach(({pos, label, title, active}, i) => {
+      title = title()
       pos = sideMenuPos.add(pos)
       const r = S/1.75
       const textColor = '#6669'
@@ -634,17 +637,18 @@ export default function uiOf(game) {
 
     const [x, y] = [ CNW/2,  (CNH/2 - 3*S)/2 + size*3/4 ]
     _ctx.font = `normal ${size}px 'Titan One'`
-    if (!document.fonts || document.fonts.check(_ctx.font, TITLE)) {
-      const w = _ctx.measureText(TITLE).width
+    if (!document.fonts || document.fonts.check(_ctx.font, TITLE())) {
+      const w = _ctx.measureText(TITLE()).width
       _ctx.fillStyle = hsl(0)(0)(80)
-      _ctx.fillText(TITLE, x-w/2 +1, y +1)
+      _ctx.fillText(TITLE(), x-w/2 +1, y +1)
       _ctx.fillStyle = hsl(0)(0)(10)
-      _ctx.fillText(TITLE, x-w/2 -1, y -1)
+      _ctx.fillText(TITLE(), x-w/2 -1, y -1)
       _ctx.fillStyle = hsl(0)(0)(20)
-      _ctx.fillText(TITLE, x-w/2, y)
+      _ctx.fillText(TITLE(), x-w/2, y)
     }
 
     game.menu.forEach(({pos, label, title, action, active, loading}, i) => {
+      title = title()
       const base = hsl(-60*(i-5.3)) // set hue
       const bkg = base(active ? 80 : 50) // set saturation
       _ctx.filter = (action) ? 'none' : 'brightness(150%) grayscale(95%) opacity(30%)'

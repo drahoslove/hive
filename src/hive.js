@@ -1,5 +1,6 @@
 import './settings.js'
 import './vue.js'
+import { _, __ } from './lang.js'
 import Game from './game.js'
 import uiOf from './ui.js'
 import { connect, disconnect } from './io.js'
@@ -38,7 +39,7 @@ const game = new Game(12)
 game.menu = [
   {
     label: '⚙',
-    title: 'nastavení',
+    title: __('settings', 'nastavení'),
     pos: new Hex(-2, +2),
     action: () => {
       document.getElementById('settings').classList.add('show')
@@ -46,7 +47,7 @@ game.menu = [
   },
   {
     label: '❓',
-    title: 'pravidla',
+    title: __('rules', 'pravidla'),
     pos: new Hex(-2, 0),
     action: () => {
       document.getElementById('help').classList.add('show')
@@ -54,7 +55,7 @@ game.menu = [
   },
   {
     label: '👤🌐👤',
-    title: 's někým',
+    title: __('multi', 's někým'),
     pos: new Hex(0, -2),
     action: function() {
       if (this.loading) {
@@ -71,13 +72,13 @@ game.menu = [
   },
   {
     label: '👤×👽',
-    title: 'proti hře',
+    title: __('single', 'proti hře'),
     pos: new Hex(+2, -2),
     action: vAI,
   },
   {
     label: '👤',
-    title: 'trénink',
+    title: __('training', 'trénink'),
     pos: new Hex(+2, 0),
     action: () => {
       ui.disableInputFor([])
@@ -87,7 +88,7 @@ game.menu = [
   },
   {
     label: '👽×👽',
-    title: 'ukázka',
+    title: __('demo', 'ukázka'),
     pos: new Hex(0, +2),
     action: AIvAI,
   },
@@ -96,10 +97,10 @@ game.menu = [
 game.sideMenu = [
   {
     label: '🡰',
-    title: 'odejít',
+    title: __('exit', 'odejít'),
     pos: new Hex(0,0),
     action: () => {
-      const ok = game.space.size() === 0 || window.confirm("Opustit nenávratně rozehranou hru?")
+      const ok = game.space.size() === 0 || window.confirm(_("Really leave the match?", "Opustit rozehranou hru?"))
       if (ok) {
         disconnect()
         clearInterval(AiInterval)
@@ -162,8 +163,8 @@ const autoMove = (players) => () => {
 }
 
 function AIvAI() {
-  game.players[0].name = uncolorEmoji("Blbější 👽")
-  game.players[1].name = uncolorEmoji("Blbý 👽")
+  game.players[0].name = uncolorEmoji(_("Dumber 👽", "Blbější 👽"))
+  game.players[1].name = uncolorEmoji(_("Dumb 👽", "Blbý 👽"))
   ui.hideMenu()
   ui.disableInputFor([0,1])
   game.start()
@@ -171,9 +172,9 @@ function AIvAI() {
 }
 
 function vAI() {
-  game.players[0].name = "Ty"
+  game.players[0].name = _("You", "Ty")
   game.players[0].gender = '2'
-  game.players[1].name = uncolorEmoji("Hra 👽")
+  game.players[1].name = uncolorEmoji(_("👽", "Hra 👽"))
   game.players[1].gender = 'F'
   ui.hideMenu()
   ui.disableInputFor([1])
@@ -221,7 +222,7 @@ function startMultiplayer(onConnect) {
     onPlayerInfo,
   ) => {
     ui.disableInputFor([0, 1]) // disable all input until ready/go
-    game.message = 'Čekej na spoluhráče'
+    game.message = _('Wait for the opponent', 'Čekej na spoluhráče')
     game.state = 'wait'
     if (playerIndex === 1) { // swap the sides to ensure "you" is always at bottom
       [ game.players[1], game.players[0] ] = [ game.players[0], game.players[1] ]
@@ -246,7 +247,7 @@ function startMultiplayer(onConnect) {
       const link = inFrame
         ? await getParentLink(room)
         : window.location.origin + window.location.pathname + '#' + room
-      window.prompt('Tento link pošli protihráči', link)
+      window.prompt(_('Send this link to your opponent', 'Tento link pošli protihráči'), link)
     }
     ui.hideMenu()
 
@@ -284,7 +285,7 @@ function startMultiplayer(onConnect) {
             sendAction('go')
             go()
           } else {
-            game.message = "Soupeř restartoval hru"
+            game.message = _("Opponent restarted the game", "Soupeř restartoval hru")
             ui.touch()
             setTimeout(() => {
               window.location.reload()
