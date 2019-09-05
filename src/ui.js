@@ -645,6 +645,21 @@ export default function uiOf(game) {
       _ctx.fillText(TITLE(), x-w/2 -1, y -1)
       _ctx.fillStyle = hsl(0)(0)(20)
       _ctx.fillText(TITLE(), x-w/2, y)
+
+      if (TITLE().includes('.')) {
+        _ctx.fillStyle = hsl(0)(0)(20)
+        _ctx.font = `normal ${Sf*4.25}px 'Titan One'`
+        let [x1, x2] = [x + Sf*33.75, x + Sf*44.75]
+        _ctx.fillStyle = hsl(0)(0)(80)
+        _ctx.fillText('š', x1 +.75, y +.75)
+        _ctx.fillText('ě', x2 +.75, y +.75)
+        _ctx.fillStyle = hsl(0)(0)(10)
+        _ctx.fillText('š', x1 -.75, y -.75)
+        _ctx.fillText('ě', x2 -.75, y -.75)
+        _ctx.fillStyle = hsl(0)(0)(20)
+        _ctx.fillText('š', x1, y)
+        _ctx.fillText('ě', x2, y)
+      }
     }
 
     game.menu.forEach(({pos, label, title, action, active, loading}, i) => {
