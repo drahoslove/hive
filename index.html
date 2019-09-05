@@ -157,10 +157,10 @@ input[type=radio] {
   font-weight: bold;
   font-family: sans-serif;
   position: absolute;
-  bottom: 75px;
+  bottom: 100px;
   left: 50px;
   width: 5rem;
-  height: 8rem;
+  height: 7rem;
   background: rgba(238, 238, 238, 0.0);
   opacity: .5;
   transition: all 0.2s ease;
@@ -178,6 +178,7 @@ input[type=radio] {
   opacity: 1;
 }
 #chat-log {
+  font-size: .8rem;
   flex-grow: 1;
   padding: 0 .25rem;
   white-space: nowrap;
@@ -185,20 +186,22 @@ input[type=radio] {
   text-overflow: ellipsis;
 }
 #chat-input {
+  font-weight: bold;
+  font-family: sans-serif;
+  border: none;
+  outline: none;
   border-radius: 3px;
   height: 1.75rem;
   line-height: 1.75rem;
   background: #eee;
   padding: 0 .25rem;
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
-#chat-input:empty {
+#chat-input:invalid {
   background: transparent;
 }
-#chat:hover #chat-input {
-  background: #eee;
+#chat:hover #chat-input, #chat-input:focus {
+  background: #eeee;
 }
 </style>
 </head>
@@ -211,7 +214,7 @@ input[type=radio] {
   <div id="loader">🕛</div>
   <div id="chat">
     <div id="chat-log"></div>
-    <div id="chat-input"></div>
+    <input type="text" id="chat-input" autocomplete="off" required />
   </div>
   <div id="help" class="drawer">
     <div class="close">×</div>

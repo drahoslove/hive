@@ -9,11 +9,14 @@ const BACKEND = window.location.origin.includes('localhost')
 const io = window.io
 
 let socket
+let log
+
 
 export function disconnect() {
 	if (socket) {
 		socket.close()
 	}
+	resetChat()
 	socket = null
 }
 
@@ -27,6 +30,8 @@ export function connect (hashdata, driver) {
 			secret: localStorage['user_secret'] || '',
 		}
 	})
+
+	resetChat()
 
 	socket.on('connect', () => {
 		console.log('connected')
@@ -72,23 +77,21 @@ export function chat(msg) {
 	}
 }
 
-document.getElementById('chat').classList.add('disabled')
 
-let log = ['','','','','']
-let acc = ''
-document.getElementById('chat-log').innerHTML = log.join('<br/>')
+function resetChat() {
+	log = ['','','','','']
+	document.getElementById('chat').classList.add('disabled')
+	document.getElementById('chat-log').innerHTML = log.join('<br/>')
+}
 
-window.addEventListener('keydown', ({ key }) => {
-	if (key === 'Backspace') {
-		acc = acc.slice(0, -1)
-	} else
+window.addEventListener('keypress', ({ key }) => {
 	if (key === "Enter") {
-		acc && chat(acc)
-		acc = ''
-	} else
-	if (key.length === 1) {
-		acc += key
-		document.getElementById('chat').classList.remove('disabled')
+		const text = document.getElementById('chat-input').value
+		text && chat(text)
+		document.getElementById('chat-input').value = ''
+		return false
 	}
-	document.getElementById('chat-input').innerText = acc
+	document.getElementById('chat').classList.remove('disabled')
+	document.getElementById('chat-input').focus()
+	// document.getElementById('chat-input').value = acc
 })
