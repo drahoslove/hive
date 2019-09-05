@@ -1,8 +1,9 @@
 // Everything what has something to do with producing visual output or handling user input is in this file
 
+import * as settings from './settings.js'
 import { PriorityQueue, rand } from './common.js'
 import { Hex } from './board.js'
-import { Queen } from './bugs.js';
+import { Queen } from './bugs.js'
 
 export const hsl = (hue) => (sat) => (lig) => `hsl(${hue}, ${sat}%, ${lig}%)`;
 
@@ -26,12 +27,7 @@ export default function uiOf(game) {
   }
   let sideMenuPos = new Hex(-6, 0)
 
-  const FPS = 60
-  const skipFrame = {
-    60: 1,
-    30: 2,
-    10: 6,
-  }
+  const skipFrame = fps => 60 / +fps
 
   let _ctx
   let _canvas
@@ -289,7 +285,7 @@ export default function uiOf(game) {
     }
 
     onFrame(t) {
-      if (_frames++ % skipFrame[FPS] === 0)
+      if (_frames++ % skipFrame(settings.get('fps')) === 0)
         this.redraw(t)
       if (!this.stop)
         requestAnimationFrame(this.onFrame.bind(this))

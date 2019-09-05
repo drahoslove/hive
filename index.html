@@ -65,7 +65,7 @@ canvas {
   left: -50%;
   transition: left .5s ease-in-out;
   background: rgba(25, 25, 25, 0.95);
-  font-family: monospace;
+  font-family: sans-serif;
   overflow: hidden;
 }
 .drawer.show {
@@ -130,6 +130,7 @@ legend {
 label {
   cursor: pointer;
   color: #888;
+  height: 1.5rem;
 }
 label::before {
   content: ' ';
@@ -236,44 +237,44 @@ input[type=radio] {
         <legend>Zvuky</legend>
         <input type="radio" name="sound" value="on" id="sound-on" />
         <label for="sound-on">
-          <i>🔊</i> zapnuté
+          <i>🔊</i> &emsp; zapnuté
         </label>
         <input type="radio" name="sound" value="off" id="sound-off" />
         <label for="sound-off">
-          <i>🔈</i> vypnuté
+          <i>🔈</i> &emsp; vypnuté
         </label>
       </fieldset>
       <fieldset>
         <legend>Jazyk</legend>
         <input type="radio" name="lang" value="cs" id="lang-cs" />
         <label for="lang-cs">
-          <i>🇨🇿</i> čeština
+          <i>🇨🇿</i> &emsp; čeština
         </label>
         <input type="radio" name="lang" value="en" id="lang-en" />
         <label for="lang-en">
-          <i>🇺🇸</i> angličtina
+          <i>🇺🇸</i> &emsp; angličtina
         </label>
       </fieldset>
       <fieldset>
         <legend>Barva</legend>
         <input type="radio" name="color" value="black" id="color-black" />
         <label for="color-black">
-          ⚫ černá
+          ⚫ &emsp; černá
         </label>
         <input type="radio" name="color" value="white" id="color-white" />
         <label for="color-white">
-          ⚪ bílá
+          ⚪ &emsp; bílá
         </label>
       </fieldset>
       <fieldset>
         <legend>Animace</legend>
-        <input type="radio" name="fps" value="1" id="fps-1" />
+        <input type="radio" name="fps" value="60" id="fps-1" />
         <label for="fps-1">
-          🐇 hezky plynulé (60fps)
+          🐇 &emsp; hezky plynulé (60fps)
         </label>
-        <input type="radio" name="fps" value="4" id="fps-4" />
+        <input type="radio" name="fps" value="15" id="fps-4" />
         <label for="fps-4">
-          🐌 šetřící baterku (15fps)
+          🐌 &emsp; šetřící baterii (15fps)
         </label>
       </fieldset>
     </div>
