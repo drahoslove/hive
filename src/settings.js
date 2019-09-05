@@ -12,7 +12,8 @@ let settings = defaults
 loadSettings()
 
 ;[...document.querySelectorAll('input[type=radio]')].forEach(radio => {
-  if (radio.value === settings[radio.name]) { // set checkboxes according to saved values
+  // set checkboxes according to saved values
+  if (radio.value == settings[radio.name]) { // == is intentional here
     radio.checked = true;
   }
   radio.onchange = () => {

@@ -21,7 +21,7 @@ export default class Game {
     this.space = new Space(size)
     this.selected = null
     this.landings = []
-    this.players = ['#112', '#eed'].map((color, i) => {
+    this.players = ['black', 'white'].map((color, i) => {
       const player = {
         name: `Hráč ${i+1}`,
         color,

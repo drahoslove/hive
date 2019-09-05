@@ -7,6 +7,24 @@ import { Queen } from './bugs.js'
 
 export const hsl = (hue) => (sat) => (lig) => `hsl(${hue}, ${sat}%, ${lig}%)`;
 
+const inverted = {
+  black: 'white',
+  white: 'black',
+}
+const base = {
+  white: '#eed',
+  black: '#112',
+}
+const ligher = {
+  white: '#fff',
+  black: '#666',
+}
+const darker = {
+  white: '#999',
+  black: '#000',
+}
+
+
 // returns new Ui class for given space
 export default function uiOf(game) {
   const TITLE = "Hmyziště"
@@ -414,6 +432,9 @@ export default function uiOf(game) {
 
         // DRAW GUI
         game.players.forEach(({hand}) => {
+          const lightness = settings.get('color') === 'black'
+            ? [0, 100]
+            : [100, 0]
           if (!hand.isEmpty()) {
             hand.each((bug) => {
               // draw 'shadows'
@@ -426,7 +447,7 @@ export default function uiOf(game) {
               // for(let i = 0; i<360*3; i+=10) { // rainbow!
               //   grad.addColorStop(i/360/3, `hsla(${(Math.floor(t/2)% 360 - i)}, 50%, 50%, ${1-i/360/3})`)
               // }
-              grad.addColorStop(0, `hsla(${(Math.floor(t/30)% 360)}, 0%, ${which ? 100 : 0}%, 1)`)
+              grad.addColorStop(0, `hsla(${(Math.floor(t/30)% 360)}, 0%, ${lightness[+which]}%, 1)`)
               grad.addColorStop(1, `hsla(${(Math.floor(t/30)% 360)}, 0%, 50%, 0)`)
               _ctx.fillStyle = grad
               _ctx.fillRect(X, Y, W, H)
@@ -810,16 +831,11 @@ export default function uiOf(game) {
       r *= 1.25
     }
 
-    const ligher = {
-      '#eed': '#fff',
-      '#112': '#666',
-    }
-    const darker = {
-      '#eed': '#999',
-      '#112': '#000',
-    }
+    let bugColor = settings.get('color') === 'white'
+      ? inverted[bug.color]
+      : bug.color
 
-    drawStone(x, y, r, bug.color, [ ligher[bug.color], darker[bug.color] ])
+    drawStone(x, y, r, base[bugColor], [ ligher[bugColor], darker[bugColor] ])
 
     { // text
       const txt = bug.symbol
@@ -899,6 +915,9 @@ export default function uiOf(game) {
 
 
   function drawLoader(t, pos, player) {
+    const playerColor = base[settings.get('color') === 'black'
+      ? player.color
+      : inverted[player.color]]
     t /= 2000
     const showNames = _showNames || CNW > 900
     const a = (t%1 * Math.PI*4) - Math.PI/2
@@ -952,7 +971,7 @@ export default function uiOf(game) {
     // hex:
     {
       hexPath(_ctx, x, y, r - 0.5)
-      _ctx.strokeStyle = player.color
+      _ctx.strokeStyle = playerColor
       _ctx.lineCap = 'round'
       _ctx.lineWidth = 7
       _ctx.stroke()
@@ -986,7 +1005,7 @@ export default function uiOf(game) {
       _ctx.save()
       _ctx.clip()
       drawBackground(true)
-      _ctx.fillStyle = player.color
+      _ctx.fillStyle = playerColor
       // _ctx.fillStyle = '#808080'
       _ctx.lineCap = 'round'
       _ctx.fill()
