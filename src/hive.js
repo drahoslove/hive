@@ -32,7 +32,7 @@ const game = new Game(12)
 
 
 const closeAll = () => {
-  document.querySelectorAll('.show').forEach(el =>
+  [...document.querySelectorAll('.show')].forEach(el =>
     el.classList.remove('show')
   )
 }

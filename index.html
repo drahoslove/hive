@@ -144,6 +144,7 @@ canvas {
 
 fieldset {
   display: flex;
+  flex-direction: column;
   margin: 1rem 0;
   border: none;
 }
@@ -427,7 +428,7 @@ input[type=radio] {
     </div>
   </div>
   <script>
-  if (window.parent === window && !window.origin.includes('localhost')) {
+  if (window.parent === window && !window.location.origin.match('localhost')) {
     window.location = 'https://hmyz.it/' + window.location.hash
   }
   </script>
