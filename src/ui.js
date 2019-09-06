@@ -595,7 +595,7 @@ export default function uiOf(game) {
       title = title()
       pos = sideMenuPos.add(pos)
       const r = S/1.75
-      const textColor = '#6669'
+      const textColor = '#444'
       const base = hsl(hues[i])
       const bkg = base(active ? 60 : 10)
       const {x, y} = hexToScreen(pos)
@@ -610,10 +610,10 @@ export default function uiOf(game) {
       // symbol
       _ctx.font = `normal bold ${Sf*6}px emoji-symbols`
       const w = _ctx.measureText(label).width
-      _ctx.fillStyle = bkg(80)
-      _ctx.fillText(label, x-r/2.5-w/2+.5, y+2+.5)
-      _ctx.fillStyle = bkg(20)
-      _ctx.fillText(label, x-r/2.5-w/2-.5, y+2-.5)
+      // _ctx.fillStyle = bkg(80)
+      // _ctx.fillText(label, x-r/2.5-w/2+.5, y+2+.5)
+      // _ctx.fillStyle = bkg(20)
+      // _ctx.fillText(label, x-r/2.5-w/2-.5, y+2-.5)
       _ctx.fillStyle = textColor
       _ctx.fillText(label, x-r/2.5-w/2,    y+2   )
       // title
@@ -621,11 +621,11 @@ export default function uiOf(game) {
         _ctx.font = `normal ${Sf*5}px monospace`
         const w = _ctx.measureText(title).width
         _ctx.filter = 'none'
-        _ctx.fillStyle = bkg(20)
-        _ctx.fillText(title, x-S-w+.5, y+4+.5)
-        _ctx.fillStyle = bkg(80)
-        _ctx.fillText(title, x-S-w-.5, y+4-.5)
-        _ctx.fillStyle = '#444' // bkg(50)
+        // _ctx.fillStyle = bkg(20)
+        // _ctx.fillText(title, x-S-w+.5, y+4+.5)
+        // _ctx.fillStyle = bkg(80)
+        // _ctx.fillText(title, x-S-w-.5, y+4-.5)
+        _ctx.fillStyle =  textColor // bkg(50)
         _ctx.fillText(title, x-S-w, y+4)
       }
     })
