@@ -30,10 +30,14 @@ const canvas = document.getElementById('hiveCanvas')
 let AiInterval
 const game = new Game(12)
 
+
+const closeAll = () => {
+  document.querySelectorAll('.show').forEach(el =>
+    el.classList.remove('show')
+  )
+}
 ;[...document.querySelectorAll('.close')].map(button => {
-  button.onclick = () => {
-    document.querySelector('.show').classList.remove('show')
-  }
+  button.onclick = closeAll
 })
 
 game.menu = [
@@ -42,7 +46,10 @@ game.menu = [
     title: __('settings', 'nastavení'),
     pos: new Hex(-2, +2),
     action: () => {
-      document.getElementById('settings').classList.add('show')
+      const cl = document.getElementById('settings').classList
+      const visible = cl.contains('show')
+      closeAll()
+      if (!visible) cl.add('show')
     }
   },
   {
@@ -50,7 +57,10 @@ game.menu = [
     title: __('rules', 'pravidla'),
     pos: new Hex(-2, 0),
     action: () => {
-      document.getElementById('help').classList.add('show')
+      const cl = document.getElementById('help').classList
+      const visible = cl.contains('show')
+      closeAll()
+      if (!visible) cl.add('show')
     }
   },
   {
@@ -96,9 +106,8 @@ game.menu = [
 
 game.sideMenu = [
   {
-    label: '🡰',
+    label: '✖',
     title: __('exit', 'odejít'),
-    pos: new Hex(0,0),
     action: () => {
       const ok = game.space.size() === 0 || window.confirm(_("Really leave the match?", "Opustit rozehranou hru?"))
       if (ok) {
@@ -111,14 +120,15 @@ game.sideMenu = [
         ui.on(canvas)
       }
     },
+    pos: new Hex(1,-2),
   },
   {
     ...game.menu[0],
-    pos: new Hex(-1, 2)
+    pos: new Hex(0,0),
   },
   {
     ...game.menu[1],
-    pos: new Hex(1,-2),
+    pos: new Hex(-1, 2),
   },
 ]
 

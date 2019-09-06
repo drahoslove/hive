@@ -154,7 +154,7 @@ export default function uiOf(game) {
         // screenToHex({x: S*SQRT2_3+8, y: CNH-(S+24)}),
         // screenToHex({x: S*SQRT2_3+8, y: S+24}),
       }
-      sideMenuPos = screenToHex({x: 0, y: CNH/2})
+      sideMenuPos = screenToHex({x: CNW, y: CNH/2})
       game.players.forEach(({hand}, i) => {
         const size = hand.size()
         hand.each((bug, i) => {
@@ -590,14 +590,14 @@ export default function uiOf(game) {
   }
 
   function drawSideMenu(menu) {
-    const hues = [10, 318, 258]
+    const hues = [-10, 318, 258]
     menu.forEach(({pos, label, title, active}, i) => {
       title = title()
       pos = sideMenuPos.add(pos)
       const r = S/1.75
       const textColor = '#6669'
       const base = hsl(hues[i])
-      const bkg = base(active ? 65 : 0)
+      const bkg = base(active ? 60 : 10)
       const {x, y} = hexToScreen(pos)
       drawStone(x, y, r, bkg(50), [bkg(80), bkg(20)])
       //outline
@@ -607,25 +607,26 @@ export default function uiOf(game) {
       _ctx.lineCap = 'round'
       _ctx.lineJoin = 'round'
       _ctx.stroke()
-      // text
+      // symbol
       _ctx.font = `normal bold ${Sf*6}px emoji-symbols`
       const w = _ctx.measureText(label).width
       _ctx.fillStyle = bkg(80)
-      _ctx.fillText(label, x+r/2.5-w/2+.5, y+2+.5)
+      _ctx.fillText(label, x-r/2.5-w/2+.5, y+2+.5)
       _ctx.fillStyle = bkg(20)
-      _ctx.fillText(label, x+r/2.5-w/2-.5, y+2-.5)
+      _ctx.fillText(label, x-r/2.5-w/2-.5, y+2-.5)
       _ctx.fillStyle = textColor
-      _ctx.fillText(label, x+r/2.5-w/2,    y+2   )
+      _ctx.fillText(label, x-r/2.5-w/2,    y+2   )
       // title
       if (active) {
         _ctx.font = `normal ${Sf*5}px monospace`
+        const w = _ctx.measureText(title).width
         _ctx.filter = 'none'
         _ctx.fillStyle = bkg(20)
-        _ctx.fillText(title, x+S+1, y+4+1)
+        _ctx.fillText(title, x-S-w+.5, y+4+.5)
         _ctx.fillStyle = bkg(80)
-        _ctx.fillText(title, x+S-1, y+4-1)
-        _ctx.fillStyle = bkg(50)
-        _ctx.fillText(title, x+S, y+4)
+        _ctx.fillText(title, x-S-w-.5, y+4-.5)
+        _ctx.fillStyle = '#444' // bkg(50)
+        _ctx.fillText(title, x-S-w, y+4)
       }
     })
   }

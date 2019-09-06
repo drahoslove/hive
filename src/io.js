@@ -63,10 +63,13 @@ export function connect (hashdata, driver) {
 	})
 
 	socket.on('chat', (msg) => {
+		document.getElementById('chat').classList.remove('disabled')
 		console.log('chat', msg)
-			log.push(msg)
+		log.push(msg)
+		if(log.length > 64) {
 			log.shift()
-			document.getElementById('chat-log').innerHTML = log.join('<br/>')
+		}
+		document.getElementById('chat-log').innerHTML = log.join('<br/>')
 	})
 
 }
@@ -79,12 +82,15 @@ export function chat(msg) {
 
 
 function resetChat() {
-	log = ['','','','','']
+	log = []
 	document.getElementById('chat').classList.add('disabled')
-	document.getElementById('chat-log').innerHTML = log.join('<br/>')
+	document.getElementById('chat-log').innerHTML = ''
 }
 
-window.addEventListener('keypress', ({ key }) => {
+window.addEventListener('keydown', ({ key }) => {
+	if (!socket) {
+		return
+	}
 	if (key === "Enter") {
 		const text = document.getElementById('chat-input').value
 		text && chat(text)
@@ -93,5 +99,4 @@ window.addEventListener('keypress', ({ key }) => {
 	}
 	document.getElementById('chat').classList.remove('disabled')
 	document.getElementById('chat-input').focus()
-	// document.getElementById('chat-input').value = acc
 })
