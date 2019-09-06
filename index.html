@@ -91,6 +91,9 @@ canvas {
   display: inline-block;
   width: 1.1em;
 }
+.content i img {
+  width: 65%;
+}
 .close {
   float: left;
   width: 32px;
@@ -151,6 +154,7 @@ label {
   cursor: pointer;
   color: #888;
   height: 1.5rem;
+  vertical-align: middle;
 }
 label::before {
   content: ' ';
@@ -391,11 +395,11 @@ input[type=radio] {
         <legend>{{ 'Language', 'Jazyk' |_ }}</legend>
         <input type="radio" name="lang" value="cs" id="lang-cs" v-model="lang" />
         <label for="lang-cs">
-          &ensp;&nbsp;<i>🇨🇿</i> &emsp; {{ 'Czech', 'Čeština' |_}}
+          &ensp;&nbsp;<i><img src="/img/cs.png"/></i> &emsp; {{ 'Czech', 'Čeština' |_}}
         </label>
         <input type="radio" name="lang" value="en" id="lang-en" v-model="lang" />
         <label for="lang-en">
-          &ensp;&nbsp;<i>🇺🇸</i> &emsp; {{ 'English', 'Angličtina' |_}}
+          &ensp;&nbsp;<i><img src="/img/en-GB.png"/></i> &emsp; {{ 'English', 'Angličtina' |_}}
         </label>
       </fieldset>
       <fieldset>
