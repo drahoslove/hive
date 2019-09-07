@@ -205,9 +205,9 @@ export default function uiOf(game) {
         })
         return
       }
-      game.sideMenu.forEach(btn => {
-        if (btn.pos.add(sideMenuPos).distance(eventToExactHex(event)) <= .75) {
-          btn.action()
+      game.sideMenu.forEach(({pos, action}) => {
+        if (pos.add(sideMenuPos).distance(eventToExactHex(event)) <= .75) {
+          action()
         }
       })
 
@@ -591,22 +591,16 @@ export default function uiOf(game) {
 
   function drawSideMenu(menu) {
     const hues = [-10, 318, 258]
-    menu.forEach(({pos, label, title, active}, i) => {
+    menu.forEach(({pos, label, title, active, waiting, xx}, i) => {
+      active = active || waiting
       title = title()
       pos = sideMenuPos.add(pos)
       const r = S/1.75
       const textColor = '#444'
       const base = hsl(hues[i])
-      const bkg = base(active ? 60 : 10)
+      const bkg = base(active ? 60 : 0)
       const {x, y} = hexToScreen(pos)
       drawStone(x, y, r, bkg(50), [bkg(80), bkg(20)])
-      //outline
-      hexPath(_ctx, x, y, r-1)
-      _ctx.strokeStyle = bkg(40)
-      _ctx.lineWidth = 2
-      _ctx.lineCap = 'round'
-      _ctx.lineJoin = 'round'
-      _ctx.stroke()
       // symbol
       _ctx.font = `normal bold ${Sf*6}px emoji-symbols`
       const w = _ctx.measureText(label).width

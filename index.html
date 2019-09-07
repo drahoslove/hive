@@ -80,8 +80,8 @@ canvas {
   background: url('/img/dark-stripes-light.png');
   box-sizing: border-box;
   font-size: 16px;
-  padding: 1.5rem;
-  color: #335;
+  padding: .5rem 1.5rem;
+  color: #333;
   height: 100%;
   overflow: auto;
 }
@@ -101,7 +101,7 @@ canvas {
   height: 100%;
   background-image: url('/img/rubber-grip.png');
   color: white;
-  opacity: .8; 
+  opacity: .8;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -111,15 +111,7 @@ canvas {
 .close:hover {
   opacity: 1;
 }
-#help .close {
-  background-color: #7a738b;
-}
-#settings .close {
-  background-color: #8c7385;
-}
-#help .content, #settings .content {
-  font-family: cursive;
-}
+
 h2 {
   font-family: 'Titan one'
 }
@@ -145,7 +137,7 @@ legend {
 }
 label {
   cursor: pointer;
-  color: #99b;
+  opacity: .6;
   height: 1.5rem;
   vertical-align: middle;
   font-weight: bolder;
@@ -158,7 +150,7 @@ label::before {
 }
 label:hover,
 input[type=radio]:checked + label {
-  color: #335;
+  opacity: 0.9;
 }
 input[type=radio]:checked + label::before {
   content: '✔';
@@ -239,7 +231,7 @@ input[type=radio] {
     <div class="close">›</div>
     <div class="content" v-if="lang === 'cs'" lang="cs">
       <!-- help content start -->
-      <h2>Pravidla</h2>
+      <h2><i>❓</i>Pravidla</h2>
       <i>🞋</i> Cíl:
       <ul>
         <li>Cílem hry je obklopit ze všech šesti stran včelí královnu spoluhráče <i>🐝</i>.</li>
@@ -305,7 +297,7 @@ input[type=radio] {
     </div>
     <div class="content" v-if="lang === 'en'" lang="en">
         <!-- help content start -->
-        <h2>Rules</h2>
+        <h2><i>❓</i>Rules</h2>
         <i>🞋</i> Target:
         <ul>
           <li>The objection of the game is to surround the Bee queen <i>🐝</i> of your opponent from all six sides.</li>
@@ -372,7 +364,7 @@ input[type=radio] {
   <div id="settings" class="drawer">
     <div class="close">›</div>
     <div class="content">
-        <h2>{{ 'Settings', 'Nastavení' |_ }}</h2>
+        <h2><i>⚙</i>{{ 'Settings', 'Nastavení' |_ }}</h2>
         <fieldset>
         <legend>{{ 'Sounds', 'Zvuky' |_ }}</legend>
         <input type="radio" name="sound" value="on" id="sound-on" v-model="sound" />

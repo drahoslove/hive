@@ -25,6 +25,7 @@ export default class Game {
     this.players = ['black', 'white'].map((color, i) => {
       const player = {
         name: _('Player', 'Hráč') + ` ${i+1}`,
+        gender: 'M',
         color,
         pos: i ? 'top' : 'bottom', // for loader & label positioning
       }

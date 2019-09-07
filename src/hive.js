@@ -107,10 +107,12 @@ game.menu = [
 game.sideMenu = [
   {
     label: '✖',
-    title: __('exit', 'odejít'),
-    action: () => {
-      const ok = game.space.size() === 0 || window.confirm(_("Really leave the match?", "Opustit rozehranou hru?"))
-      if (ok) {
+    title: function () {
+      return !this.waiting ? _('exit', 'odejít') : _('really?', 'opravdu?')
+    },
+    action: function () {
+      if (this.waiting || game.space.size() === 0) {
+        this.waiting = false
         disconnect()
         clearInterval(AiInterval)
         ui.showMenu()
@@ -118,9 +120,17 @@ game.sideMenu = [
         ui.off()
         game.reset()
         ui.on(canvas)
+        return
       }
+      this.waiting = true
+      ui.touch()
+      setTimeout(() => {
+        this.waiting = false
+        ui.touch()
+      }, 2000)
     },
     pos: new Hex(1,-2),
+    waiting: false,
   },
   {
     ...game.menu[0],
@@ -130,7 +140,11 @@ game.sideMenu = [
     ...game.menu[1],
     pos: new Hex(-1, 2),
   },
-]
+].map(item => {
+  item.title = item.title.bind(item)
+  item.action = item.action.bind(item)
+  return item
+})
 
 const ui = uiOf(game)
 window.onload = () => {
