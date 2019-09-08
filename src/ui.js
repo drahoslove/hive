@@ -34,8 +34,9 @@ export default function uiOf(game) {
   let CNW = 685
   let CNH = 685 + 67
 
-  const HUE_CLICKABLE = 150
-  const HUE_LANDING = HUE_CLICKABLE + 35
+  const HUE_CLICKABLE = 120
+  const HUE_SELECTED = HUE_CLICKABLE - 60
+  const HUE_LANDING = HUE_CLICKABLE + 60
 
   const SQRT3_2 = Math.sqrt(3)/2
   const SQRT2_3 = Math.sqrt(2)/3
@@ -372,15 +373,16 @@ export default function uiOf(game) {
 
         // outlines (selected, path, and landings)
         if (game.selected) {
-          drawOutline(game.selected.pos, HUE_CLICKABLE)
           game.landings.forEach(pos => {
             _drawQue.push(() => {
               drawOutline(pos, HUE_LANDING)
             })
           })
-          _target && game.selected && (game.selected.pathTo(game.space, _target) || []).forEach((pos, i) => {
-            i > 0 && _drawQue.push(() => drawDot(pos, HUE_LANDING), 3)
-          })
+          if (_target && game.landings.some(landing => landing.eq(_target))) {
+            (game.selected.pathTo(game.space, _target) || [game.selected, _target]).forEach((pos, i) => {
+              i > 0 && _drawQue.push(() => drawDot(pos, HUE_LANDING), 3)
+            })
+          }
         }
 
         if (game.message) {
@@ -866,7 +868,10 @@ export default function uiOf(game) {
       isTop &&
       game.isClickable(bug.pos)
     ) {
-      _drawQue.push(() => drawOutline(pos, HUE_CLICKABLE), 0)
+      const isSelected = game.selected && game.selected.pos.eq(bug.pos)
+      _drawQue.push(() => {
+        drawOutline(pos, isSelected ? HUE_SELECTED : HUE_CLICKABLE)
+      }, isSelected ? 1 : 0)
     }
   }
 
@@ -897,11 +902,18 @@ export default function uiOf(game) {
     let r = S/6
 
     const {x, y} = hexToScreen(pos)
-    hexPath(_ctx, x, y, r-2)
-    _ctx.strokeStyle = `hsla(${hue}, 80%, 50%, 1)`
-    _ctx.lineWidth = 2
-    _ctx.lineCap = 'round'
-    _ctx.stroke()
+    hexPath(_ctx, x, y, r-3)
+    const topBug = game.space.atTop(pos)
+    if (!topBug) {
+      _ctx.fillStyle = `hsla(${hue}, 80%, 50%, 1)`
+    } else {
+      if ((settings.get('color') === 'black') !== (topBug.color === 'white')) {
+        _ctx.fillStyle = `hsla(${hue}, 80%, 100%, 1)`
+      } else {
+        _ctx.fillStyle = `hsla(${hue}, 80%, 0%, 1)`
+      }
+    }
+    _ctx.fill()
   }
 
   function drawOutline(pos, hue) {
@@ -910,7 +922,7 @@ export default function uiOf(game) {
     }
     let r = S/2
 
-    const dimm =  hue === HUE_CLICKABLE && game.selected && !game.selected.pos.eq(pos.round())
+    const dimm = hue === HUE_CLICKABLE && game.selected && !game.selected.pos.eq(pos.round())
 
     if (
       _target && pos.round().eq(_target) && game.isClickable(_target) || // hover
@@ -921,7 +933,7 @@ export default function uiOf(game) {
     const {x, y} = hexToScreen(pos)
     _ctx.beginPath()
     hexPath(_ctx, x, y, r-3.5)
-    _ctx.strokeStyle = `hsla(${hue}, 80%, 50%, ${dimm ? 0.25 : 1})`
+    _ctx.strokeStyle = `hsla(${hue}, 80%, 50%, ${dimm ? 0.20 : 1})`
     _ctx.lineWidth = 4
     _ctx.lineCap = 'round'
     _ctx.stroke()
