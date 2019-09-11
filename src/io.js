@@ -63,7 +63,7 @@ export function connect (hashdata, driver) {
 	})
 
 	socket.on('chat', (msg) => {
-		document.getElementById('chat').classList.remove('disabled')
+		chatEl.classList.remove('disabled')
 		console.log('chat', msg)
 		log.push(msg)
 		if(log.length > 64) {
@@ -81,22 +81,44 @@ export function chat(msg) {
 }
 
 
+const chatEl = document.getElementById('chat')
+const chatInput = document.getElementById('chat-input')
+
 function resetChat() {
 	log = []
-	document.getElementById('chat').classList.add('disabled')
+	chatEl.classList.add('disabled')
 	document.getElementById('chat-log').innerHTML = ''
 }
 
+chatInput.addEventListener('focus', () => {
+	chatEl.classList.add('visible')
+})
+chatInput.addEventListener('blur', () => {
+	chatEl.classList.remove('visible')
+})
+
+// focus on click
+chatEl.addEventListener('click', () => {
+	chatInput.focus()
+})
+
+// focus on key
+window.addEventListener('keypress', ({ key }) => {
+	if (!socket) { 
+		return
+	}
+	chatEl.classList.remove('disabled')
+	chatInput.focus()
+})
+
+// on send
 window.addEventListener('keydown', ({ key }) => {
 	if (!socket) {
 		return
 	}
 	if (key === "Enter") {
-		const text = document.getElementById('chat-input').value
+		const text = chatInput.value
 		text && chat(text)
-		document.getElementById('chat-input').value = ''
-		return false
+		chatInput.value = ''
 	}
-	document.getElementById('chat').classList.remove('disabled')
-	document.getElementById('chat-input').focus()
 })

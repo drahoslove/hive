@@ -172,7 +172,6 @@ input[type=radio] {
   left: 0px;
   width: 5rem;
   background: rgba(238, 238, 238, 0.0);
-  opacity: .5;
   transition: all 0.2s ease;
   padding: .5rem;
   display: flex;
@@ -182,21 +181,28 @@ input[type=radio] {
 #chat.disabled {
   display: none;
 }
-#chat:hover {
-  background: rgba(238, 238, 238, 0.25);
+#chat:hover, #chat.visible {
+  background: rgba(238, 238, 238, 0.5);
   width: 25rem;
-  opacity: 1;
 }
-#chat-log {
-  font-size: .8rem;
+.chat-log-wrapper {
   flex-grow: 1;
   padding: 0 .25rem .5rem;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
+  position: relative;
+  overflow: hidden;
+}
+#chat-log {
+  font-size: .8rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  position: absolute;
+  width: 100%;
+  bottom: .5em;
+  line-height: 1.75em;
 }
 #chat-input {
   font-weight: bold;
@@ -226,7 +232,9 @@ input[type=radio] {
   </canvas>
   <div id="loader">🕛</div>
   <div id="chat" class="disabled">
-    <div id="chat-log"></div>
+    <div class="chat-log-wrapper">
+      <div id="chat-log"></div>
+    </div>
     <input type="text" id="chat-input" autocomplete="off" required />
   </div>
   <div id="help" class="drawer">
