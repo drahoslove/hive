@@ -289,10 +289,9 @@ function startMultiplayer(onConnect) {
         } else if (game.passButton.pos.eq(hex)) {
           action =`${pi}P` // pass
         } else {
-          action = `${pi}S${hex.toString()}` // space click
+          action = `${pi}S${hex}` // space click
         }
       }
-      lastSentAction = action
       sendAction(action)
     }
 
@@ -325,25 +324,24 @@ function startMultiplayer(onConnect) {
       if (game.state !== 'started') {
         return
       }
-      if (lastSentAction !== action) {
-        // decode action to click
-        let hex
-        {
-          if (action[1] === 'H') { // hand click
-            const i = Number(action.substr(2))
-            const handBug = game.activePlayer().hand.at(i)
-            hex = handBug.pos
-          }
-          if (action[1] === 'S') { // space click
-            hex = Hex.fromString(action.substr(2))
-          }
-          if (action[1] === 'P') { // pass button click
-            hex = game.passButton.pos
-          }
+
+      // decode action to click
+      let hex
+      {
+        if (action[1] === 'H') { // hand click
+          const i = Number(action.substr(2))
+          const handBug = game.activePlayer().hand.at(i)
+          hex = handBug.pos
         }
-        game.click(hex)
-        ui.touch()
+        if (action[1] === 'S') { // space click
+          hex = Hex.fromString(action.substr(2))
+        }
+        if (action[1] === 'P') { // pass button click
+          hex = game.passButton.pos
+        }
       }
+      game.click(hex, true)
+      ui.touch()
     })
 
     sendAction('ready'+playerIndex) // ready means I can go

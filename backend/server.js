@@ -18,6 +18,9 @@ io.origins((origin, callback) => {
 const rooms = {
 	// [room]: [{ nick, gender, secret }, [secret]: { nick, gender, secret}],
 }
+const actions = {
+	// [room]: number,
+}
 
 console.log('listening', PORT)
 
@@ -47,6 +50,7 @@ gameNamespace.on('connect', (socket) => {
 			room = randomToken(8)
 		} while(room in rooms)
 		rooms[room] = [{ secret, nick, gender }] // seat yourself
+		actions[room] = 0
 	} else { // join existing room
 		if (!(room in rooms)) {
 			return socket.emit('err', `Room ${room} does not exist`)
@@ -80,12 +84,14 @@ gameNamespace.on('connect', (socket) => {
 			gameNamespace.to(room).emit('chat', data)
 		})
 
-		socket.on('action', (data) => {
-			console.log('action', data)
+		socket.on('action', (data, ack) => {
+			const actionIndex = actions[room]++
+			ack(actionIndex)
 			// broadcast incoming game actions to everyone in room except own socket
-			socket.to(room).emit('action', data)
+			socket.to(room).emit('action', data, actionIndex)
 			// note: same user can connect with multiple socket by opening multiple windows
 			// it's up to the client to distinguish apart the actions of oponets from your own actions from another window
+			// actionIndex might be helpfull in this
 		})
 	})
 })
