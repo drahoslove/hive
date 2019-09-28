@@ -40,3 +40,15 @@ export function uncolorEmoji(txt) {
     )
     .join('')
 }
+
+export function seq(a, b) {
+  if (b === undefined) {
+    b = a
+    a = 0
+  }
+  const s = []
+  for (let i = a; i <= b ; i++) {
+    s.push(i)
+  }
+  return s
+} 

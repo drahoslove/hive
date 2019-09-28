@@ -129,12 +129,12 @@ game.sideMenu = [
         ui.touch()
       }, 2000)
     },
-    pos: new Hex(1,-2),
+    pos: new Hex(0,0),
     waiting: false,
   },
   {
     ...game.menu[0],
-    pos: new Hex(0,0),
+    pos: new Hex(1,-2),
   },
   {
     ...game.menu[1],

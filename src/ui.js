@@ -1,7 +1,7 @@
 // Everything what has something to do with producing visual output or handling user input is in this file
 
 import * as settings from './settings.js'
-import { PriorityQueue, rand } from './common.js'
+import { PriorityQueue, rand, seq } from './common.js'
 import { Hex } from './board.js'
 import { Queen } from './bugs.js'
 import { __ } from './lang.js'
@@ -322,6 +322,24 @@ export default function uiOf(game) {
         return
       }
 
+      if (game.state === 'end' && game.futureMessage) {
+        let i = 0
+        const futureMessage = game.futureMessage
+        game.futureMessage = undefined
+        setTimeout(() => {
+          const focusTo = game.dead
+          const endScreen = () => {
+            _invalidated = true
+            if (game.state === 'end') {
+              game.message = futureMessage
+              game.space.centralize(focusTo[++i % focusTo.length].pos.add(new Hex(4, 0)))
+              setTimeout(endScreen, 600)
+            }
+          }
+          endScreen()
+        }, 1200)
+      }
+
       let zoom = getAnimatedZoomLLevel()
 
       let [offsetX, offsetY] = [0, 0]
@@ -390,15 +408,15 @@ export default function uiOf(game) {
             document.body.classList.remove('dark')
           }
           _drawQue.push(() => {
-            const {x, y} = hexToScreen(game.state === 'end' ? new Hex(-4/2, 0) : new Hex(0, 0))
+            const {x, y} = hexToScreen(game.state === 'end' ? new Hex(4/2, 0) : new Hex(0, 0))
             // background
-            ;[-2, -1,0, 1, 2].forEach(j => {
-              ;[-6,-5,-4,-3,-2,-1,0,1,2,3,4,5,6].forEach(i => {
-                if (Math.abs(i) >= 3 && Math.abs(i+j) >= 7) {
+            seq(-1, +1).forEach(j => {
+              seq(-12, +12).forEach(i => {
+                if (Math.abs(i+j) >= 13) {
                   return
                 }
                 const hex = new Hex(i, j)
-                if (game.state === 'end' && hex.distance(new Hex(4, 0)) <=1) {
+                if (game.state === 'end' && hex.distance(new Hex(-4, 0)) <= 1) {
                   return
                 }
                 const {x, y} = hexToScreen(hex)
@@ -625,7 +643,7 @@ export default function uiOf(game) {
         // _ctx.fillText(title, x-S-w+.5, y+4+.5)
         // _ctx.fillStyle = bkg(80)
         // _ctx.fillText(title, x-S-w-.5, y+4-.5)
-        _ctx.fillStyle =  textColor // bkg(50)
+        _ctx.fillStyle = game.state === 'end' ? '#eee' : '#111' // bkg(50)
         _ctx.fillText(title, x-S-w, y+4)
       }
     })

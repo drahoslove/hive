@@ -182,7 +182,7 @@ export default class Game {
     this.checkEnd()
     this.switchPlayers()
     this.canPass = this.hasToPass()
-    console.log(String(this.space))
+    // console.log(String(this.space))
   }
 
   checkEnd () {
@@ -192,35 +192,22 @@ export default class Game {
       , true)
       return queen && this.space.posOfNeighbors(queen.pos).length === 6 && queen
     })
-    let message = ''
-    let focusTo = []
+    this.dead = dead.filter(Boolean)
     if (dead[0] && dead[1]) {
-      message = _("Tie!", "Remíza!")
+      this.futureMessage = _("Tie!", "Remíza!")
       this.state = 'end'
-    } else
+      return true
+    }
     if (dead[this._activePlayerIndex]) {
       const player = this.players[+!this._activePlayerIndex]
-      message = `${player.name} ${verb('win', player.gender)}!`
+      this.futureMessage = `${player.name} ${verb('win', player.gender)}!`
       this.state = 'end'
-    } else
+      return true
+    }
     if (dead[+!this._activePlayerIndex]) {
       const player = this.players[this._activePlayerIndex]
-      message = `${player.name} ${verb('win', player.gender)}!`
+      this.futureMessage = `${player.name} ${verb('win', player.gender)}!`
       this.state = 'end'
-    }
-    focusTo = dead.filter(Boolean)
-    if (message) {
-      let i = 0
-      setTimeout(() => {
-        const endScreen = () => {
-          if (this.state === 'end') {
-            this.message = message
-            this.space.centralize(focusTo[++i % focusTo.length].pos.add(new Hex(-4, 0)))
-            setTimeout(endScreen, 600)
-          }
-        }
-        endScreen()
-      }, 1200)
       return true
     }
   }
