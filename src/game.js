@@ -190,23 +190,37 @@ export default class Game {
       const queen = this.space.findBug(({name, owner}) =>
         name === 'Queen' && owner === player
       , true)
-      return queen && this.space.posOfNeighbors(queen.pos).length === 6
+      return queen && this.space.posOfNeighbors(queen.pos).length === 6 && queen
     })
+    let message = ''
+    let focusTo = []
     if (dead[0] && dead[1]) {
-      this.message = _("Tie!", "Remíza!")
+      message = _("Tie!", "Remíza!")
       this.state = 'end'
-      return true
-    }
+    } else
     if (dead[this._activePlayerIndex]) {
       const player = this.players[+!this._activePlayerIndex]
-      this.message = `${player.name} ${verb('win', player.gender)}!`
+      message = `${player.name} ${verb('win', player.gender)}!`
       this.state = 'end'
-      return true
-    }
+    } else
     if (dead[+!this._activePlayerIndex]) {
       const player = this.players[this._activePlayerIndex]
-      this.message = `${player.name} ${verb('win', player.gender)}!`
+      message = `${player.name} ${verb('win', player.gender)}!`
       this.state = 'end'
+    }
+    focusTo = dead.filter(Boolean)
+    if (message) {
+      let i = 0
+      setTimeout(() => {
+        const endScreen = () => {
+          if (this.state === 'end') {
+            this.message = message
+            this.space.centralize(focusTo[++i % focusTo.length].pos.add(new Hex(-4, 0)))
+            setTimeout(endScreen, 600)
+          }
+        }
+        endScreen()
+      }, 1200)
       return true
     }
   }

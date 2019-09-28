@@ -390,14 +390,18 @@ export default function uiOf(game) {
             document.body.classList.remove('dark')
           }
           _drawQue.push(() => {
-            const {x, y} = hexToScreen(new Hex(0, 0))
+            const {x, y} = hexToScreen(game.state === 'end' ? new Hex(-4/2, 0) : new Hex(0, 0))
             // background
-            ;[-1,0, 1].forEach(j => {
-              ;[-5,-4,-3,-2,-1,0,1,2,3,4,5].forEach(i => {
-                if (Math.abs(i) === 5 && Math.abs(i+j) === 6) {
+            ;[-2, -1,0, 1, 2].forEach(j => {
+              ;[-6,-5,-4,-3,-2,-1,0,1,2,3,4,5,6].forEach(i => {
+                if (Math.abs(i) >= 3 && Math.abs(i+j) >= 7) {
                   return
                 }
-                const {x, y} = hexToScreen(new Hex(i, j))
+                const hex = new Hex(i, j)
+                if (game.state === 'end' && hex.distance(new Hex(4, 0)) <=1) {
+                  return
+                }
+                const {x, y} = hexToScreen(hex)
                 _ctx.save()
                 hexPath(_ctx, x, y, S/2+1)
                 _ctx.clip()
@@ -410,7 +414,7 @@ export default function uiOf(game) {
               })
             })
             // text
-            _ctx.font = "normal 42px monospace"
+            _ctx.font = "normal 40px monospace"
             const w = _ctx.measureText(game.message).width
             _ctx.fillStyle = '#eee'
             _ctx.fillText(game.message, x-w/2 -.5, y -.5)

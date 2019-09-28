@@ -181,30 +181,32 @@ export class Space {
   }
 
   // moves bug closer to the center
-  centralize() {
-    const max = new Cube(-Infinity, -Infinity, -Infinity)
-    const min = new Cube(+Infinity, +Infinity, +Infinity)
+  centralize(midpoint = null) {
+    if (!midpoint) {
+      const max = new Cube(-Infinity, -Infinity, -Infinity)
+      const min = new Cube(+Infinity, +Infinity, +Infinity)
 
-    this.each((tile, pos) => {
-      if (tile.length > 0) {
-        const cPos = pos.toCube()
-        'xyz'.split('').forEach(axis => {
-          if (cPos[axis] > max[axis]) {
-            max[axis] = cPos[axis]
-          }
-          if (cPos[axis] < min[axis]) {
-            min[axis] = cPos[axis]
-          }
-        })
+      this.each((tile, pos) => {
+        if (tile.length > 0) {
+          const cPos = pos.toCube()
+          'xyz'.split('').forEach(axis => {
+            if (cPos[axis] > max[axis]) {
+              max[axis] = cPos[axis]
+            }
+            if (cPos[axis] < min[axis]) {
+              min[axis] = cPos[axis]
+            }
+          })
+        }
+      })
+
+      midpoint = max.add(min).scale(1/2).toHex()
+      if (midpoint.distance(new Hex(0,0)) <= 1) {
+        return
       }
-    })
-
-    const midpoint = max.add(min).scale(1/2).toHex()
-    this.midpoint = midpoint
-
-    if (midpoint.distance(new Hex(0,0)) <= 1) {
-      return
     }
+    
+    this.midpoint = midpoint
 
     const _grid = this._grid
     const _radius = this._radius

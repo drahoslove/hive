@@ -20,7 +20,8 @@
   "scripts": {
     "build": "webpack --mode development --module-bind js=babel-loader --entry ./src/hive.js -o ./hive-bundle.js",
     "start": "webpack-dev-server --module-bind js=babel-loader --entry ./src/hive.js -o ./hive-bundle.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "heroku:deploy": "git subtree push --prefix backend/ heroku master"
   },
   "repository": {
     "type": "git",
