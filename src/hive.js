@@ -104,31 +104,37 @@ game.menu = [
   },
 ]
 
+function confirmedAction(cond, action) {
+  return function () {
+    if (this.waiting || cond(this)) {
+      this.waiting = false
+      action()
+      return
+    }
+    this.waiting = true
+    ui.touch()
+    setTimeout(() => {
+      this.waiting = false
+      ui.touch()
+    }, 3000)
+  }
+}
+
 game.sideMenu = [
   {
     label: '✖',
     title: function () {
       return !this.waiting ? _('exit', 'odejít') : _('really?', 'opravdu?')
     },
-    action: function () {
-      if (this.waiting || game.space.size() === 0) {
-        this.waiting = false
-        disconnect()
+    action: confirmedAction(() => game.space.size() === 0, () => {
+       disconnect()
         clearInterval(AiInterval)
         ui.showMenu()
         setGetHashRoom('')
         ui.off()
         game.reset()
         ui.on(canvas)
-        return
-      }
-      this.waiting = true
-      ui.touch()
-      setTimeout(() => {
-        this.waiting = false
-        ui.touch()
-      }, 2000)
-    },
+    }),
     pos: new Hex(1.5, -3),
     waiting: false,
   },
@@ -138,25 +144,15 @@ game.sideMenu = [
     title: function () {
       return !this.waiting ? _('restart', 'odznova') : _('really?', 'opravdu?')
     },
-    action: function() {
-      if (this.waiting || game.state === 'end') {
-        if (window.location.hash) {
-          window.location.reload()
-        } else {
-          this.waiting = false
-          ui.off()
-          game.reset()
-          ui.on(canvas)
-        }
-        return
+    action: confirmedAction(() => game.state === 'end', () => {
+      if (window.location.hash && window.location.hash[1] !== ';') {
+        window.location.reload()
+      } else {
+        ui.off()
+        game.reset()
+        ui.on(canvas)
       }
-      this.waiting = true
-      ui.touch()
-      setTimeout(() => {
-        this.waiting = false
-        ui.touch()
-      }, 2000)
-    },
+    }),
     pos: new Hex(.5, -1),
     waiting: false,
   },
