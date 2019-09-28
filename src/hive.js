@@ -129,16 +129,44 @@ game.sideMenu = [
         ui.touch()
       }, 2000)
     },
-    pos: new Hex(0,0),
+    pos: new Hex(1.5, -3),
+    waiting: false,
+  },
+  {
+    label: '🔄',
+    // label: '🔃', 
+    title: function () {
+      return !this.waiting ? _('restart', 'odznova') : _('really?', 'opravdu?')
+    },
+    action: function() {
+      if (this.waiting || game.state === 'end') {
+        if (window.location.hash) {
+          window.location.reload()
+        } else {
+          this.waiting = false
+          ui.off()
+          game.reset()
+          ui.on(canvas)
+        }
+        return
+      }
+      this.waiting = true
+      ui.touch()
+      setTimeout(() => {
+        this.waiting = false
+        ui.touch()
+      }, 2000)
+    },
+    pos: new Hex(.5, -1),
     waiting: false,
   },
   {
     ...game.menu[0],
-    pos: new Hex(1,-2),
+    pos: new Hex(-.5, 1),
   },
   {
     ...game.menu[1],
-    pos: new Hex(-1, 2),
+    pos: new Hex(-1.5, 3),
   },
 ].map(item => {
   item.title = item.title.bind(item)
