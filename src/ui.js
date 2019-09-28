@@ -322,6 +322,13 @@ export default function uiOf(game) {
         return
       }
 
+      if (game.state === 'end') {
+        game.sideMenu.forEach((btn, i) => {
+          if ([0,1].includes(i)) {
+            btn.active = true
+          }
+        })
+      }
       if (game.state === 'end' && game.futureMessage) {
         let i = 0
         const futureMessage = game.futureMessage
@@ -331,9 +338,12 @@ export default function uiOf(game) {
           const endScreen = () => {
             _invalidated = true
             if (game.state === 'end') {
+              document.body.classList.remove('dark')
               game.message = futureMessage
               game.space.centralize(focusTo[++i % focusTo.length].pos.add(new Hex(4, 0)))
               setTimeout(endScreen, 600)
+            } else {
+              document.body.classList.add('dark')
             }
           }
           endScreen()
@@ -404,9 +414,6 @@ export default function uiOf(game) {
         }
 
         if (game.message) {
-          if (game.state === 'end') {
-            document.body.classList.remove('dark')
-          }
           _drawQue.push(() => {
             const {x, y} = hexToScreen(game.state === 'end' ? new Hex(4/2, 0) : new Hex(0, 0))
             // background
