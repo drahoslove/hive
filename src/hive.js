@@ -127,20 +127,18 @@ game.sideMenu = [
       return !this.waiting ? _('exit', 'odejít') : _('really?', 'opravdu?')
     },
     action: confirmedAction(() => game.space.size() === 0, () => {
-       disconnect()
-        clearInterval(AiInterval)
-        ui.showMenu()
-        setGetHashRoom('')
-        ui.off()
-        game.reset()
-        ui.on(canvas)
+      disconnect()
+      clearInterval(AiInterval)
+      ui.showMenu()
+      setGetHashRoom('')
+      ui.off()
+      game.reset()
+      ui.on(canvas)
     }),
-    pos: new Hex(1.5, -3),
-    waiting: false,
+    pos: new Hex(.5, -1),
   },
   {
     label: '🔄',
-    // label: '🔃', 
     title: function () {
       return !this.waiting ? _('restart', 'odznova') : _('really?', 'opravdu?')
     },
@@ -153,16 +151,15 @@ game.sideMenu = [
         ui.on(canvas)
       }
     }),
-    pos: new Hex(.5, -1),
-    waiting: false,
-  },
-  {
-    ...game.menu[0],
     pos: new Hex(-.5, 1),
   },
   {
-    ...game.menu[1],
+    ...game.menu[0],
     pos: new Hex(-1.5, 3),
+  },
+  {
+    ...game.menu[1],
+    pos: new Hex(1.5, -3),
   },
 ].map(item => {
   item.title = item.title.bind(item)

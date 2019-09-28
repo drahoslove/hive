@@ -615,7 +615,7 @@ export default function uiOf(game) {
 
   function drawSideMenu(menu) {
     // const hues = [-10, 128, 318, 258]
-    const hues = [0,1,2,3].map(i => -10 + i*60)
+    const hues = [0,1,2,3].map(i => -10 + i*360/4)
     menu.forEach(({pos, label, title, active, waiting, xx}, i) => {
       active = active || waiting
       title = title()
