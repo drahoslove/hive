@@ -27,7 +27,8 @@ console.time("")
 
 const canvas = document.getElementById('hiveCanvas')
 
-let AiInterval
+let aiInterval
+let gameMode = ''
 const game = new Game(12)
 
 
@@ -90,11 +91,7 @@ game.menu = [
     label: '👤',
     title: __('training', 'trénink'),
     pos: new Hex(+2, 0),
-    action: () => {
-      ui.disableInputFor([])
-      ui.hideMenu()
-      game.start()
-    },
+    action: training,
   },
   {
     label: '👽×👽',
@@ -126,11 +123,12 @@ game.sideMenu = [
     title: function () {
       return !this.waiting ? _('exit', 'odejít') : _('really?', 'opravdu?')
     },
-    action: confirmedAction(() => game.space.size() === 0, () => {
+    action: confirmedAction(() => gameMode && game.space.size() === 0, () => {
       disconnect()
-      clearInterval(AiInterval)
+      clearInterval(aiInterval)
       ui.showMenu()
       setGetHashRoom('')
+      gameMode = ''
       ui.off()
       game.reset()
       ui.on(canvas)
@@ -143,11 +141,13 @@ game.sideMenu = [
       return !this.waiting ? _('restart', 'odznova') : _('really?', 'opravdu?')
     },
     action: confirmedAction(() => game.state === 'end', () => {
-      if (window.location.hash && window.location.hash[1] !== ';') {
+      if (!gameMode) {
         window.location.reload()
       } else {
         ui.off()
+        clearInterval(aiInterval)
         game.reset()
+        eval(`${gameMode}()`)
         ui.on(canvas)
       }
     }),
@@ -203,20 +203,29 @@ const autoMove = (players) => () => {
   // console.log(String(game.space))
   ui.touch()
   if (game.state === 'end') {
-    clearInterval(AiInterval)
+    clearInterval(aiInterval)
   }
 }
 
+function training () {
+  gameMode = 'training'
+  ui.disableInputFor([])
+  ui.hideMenu()
+  game.start()
+}
+
 function AIvAI() {
+  gameMode = 'AIvAI'
   game.players[0].name = uncolorEmoji(_("Dumber 👽", "Blbější 👽"))
   game.players[1].name = uncolorEmoji(_("Dumb 👽", "Blbý 👽"))
   ui.hideMenu()
   ui.disableInputFor([0,1])
   game.start()
-  AiInterval = setInterval(autoMove([0, 1]), 50)
+  aiInterval = setInterval(autoMove([0, 1]), 50)
 }
 
 function vAI() {
+  gameMode = 'vAI'
   game.players[0].name = _("You", "Ty")
   game.players[0].gender = '2'
   game.players[1].name = uncolorEmoji(_("👽", "Hra 👽"))
@@ -224,7 +233,7 @@ function vAI() {
   ui.hideMenu()
   ui.disableInputFor([1])
   game.start()
-  AiInterval = setInterval(autoMove([1]), 800)
+  aiInterval = setInterval(autoMove([1]), 800)
 }
 
 function setGetHashRoom(room) {
