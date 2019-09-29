@@ -494,16 +494,70 @@ export class Space {
     return this.safeNextPositions(owner)
   }
 
-  __randomLandingPos(owner) {
-    const positions = this.possibleLandings(owner)
-    return positions[rand(positions.length)] || __randomBugPos(owner)
-  }
+  // __randomLandingPos(owner) {
+  //   const positions = this.possibleLandings(owner)
+  //   return positions[rand(positions.length)] || __randomBugPos(owner)
+  // }
 
   __randomBugPos(owner) {
     const positions = this.hivePositions()
       .filter(pos => (this.atTop(pos)||{}).owner === owner)
       .filter(pos => !this.isHiveBridge(pos) || this.at(pos).length > 1)
     return positions[rand(positions.length)] || new Hex(0, 0)
+  }
+
+  // __bestishLandingPos(owner) {
+  //   const positions = this.possibleLandings(owner)
+  //   const rankedPos = positions.map(pos => {
+  //     let rank = 0
+  //     const neighs = this.posOfNeighbors(pos)
+  //     neights.forEach(pos => {
+  //       const bug = this.atBottom(pos)
+  //       if (bug.name === 'Queen') {
+  //         rank -= 5 // dont want to land at our qeen
+  //       }
+  //     })
+  //     rank += neights.length/2 // preferre to touch multiple bros
+  //     return {pos, rank}
+  //   })
+  //   rankedPos.sort((a, b) => b.rank - a.rank) // highest rank first
+  //   const bestPositions = rankedPos
+  //     .filter(({rank}) => rank === rankedPos[0].rank)
+  //     .map(({pos}) => pos)
+  //   console.log('rankedLandings', rankedPos.map(({rank}) => rank))
+
+  //   return bestPositions[rand(bestPositions.length)] || __bestishBugPos(owner)
+  // }
+
+
+  // select best bug from all movable bugs
+  // which has better chance to lead to winning move
+  __bestishBugPos(owner) {
+    const positions = this.hivePositions()
+      .filter(pos => (this.atTop(pos)||{}).owner === owner)
+      .filter(pos => !this.isHiveBridge(pos) || this.at(pos).length > 1)
+    const rankedPos = positions.map(pos => {
+      let rank = 0
+      this.posOfNeighbors(pos).forEach(pos => {
+        const bug = this.atBottom(pos)
+        if (bug.name === 'Queen') {
+          bug.owner === owner
+            ? rank++ // we want to move from your queen
+            : rank-- // we want to stay at opponents queen 
+        }
+      })
+      return {pos, rank}
+    })
+    rankedPos.sort((a, b) => b.rank - a.rank) // highest rank first
+    const bestPositions = rankedPos
+      .filter(({rank}) => rank === rankedPos[0].rank)
+      .map(({pos}) => pos)
+    // console.log('rankedPos', rankedPos.map(({rank}) => rank))
+
+    const bestBugPos = bestPositions[rand(bestPositions.length)] || new Hex(0, 0)
+    return this.atTop(bestBugPos) && this.atTop(bestBugPos).reachablePlaces(this).length > 0
+      ? bestBugPos
+      : this.__randomBugPos(owner)
   }
 
   toString() {

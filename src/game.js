@@ -255,6 +255,30 @@ export default class Game {
     return this.landings[rand(this.landings.length-1)] || this.space.__randomBugPos(this.activePlayer())
   }
 
+  __bestishLandingPos() {
+    const positions = [...this.landings]
+    const rankedPos = positions.map(pos => {
+      let rank = 0
+      const neighs = this.space.posOfNeighbors(pos)
+      neighs.forEach(pos => {
+        const bug = this.space.atBottom(pos)
+        if (bug.name === 'Queen') {
+          bug.owner === this.activePlayer()
+            ? rank-- // we dont want to move to our queen
+            : rank+=2 // wa want to move to opponents queen
+        }
+      })
+      return {pos, rank}
+    })
+    rankedPos.sort((a, b) => b.rank - a.rank) // highest rank first
+    const bestPositions = rankedPos
+      .filter(({rank}) => rank === rankedPos[0].rank)
+      .map(({pos}) => pos)
+    // console.log('rankedLandings', rankedPos.map(({rank}) => rank))
+
+    return bestPositions[rand(bestPositions.length)] || this.space.__bestishBugPos(this.activePlayer())
+  }
+
 }
 
 Game.basicBugPack =  [

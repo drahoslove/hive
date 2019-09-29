@@ -193,11 +193,11 @@ const autoMove = (players) => () => {
   }
   !game.selected
     ? game.click(
-      rand(game.activePlayer().hand.size()+1)
+      rand(Math.ceil(game.activePlayer().hand.size()/10+1))
         ? game.activePlayer().hand.__getRandomBugPos()
-        : game.space.__randomBugPos(game.activePlayer())
+        : game.space.__bestishBugPos(game.activePlayer())
       )
-    : game.click(game.__randomLandingPos())
+    : game.click(game.__bestishLandingPos())
 
   // console.clear()
   // console.log(String(game.space))
