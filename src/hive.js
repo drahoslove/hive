@@ -1,5 +1,6 @@
 import './settings.js'
 import './vue.js'
+import * as audio from './audio.js'
 import { _, __ } from './lang.js'
 import Game from './game.js'
 import uiOf from './ui.js'
@@ -23,7 +24,7 @@ let loaderInterval = 0
 
 console.log("Hive loaded")
 console.time("")
-
+audio.menu()
 
 const canvas = document.getElementById('hiveCanvas')
 
@@ -129,6 +130,7 @@ game.sideMenu = [
       ui.showMenu()
       setGetHashRoom('')
       gameMode = ''
+      audio.menu()
       ui.off()
       game.reset()
       ui.on(canvas)
@@ -209,6 +211,7 @@ const autoMove = (players) => () => {
 
 function training () {
   gameMode = 'training'
+  audio.track('p')
   ui.disableInputFor([])
   ui.hideMenu()
   game.start()
@@ -216,6 +219,7 @@ function training () {
 
 function AIvAI() {
   gameMode = 'AIvAI'
+  audio.track('ava')
   game.players[0].name = uncolorEmoji(_("Dumber 👽", "Blbější 👽"))
   game.players[1].name = uncolorEmoji(_("Dumb 👽", "Blbý 👽"))
   ui.hideMenu()
@@ -226,6 +230,7 @@ function AIvAI() {
 
 function vAI() {
   gameMode = 'vAI'
+  audio.track('pva')
   game.players[0].name = _("You", "Ty")
   game.players[0].gender = '2'
   game.players[1].name = uncolorEmoji(_("👽", "Hra 👽"))
@@ -274,7 +279,8 @@ function startMultiplayer(onConnect) {
     sendAction,
     onIncomingAction,
     onPlayerInfo,
-  ) => {
+    ) => {
+    audio.track('wait')
     ui.disableInputFor([0, 1]) // disable all input until ready/go
     game.message = _('Wait for the opponent', 'Čekej na spoluhráče')
     game.state = 'wait'
@@ -328,6 +334,7 @@ function startMultiplayer(onConnect) {
     const go = () => {
       game.message = ''
       game.start()
+      audio.track('pvp')
       ui.disableInputFor([+!playerIndex]) // game can start => allow input
     }
 
