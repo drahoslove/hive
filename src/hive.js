@@ -149,6 +149,7 @@ game.sideMenu = [
         ui.off()
         clearInterval(aiInterval)
         game.reset()
+        audio.stop()
         eval(`${gameMode}()`)
         ui.on(canvas)
       }

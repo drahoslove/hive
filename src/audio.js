@@ -2,11 +2,13 @@ import * as settings from './settings.js'
 
 let active = ''
 const tracks = {}
+
 ;['menu', 'wait', 'pvp', 'pva', 'p', 'ava'].forEach((mode) => {
-  const track = tracks[mode] =  new Audio(`/audio/${mode}.mp3`)
+  const track = tracks[mode] =  new Audio()
+  track._src = `/audio/${mode}.mp3`
   track.loop = true
-  track.load()
-  track.pause()
+  // track.load()
+  // track.pause()
   if (mode === 'p') {
     track.volume = .8
   }
@@ -20,7 +22,7 @@ async function play(track) {
     await track.play()
   } catch(e) {
     window.addEventListener('mousedown', function playOnInteraction() {
-      play(track)
+      play(tracks[active])
       window.removeEventListener('mousedown', playOnInteraction)
     })
   }
@@ -30,8 +32,10 @@ export const stop = () => {
   Object.keys(tracks).forEach(name => {
     const track = tracks[name]
     if (!track.paused) {
+      if (name !== 'menu') {
+        track.currentTime = 0
+      }
       track.pause()
-      name !== 'menu' && track.load()
     }
   })
 }
@@ -39,15 +43,19 @@ export const stop = () => {
 export const track = async (name) => {
   active = name
   stop()
-  if (name === '' || settings.get('sound') !== 'on') {
+  if (!(name in tracks) || settings.get('sound') !== 'on') {
     return
   }
   const track = tracks[name]
+  if (!track.src) {
+    track.src = track._src
+  }
   if (track.readyState >= track.HAVE_ENOUGH_DATA) {
     play(track)
   } else {
-    track.addEventListener('canplaythrough', async (event) => {
+    track.addEventListener('canplaythrough', function oncanplaytrough () {
       play(track)
+      track.removeEventListener('canplaythrough', oncanplaytrough)
     })
   }
 }

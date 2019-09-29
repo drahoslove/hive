@@ -350,8 +350,6 @@ export default function uiOf(game) {
               game.message = futureMessage
               game.space.centralize(focusTo[++i % focusTo.length].pos.add(new Hex(4, 0)))
               setTimeout(endScreen, 600)
-            } else {
-              document.body.classList.add('dark')
             }
           }
           endScreen()
