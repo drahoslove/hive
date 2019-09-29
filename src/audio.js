@@ -3,19 +3,22 @@ import * as settings from './settings.js'
 let active = ''
 const tracks = {}
 
-;['menu', 'wait', 'pvp', 'pva', 'p', 'ava'].forEach((mode) => {
-  const track = tracks[mode] =  new Audio()
-  track._src = `/audio/${mode}.mp3`
-  track.loop = true
-  // track.load()
-  // track.pause()
-  if (mode === 'p') {
-    track.volume = .8
-  }
-  if (mode === 'ava') {
-    track.volume = .5
-  }
-})
+// init audio tracks only if not on mobile data
+if (!navigator.connection || (navigator.connection.type !== 'cellular' && !navigator.connection.daveData)) {
+  ;['menu', 'wait', 'pvp', 'pva', 'p', 'ava'].forEach((mode) => {
+    const track = tracks[mode] =  new Audio()
+    track._src = `/audio/${mode}.mp3`
+    track.loop = true
+    // track.load()
+    // track.pause()
+    if (mode === 'p') {
+      track.volume = .8
+    }
+    if (mode === 'ava') {
+      track.volume = .5
+    }
+  })
+}
 
 async function play(track) {
   try {
