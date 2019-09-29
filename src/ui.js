@@ -323,9 +323,17 @@ export default function uiOf(game) {
       }
 
       if (game.state === 'end') {
+        setTimeout(() => {
+          game.sideMenu.forEach((btn, i) => {
+            if ([0,1].includes(i)) {
+              btn.activeish = true
+            }
+          })
+        }, 1500)
+      } else {
         game.sideMenu.forEach((btn, i) => {
           if ([0,1].includes(i)) {
-            btn.active = true
+            btn.activeish = false
           }
         })
       }
@@ -623,14 +631,13 @@ export default function uiOf(game) {
   function drawSideMenu(menu) {
     // const hues = [-10, 128, 318, 258]
     const hues = [0,1,2,3].map(i => -10 + i*360/4)
-    menu.forEach(({pos, label, title, active, waiting, xx}, i) => {
-      active = active || waiting
+    menu.forEach(({pos, label, title, active, waiting, activeish}, i) => {
       title = title()
       pos = sideMenuPos.add(pos)
       const r = S/1.75
       const textColor = '#444'
       const base = hsl(hues[i])
-      const bkg = base(active ? 60 : 0)
+      const bkg = base(Boolean(active) * 60 + Boolean(activeish || waiting) * 30)
       const {x, y} = hexToScreen(pos)
       drawStone(x, y, r, bkg(50), [bkg(80), bkg(20)])
       // symbol
@@ -643,7 +650,7 @@ export default function uiOf(game) {
       _ctx.fillStyle = textColor
       _ctx.fillText(label, x-r/2.5-w/2,    y+2   )
       // title
-      if (active) {
+      if (active || activeish || waiting) {
         _ctx.font = `normal ${Sf*5}px monospace`
         const w = _ctx.measureText(title).width
         _ctx.filter = 'none'

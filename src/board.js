@@ -494,41 +494,12 @@ export class Space {
     return this.safeNextPositions(owner)
   }
 
-  // __randomLandingPos(owner) {
-  //   const positions = this.possibleLandings(owner)
-  //   return positions[rand(positions.length)] || __randomBugPos(owner)
-  // }
-
   __randomBugPos(owner) {
     const positions = this.hivePositions()
       .filter(pos => (this.atTop(pos)||{}).owner === owner)
       .filter(pos => !this.isHiveBridge(pos) || this.at(pos).length > 1)
     return positions[rand(positions.length)] || new Hex(0, 0)
   }
-
-  // __bestishLandingPos(owner) {
-  //   const positions = this.possibleLandings(owner)
-  //   const rankedPos = positions.map(pos => {
-  //     let rank = 0
-  //     const neighs = this.posOfNeighbors(pos)
-  //     neights.forEach(pos => {
-  //       const bug = this.atBottom(pos)
-  //       if (bug.name === 'Queen') {
-  //         rank -= 5 // dont want to land at our qeen
-  //       }
-  //     })
-  //     rank += neights.length/2 // preferre to touch multiple bros
-  //     return {pos, rank}
-  //   })
-  //   rankedPos.sort((a, b) => b.rank - a.rank) // highest rank first
-  //   const bestPositions = rankedPos
-  //     .filter(({rank}) => rank === rankedPos[0].rank)
-  //     .map(({pos}) => pos)
-  //   console.log('rankedLandings', rankedPos.map(({rank}) => rank))
-
-  //   return bestPositions[rand(bestPositions.length)] || __bestishBugPos(owner)
-  // }
-
 
   // select best bug from all movable bugs
   // which has better chance to lead to winning move
