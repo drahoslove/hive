@@ -51,4 +51,12 @@ export function seq(a, b) {
     s.push(i)
   }
   return s
-} 
+}
+
+export function onceEvent(eventName, callback) {
+  const handler = () => {
+    callback()
+    window.removeEventListener(eventName, handler)
+  }
+  window.addEventListener(eventName, handler)
+}

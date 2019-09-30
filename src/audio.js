@@ -1,4 +1,5 @@
 import * as settings from './settings.js'
+import { onceEvent } from './common.js'
 
 let active = ''
 const tracks = {}
@@ -9,8 +10,6 @@ if (!navigator.connection || (navigator.connection.type !== 'cellular' && !navig
     const track = tracks[mode] =  new Audio()
     track._src = `/audio/${mode}.mp3`
     track.loop = true
-    // track.load()
-    // track.pause()
     if (mode === 'p') {
       track.volume = .8
     }
@@ -20,13 +19,39 @@ if (!navigator.connection || (navigator.connection.type !== 'cellular' && !navig
   })
 }
 
+// analyzer
+const context = new AudioContext()
+const analyser = context.createAnalyser()
+analyser.fftSize = 256
+
+Object.values(tracks).forEach(track => { // connect tracs to analyzer
+  const src = context.createMediaElementSource(track)
+  src.connect(analyser)
+})
+analyser.connect(context.destination) // output to speakers
+
+// prapare byte array for analysis storage
+const bufferLength = analyser.frequencyBinCount
+const dataArray = new Uint8Array(bufferLength)
+
+// resume context on user gesture interaction
+if (context.state === 'suspended') {
+  onceEvent('mousedown', () => {
+    context.resume()
+  })
+}
+
+export function analyze() {
+  analyser.getByteFrequencyData(dataArray)
+  return dataArray
+}
+
 async function play(track) {
   try {
     await track.play()
   } catch(e) {
-    window.addEventListener('mousedown', function playOnInteraction() {
+    onceEvent('mousedown', () => {
       play(tracks[active])
-      window.removeEventListener('mousedown', playOnInteraction)
     })
   }
 }

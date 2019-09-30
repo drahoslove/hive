@@ -5,6 +5,7 @@ import { PriorityQueue, rand, seq } from './common.js'
 import { Hex } from './board.js'
 import { Queen } from './bugs.js'
 import { __ } from './lang.js'
+import { analyze } from './audio.js'
 
 export const hsl = (hue) => (sat) => (lig) => `hsl(${hue}, ${sat}%, ${lig}%)`;
 
@@ -571,7 +572,6 @@ export default function uiOf(game) {
     }
     return zoom
   }
-
   function drawBackground(noclear) {
     const { width, height } = _cachedBackground
     const z = _showMenu ? 1 : getAnimatedZoomLLevel()
@@ -591,6 +591,11 @@ export default function uiOf(game) {
       _zoom = 1
       _zoomStart = 1
     }
+    // const hex = new Hex(5, 0)
+    // const biteArray = analyze()
+    // TODO awesome audio visualization
+    // drawTile(null, hex, _ctx)
+
   }
 
   function drawPassButton({pos, label, active}) {
