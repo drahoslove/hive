@@ -7,7 +7,12 @@ const help = new Vue({
   data: settings.getAll(),
 })
 
-const sets = new Vue({
+const about = new Vue({
+  el: '#about',
+  data: settings.getAll(),
+})
+
+const config = new Vue({
   el: '#settings',
   data: settings.getAll(),
   watch: settings.setAll(),
@@ -16,5 +21,6 @@ const sets = new Vue({
 
 settings.subscribe((settings) => {
   help.lang = settings.lang
-  sets.lang = settings.lang
+  config.lang = settings.lang
+  about.lang = settings.lang
 })

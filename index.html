@@ -35,6 +35,9 @@ canvas {
   margin: auto;
   -webkit-tap-highlight-color: transparent; /* prevents blue blinking on touchsceen in chrome for android */
 }
+a {
+  color: #4b99bf;
+}
 .emoji{
    display: none; 
   font-size: 50px;
@@ -113,7 +116,7 @@ canvas {
   background-color: #eee;
 }
 
-h2 {
+h2, h3 {
   font-family: 'Titan one'
 }
 
@@ -220,6 +223,23 @@ input[type=radio] {
 }
 #chat:hover #chat-input, #chat-input:focus {
   background: #eeee;
+}
+#footer {
+  display: none;
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  color: white;
+  font-size: 20pt;
+  font-family: arial;
+  cursor: pointer;
+  padding: .1em .3em;
+}
+#footer.visible {
+  display: block;
+}
+.dark #footer {
+  display: none;
 }
 </style>
 </head>
@@ -421,6 +441,50 @@ input[type=radio] {
       </fieldset>
     </div>
   </div>
+  <div id="about" class="drawer">
+    <div class="close">›</div>
+    <div class="content" v-if="lang === 'en' || lang === 'cs'">
+      <h2>Hmyziště</h2>
+      <div>
+        © 2019
+      </div>
+      <h3>Game design</h3>
+      <div>
+        <strong>Drahoslav Bednář</strong> (<a href="https://draho.cz" target="_blank">draho.cz</a>)
+      </div>
+      <div>
+        <h3>Music</h3>
+        <p>
+          Main menu: <strong>Relaxing Piano Music</strong><br/>
+          Waiting: <strong>Leopard Print Elevator</strong><br/>
+          Multiplayer: <strong>Unwritten Return</strong><br/>
+          Singleplayer: <strong>Beauty Flow</strong><br/>
+          Training: <strong>Fretless</strong><br/>
+          Demonstration: <strong>Severe Tire Damage</strong><br/>
+        </p>
+        <p>
+          All by <strong>Kevin MacLeod</strong> (<a href="https://incompetech.com" target="_blank">incompetech.com</a>)<br />
+          License: <a href="http://creativecommons.org/licenses/by/3.0/" target="_blank">Creative Commons: By Attribution 3.0</a>
+        </p>
+        <h3>Fonts</h3>
+        <p>
+          Icons: <strong>Symbola</strong> by <strong>George Douros</strong><br/>
+          License: <a href="http://users.teilar.gr/~g1951d/" target="_blank">Freeware</a>
+        </p>
+        <p>
+          Headlines: <strong>Titan One</strong> by <strong>Rodrigo Fuenzalida</strong><br/>
+          License: <a href="http://scripts.sil.org/cms/scripts/page.php?site_id=nrsi&id=OFL_web" target="_blank">Open Font License</a>
+        </p>
+        <h3>Concept</h3>
+        <p>
+          Highly inspired by table-top game <strong>Hive</strong><br/>
+          designed by <strong>John Yianni</strong><br/>
+          published in 2001 by <strong>Gen42 Games</strong><br/>
+        </p>
+      </div>
+    </div>
+  </div>
+  <span id="footer">©</span>
   <script>
   if (window.parent === window && !window.location.origin.match('localhost')) {
     window.location = 'https://hmyz.it/' + window.location.hash

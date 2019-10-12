@@ -42,28 +42,27 @@ const closeAll = () => {
   button.onclick = closeAll
 })
 
+const open = (id) => () => {
+  const cl = document.getElementById(id).classList
+  const visible = cl.contains('show')
+  closeAll()
+  if (!visible) cl.add('show')
+}
+
+document.getElementById('footer').onclick = open('about')
+
 game.menu = [
   {
     label: '⚙',
     title: __('settings', 'nastavení'),
     pos: new Hex(-2, +2),
-    action: () => {
-      const cl = document.getElementById('settings').classList
-      const visible = cl.contains('show')
-      closeAll()
-      if (!visible) cl.add('show')
-    }
+    action: open('settings')
   },
   {
     label: '❓',
     title: __('rules', 'pravidla'),
     pos: new Hex(-2, 0),
-    action: () => {
-      const cl = document.getElementById('help').classList
-      const visible = cl.contains('show')
-      closeAll()
-      if (!visible) cl.add('show')
-    }
+    action: open('help')
   },
   {
     label: '👤🌐👤',
@@ -180,6 +179,7 @@ window.onload = () => {
     if (window.location.hash && window.location.hash.substr(1)[0] !== ';') {
       startMultiplayer()
     }
+    document.getElementById('footer').classList.add('visible')
   }, 100)
 }
 // ui.off(canvas)
