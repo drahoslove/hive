@@ -100,6 +100,9 @@ thead {
 .offline {
   color: hsl(0, 82%, 35%);;
 }
+.semionline {
+  color: hsl(40, 82%, 35%);
+}
 .online {
   color: hsl(120, 82%, 35%);;
 }
@@ -131,6 +134,7 @@ a[target="_blank"]::after {
           <td>Creator</td>
           <td>Opponent</td>
           <td>Actions</td>
+          <td>On</td>
         </tr>
       </thead>
       <tr v-for="room in rooms">
@@ -152,6 +156,9 @@ a[target="_blank"]::after {
         <td v-else> × </td>
         </template>
         <td>{{ room.actions }}</td>
+        <td :class="{ online: room.connected === 2, semionline: room.connected === 1 }">
+          {{ room.connected || 0 }}/{{room.users.length}}
+        </td>
       </tr>      
     </table>
     <div class="footer">

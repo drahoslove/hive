@@ -104,6 +104,10 @@ gameNamespace.on('connect', (socket) => {
 			// actionIndex might be helpfull in this
 			updateAdmin()
 		})
+
+		socket.on('disconnect', () => {
+			updateAdmin()
+		})
 	})
 })
 
@@ -123,7 +127,7 @@ const updateAdmin = () => {
 		rooms: Object.entries(rooms).map(([room, data]) => ({
 			hash: room,
 			...data,
-			sockets: io.sockets.adapter.rooms[room]
+			connected: (gameNamespace.adapter.rooms[room]||{}).length,
 		})),
 		uptime: process.uptime(),
 	})
