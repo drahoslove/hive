@@ -5,6 +5,7 @@ const ORIGINS = [
 ]
 const PORT = process.env.PORT || 3003
 const SALT = process.env.SALT || 'SALT'
+const PASS = process.env.PASS || 'PASS'
 
 const crypto = require('crypto')
 const io = require('socket.io')(PORT, { serveClient: false })
@@ -23,6 +24,8 @@ const actions = {
 }
 
 console.log('listening', PORT)
+
+// game io:
 
 const gameNamespace = io.of('/game')
 
@@ -92,10 +95,32 @@ gameNamespace.on('connect', (socket) => {
 			// note: same user can connect with multiple socket by opening multiple windows
 			// it's up to the client to distinguish apart the actions of oponets from your own actions from another window
 			// actionIndex might be helpfull in this
+			updateAdmin()
 		})
 	})
 })
 
+// admin io:
+
+const adminNamespace = io.of('/admin')
+adminNamespace.on('connect', socket => {
+	let { pass } = socket.handshake.query
+	if (pass !== PASS) {
+		socket.disconnect()
+	}
+	updateAdmin()
+})
+
+const updateAdmin = () => {
+	adminNamespace.emit('stats', {
+		rooms,
+		actions,
+		uptime: process.uptime(),
+	})
+}
+
+
+// utilis:
 
 function randomToken(n) {
 	const chars = 'abcdefghijklmnopqrstuvwxyz234567'

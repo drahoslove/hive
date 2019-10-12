@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Hmyziště - admin</title>
+<meta name="viewport" content="width=device-width" />
+<meta name="author" content="Drahoslav Bednář, Draho.cz" />
+<meta name="application-name" content="Hmyziště" />
+<link rel="icon" href="/img/favicon.png" />
+<style>
+@import url('https://fonts.googleapis.com/css?family=Titan+One&subset=latin-ext');
+@font-face {
+  font-family: "emoji-symbols";
+  src:
+    url("font/Symbola.woff") format("woff"),
+    url("font/Symbola.ttf") format("truetype");
+}
+body, html {
+  margin: 0;
+  display: flex;
+  overflow: hidden;
+  justify-content: center;
+  height: 100%;
+  width: 100%;
+}
+body {
+  position: relative;
+  background: #111 url(img/noise.png);
+  transition: background .5s ease-in-out;
+}
+body.dark {
+  background-color: rgba(128, 128, 128, 0.94);
+}
+img {
+  object-fit: cover;
+  position: absolute;
+  top: -25%;
+  z-index: 1;
+  height: 150%;
+  width: 150%;
+}
+section {
+  border-radius: 12px;
+  background: hsla(0, 0%, 90%, 0.75);
+  width: 1000px;
+  margin: 3em auto;
+  padding: 1em 2em;
+  font-family: 'Arial'; 
+  position: relative;
+  z-index: 2;
+}
+a {
+  color: #4b99bf;
+}
+.emoji{
+  display: none; 
+  font-size: 50px;
+  font-family: emoji-symbols;
+}
+#loader{
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 50px;
+  color: #888;
+  z-index: -1;
+}
+@media only screen and (min-width: 600px) {
+  #loader {
+    width: 100vw;
+    height: 100vh;
+  }
+}
+
+h1, h2, h3 {
+  font-family: 'Titan one';
+}
+
+table {
+  width: 100%
+}
+
+thead {
+  font-weight: bold;
+}
+
+::-webkit-scrollbar {
+  width: 12px;
+}
+::-webkit-scrollbar-track {
+}
+::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+  background: rgba(152, 152, 152, .5);;
+}
+
+fieldset {
+  display: flex;
+  flex-direction: column;
+  margin: 1rem 0;
+  border: none;
+}
+legend {
+  margin: .5rem 0;
+}
+label {
+  cursor: pointer;
+  opacity: .6;
+  height: 1.5rem;
+  vertical-align: middle;
+  font-weight: bolder;
+}
+label::before {
+  content: ' ';
+  display: inline-block;
+  width: 1rem;
+  font-size: 120%;
+}
+label:hover,
+input[type=radio]:checked + label {
+  opacity: 0.9;
+}
+input[type=radio]:checked + label::before {
+  content: '✔';
+}
+input[type=radio] {
+  width: 16px;
+  height: 16px;
+  display: none;
+}
+
+#stats {
+  overflow-y: auto;
+  max-height: calc(100% - 5em);
+}
+
+.footer {
+  position: absolute;
+  width: calc(100% - 4em);
+  bottom: 2em;
+}
+
+.header, .footer {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.offline {
+  color: hsl(0, 82%, 35%);;
+}
+.online {
+  color: hsl(120, 82%, 35%);;
+}
+
+.header a {
+  color: black;
+}
+a[target="_blank"]::after {
+  content: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAQElEQVR42qXKwQkAIAxDUUdxtO6/RBQkQZvSi8I/pL4BoGw/XPkh4XigPmsUgh0626AjRsgxHTkUThsG2T/sIlzdTsp52kSS1wAAAABJRU5ErkJggg==);
+  margin: 0 3px 0 5px;
+}
+
+</style>
+</head>
+<body>
+<img src="/img/background.png" />
+<section>
+  <div class="header">
+    <h1>Hmyziště</h1>
+    <h2><a href="/" target="_blank"]>Game</a></h2>
+  </div>
+  <div id="stats" hidden :hidden="false">
+    <table>
+      <thead>
+        <tr>
+          <td>Room</td>
+          <td>Creator</td>
+          <td>Opponent</td>
+          <td>Actions</td>
+        </tr>
+      </thead>
+      <tr v-for="(room, hash) in rooms">
+        <td>{{ hash }}</td>
+        <template v-for="user in (([a, b]) => [a, b])(room)">
+          <td v-if="user">
+            {{ user.nick || '???' }} ({{ user.gender || '?' }})
+          </td>
+        <td v-else> × </td>
+        </template>
+        <td>{{ actions[hash] }}</td>
+      </tr>      
+    </table>
+    <div class="footer">
+      <div>
+        Uptime: <b>{{ uptime | formatDuration }}
+        {{ !connected ? '???' : ''}}</b>
+      </div>
+      <div>
+        Status:
+        <b :class="{online: connected, offline: !connected}">
+          {{ connected ? 'ONLINE' : 'OFFLINE' }}
+        </b>
+      </div>
+    </div>
+  </div>
+</section>
+<script src="lib/vue.js"></script>
+<script src="lib/socket.io.js"></script>
+<script>
+
+const formatDuration = (duration) => {
+  duration -= duration % 1
+  const s = duration % 60
+  const m = ((duration - s) / 60) % 60
+  const h = ((duration - m*60 - s) / 60) % 24
+  const d = (duration - h*60*60 - m*60 - s) / 24
+  return `${d}d ${h}h ${m}m ${s}s`
+}
+
+const model = new Vue({
+  el: '#stats',
+  data: {
+    rooms: {},
+    actions: {},
+    uptime: 0,
+    connected: false,
+  },
+  filters: {
+    formatDuration,
+  },
+})
+
+const BACKEND = window.location.origin.includes('localhost')
+  ? 'http://localhost:3003'
+  : 'https://gamsoc.draho.cz'
+
+const socket = io(`${BACKEND}/admin`, {
+  query: {
+    pass: window.localStorage['ADMIN_PASS'] ||
+      (window.localStorage['ADMIN_PASS'] = window.prompt('', 'PASS')),
+  }
+})
+
+socket.on('stats', (stats) => {
+  console.log('stats', stats)
+  model.rooms = stats.rooms
+  model.actions = stats.actions
+  model.uptime = stats.uptime
+})
+
+let ticker
+
+socket.on('connect', () => {
+  model.connected = true
+  ticker = setInterval(() => {
+    model.uptime++
+  }, 1000)
+})
+socket.on('disconnect', () => {
+  model.connected = false
+  clearInterval(ticker)
+})
+
+</script>
+</body>
+</html>
