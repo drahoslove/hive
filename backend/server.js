@@ -17,10 +17,12 @@ io.origins((origin, callback) => {
 })
 
 const rooms = {
-	// [room]: [{ nick, gender, secret }, [secret]: { nick, gender, secret}],
-}
-const actions = {
-	// [room]: number,
+	// [room]: {
+	//   users: [{ nick, gender, secret }, [secret]: { nick, gender, secret}],
+	//   actions: 0,
+	//	 startTime: timestamp,
+	//   lastTime: timestamp,
+	// } 
 }
 
 console.log('listening', PORT)
@@ -52,18 +54,22 @@ gameNamespace.on('connect', (socket) => {
 		do {
 			room = randomToken(8)
 		} while(room in rooms)
-		rooms[room] = [{ secret, nick, gender }] // seat yourself
-		actions[room] = 0
+		rooms[room] = {
+			users: [{ secret, nick, gender }], // seat yourself
+			actions: 0,
+			startTime: Date.now(),
+			lastTime: Date.now(),
+		}
 	} else { // join existing room
 		if (!(room in rooms)) {
 			return socket.emit('err', `Room ${room} does not exist`)
 		}
-		const myself = rooms[room].find(({secret: s}) => secret === s)
+		const myself = rooms[room].users.find(({secret: s}) => secret === s)
 		if (!myself) {
-				if (rooms[room].length >= 2) {
+				if (rooms[room].users.length >= 2) {
 				return socket.emit('err', `Room ${room} is full`)
 			}
-			rooms[room].push({ secret, nick, gender }) // take your place in a room
+			rooms[room].users.push({ secret, nick, gender }) // take your place in a room
 		} else { // update me
 			myself.nick = nick
 			myself.gender = gender
@@ -71,9 +77,9 @@ gameNamespace.on('connect', (socket) => {
 	}
 
 	socket.join(room, () => { // start listening in room
-		const playerIndex = rooms[room].map(({secret}) => secret).indexOf(secret)
+		const playerIndex = rooms[room].users.map(({secret}) => secret).indexOf(secret)
 		socket.emit('room_joined', room, playerIndex, () => {
-			rooms[room].forEach((player, i) => {
+			rooms[room].users.forEach((player, i) => {
 				gameNamespace.to(room).emit('player_info', {
 					playerIndex: i,
 					nick: player.nick,
@@ -88,7 +94,8 @@ gameNamespace.on('connect', (socket) => {
 		})
 
 		socket.on('action', (data, ack) => {
-			const actionIndex = actions[room]++
+			const actionIndex = rooms[room].actions++
+			rooms[room].lastTime = Date.now()
 			ack(actionIndex)
 			// broadcast incoming game actions to everyone in room except own socket
 			socket.to(room).emit('action', data, actionIndex)
@@ -113,8 +120,11 @@ adminNamespace.on('connect', socket => {
 
 const updateAdmin = () => {
 	adminNamespace.emit('stats', {
-		rooms,
-		actions,
+		rooms: Object.entries(rooms).map(([room, data]) => ({
+			hash: room,
+			...data,
+			sockets: io.sockets.adapter.rooms[room]
+		})),
 		uptime: process.uptime(),
 	})
 }

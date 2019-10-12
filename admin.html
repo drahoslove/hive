@@ -57,25 +57,6 @@ a {
   font-size: 50px;
   font-family: emoji-symbols;
 }
-#loader{
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 50px;
-  color: #888;
-  z-index: -1;
-}
-@media only screen and (min-width: 600px) {
-  #loader {
-    width: 100vw;
-    height: 100vh;
-  }
-}
 
 h1, h2, h3 {
   font-family: 'Titan one';
@@ -97,41 +78,6 @@ thead {
 ::-webkit-scrollbar-thumb {
   border-radius: 10px;
   background: rgba(152, 152, 152, .5);;
-}
-
-fieldset {
-  display: flex;
-  flex-direction: column;
-  margin: 1rem 0;
-  border: none;
-}
-legend {
-  margin: .5rem 0;
-}
-label {
-  cursor: pointer;
-  opacity: .6;
-  height: 1.5rem;
-  vertical-align: middle;
-  font-weight: bolder;
-}
-label::before {
-  content: ' ';
-  display: inline-block;
-  width: 1rem;
-  font-size: 120%;
-}
-label:hover,
-input[type=radio]:checked + label {
-  opacity: 0.9;
-}
-input[type=radio]:checked + label::before {
-  content: '✔';
-}
-input[type=radio] {
-  width: 16px;
-  height: 16px;
-  display: none;
 }
 
 #stats {
@@ -179,21 +125,33 @@ a[target="_blank"]::after {
     <table>
       <thead>
         <tr>
+          <td>Date</td>
+          <td>Time</td>
           <td>Room</td>
           <td>Creator</td>
           <td>Opponent</td>
           <td>Actions</td>
         </tr>
       </thead>
-      <tr v-for="(room, hash) in rooms">
-        <td>{{ hash }}</td>
-        <template v-for="user in (([a, b]) => [a, b])(room)">
+      <tr v-for="room in rooms">
+        <td>
+          <small>{{ room.startTime | formatDate }}</small>
+        </td>
+        <td>
+          <small>
+            {{ room.startTime | formatTime }}
+            –
+            {{ room.lastTime | formatTime }}
+          </small>
+        </td>
+        <td>{{ room.hash }}</td>
+        <template v-for="user in (([a, b]) => [a, b])(room.users || [])">
           <td v-if="user">
             {{ user.nick || '???' }} ({{ user.gender || '?' }})
           </td>
         <td v-else> × </td>
         </template>
-        <td>{{ actions[hash] }}</td>
+        <td>{{ room.actions }}</td>
       </tr>      
     </table>
     <div class="footer">
@@ -214,6 +172,15 @@ a[target="_blank"]::after {
 <script src="lib/socket.io.js"></script>
 <script>
 
+const formatDate = (time) => 
+  time ? new Date(time).toLocaleDateString() : '-'
+
+const formatTime = (time) => 
+  time ? new Date(time).toLocaleTimeString() : '-'
+
+const formatDateTime = (time) =>
+  time ? new Date(time).toLocaleString() : '-'
+
 const formatDuration = (duration) => {
   duration -= duration % 1
   const s = duration % 60
@@ -227,12 +194,14 @@ const model = new Vue({
   el: '#stats',
   data: {
     rooms: {},
-    actions: {},
     uptime: 0,
     connected: false,
   },
   filters: {
     formatDuration,
+    formatDate,
+    formatTime,
+    formatDateTime,
   },
 })
 
@@ -250,7 +219,6 @@ const socket = io(`${BACKEND}/admin`, {
 socket.on('stats', (stats) => {
   console.log('stats', stats)
   model.rooms = stats.rooms
-  model.actions = stats.actions
   model.uptime = stats.uptime
 })
 
