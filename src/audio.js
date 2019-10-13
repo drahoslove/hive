@@ -23,9 +23,9 @@ let active = ''
 let bufferLoaded = false
 const trackNames = ['menu', 'wait', 'pvp', 'pva', 'p', 'ava']
 const tracks = new Tone.Players({
-  ...(trackNames.reduce((obj, name) => (SAVE_DATA ? {} : {
+  ...(trackNames.reduce((obj, name) => ({
     ...obj,
-    [name]: `/audio/${name}.mp3`,
+    [name]: SAVE_DATA ? null : `/audio/${name}.mp3`,
   }), {}))
 }, () => {
   if (settings.get('sound') === 'on' && active === name) {
