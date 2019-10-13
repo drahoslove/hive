@@ -69,7 +69,19 @@ export default function uiOf(game) {
 
   let _beeRot = 0
 
-  let _wasPointer = false
+  const hover = (target, note) => {
+    target = target.round()
+    if (target && (!_target || !target.eq(_target))) {
+      _target = target
+      _canvas.style.cursor = 'pointer'
+      beep(note)
+    }
+  }
+
+  const unhover = () => {
+    _target = null
+    _canvas.style.cursor = 'default'
+  }
 
   return new class Ui {
     constructor() {
@@ -105,15 +117,6 @@ export default function uiOf(game) {
       }
 
       canvas.addEventListener('mousemove', this.mouseMove)
-      canvas.addEventListener('mousemove', () => {
-        if (!_wasPointer && _canvas.style.cursor === 'pointer') {
-          _wasPointer = true
-          beep()
-        }
-        if (_canvas.style.cursor !== 'pointer') {
-          _wasPointer = false
-        }
-      })
       canvas.addEventListener('mousedown', this.mouseClick)
       canvas.addEventListener('mousewheel', this.mouseWheel)
       // document.addEventListener('keypress', this.keyPress)
@@ -238,34 +241,46 @@ export default function uiOf(game) {
     }
 
     mouseMove(event) {
-      _canvas.style.cursor = 'default'
       _invalidated = true // always animate on mousemove
+      // main menu hover
       if (_showMenu) {
         const mouseHex = eventToExactHex(event)
+        let hovered = false
         game.menu.forEach(({pos, action}, i) => {
           if (game.menu[i].active = action && mouseHex.distance(pos) <= 1) {
-                 _canvas.style.cursor = 'pointer'
+            hover(pos)
+            hovered = true
           }
         })
+        hovered || unhover()
         const up = new Hex(1,-2)
         const mouseAngle = up.angle(mouseHex)
         _beeRot = mouseAngle / Math.PI * 180 + 45
         return
       }
 
+      // loader hover:
       if (_showNames = Object.values(loaderPos).some(pos => eventToExactHex(event).distance(pos) <= .4)) {
-        return
+        return unhover()
       }
-      if (game.sideMenu.some(button =>
-        button.active = button.pos.add(sideMenuPos).distance(eventToExactHex(event)) <= .75
-      )) {
-         _canvas.style.cursor = 'pointer'
+      // sidemenu button hover:
+      if (game.sideMenu.some(button => {
+        const buttonPos = button.pos.add(sideMenuPos)
+        if (buttonPos.distance(eventToExactHex(event)) <= .75) {
+          button.active = true 
+          hover(buttonPos)
+          return true
+        } else {
+          button.active = false
+        }
+      })) {
         return
       }
       if (_disabledPlayers.includes(game._activePlayerIndex)) {
-        return
+        return unhover()
       }
 
+      // stone hover:
       const handTarget = eventToGuiHex(event)
       const spaceTarget = eventToSpaceHex(event)
       const target = game.activePlayer().hand.some(({pos}) => pos.eq(handTarget)) ||
@@ -274,11 +289,9 @@ export default function uiOf(game) {
           : spaceTarget
 
       if (game.isClickable(target)) {
-         _canvas.style.cursor = 'pointer'
-        _target = target
+        hover(target, target === handTarget ? 'g3' : 'e3')
       } else {
-        _canvas.style.cursor = 'default'
-        _target = null
+        unhover()
       }
     }
 

@@ -5,16 +5,16 @@ const SAVE_DATA = navigator.connection &&
   navigator.connection.type === 'cellular' ||
   navigator.connection.saveData
 
-const synth = new Tone.MembraneSynth({
+const synth = new Tone.Synth({
   envelope: {
     // attack: 2,
     // decay: 1,
     // sustain: 0.4,
     // release: 4,
-    attack: 0.001,
+    attack: 0.01,
     decay: 0.1,
     sustain: 0.1,
-    release: 0.1
+    release: 1
   }
 })
 synth.volume.value = -10
@@ -91,7 +91,7 @@ export const menu = () => {
 
 export const beep = (note) => {
   if (settings.get('sound') === 'on') {
-    synth.triggerAttackRelease(note || "C3", 0.2)
+    synth.triggerAttackRelease(note || "C3", 0.01)
   }
 }
 
