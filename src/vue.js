@@ -10,13 +10,14 @@ const help = new Vue({
 const about = new Vue({
   el: '#about',
   data: settings.getAll(),
+  filters: { _ },
 })
 
 const config = new Vue({
   el: '#settings',
   data: settings.getAll(),
   watch: settings.setAll(),
-  filters: { _ }
+  filters: { _ },
 })
 
 settings.subscribe((settings) => {

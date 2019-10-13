@@ -117,7 +117,11 @@ a {
 }
 
 h2, h3 {
-  font-family: 'Titan one'
+  font-family: 'Titan one';
+  font-weight: normal;
+}
+h2 i {
+  font-weight: bold;
 }
 
 ::-webkit-scrollbar {
@@ -230,7 +234,7 @@ input[type=radio] {
   bottom: 0;
   right: 0;
   color: white;
-  font-size: 20pt;
+  font-size: 19pt;
   font-family: arial;
   cursor: pointer;
   padding: .1em .3em;
@@ -454,18 +458,18 @@ input[type=radio] {
   </div>
   <div id="about" class="drawer">
     <div class="close">›</div>
-    <div class="content" v-if="lang === 'en' || lang === 'cs'">
-      <h2>Hmyziště</h2>
+    <div class="content">
+      <h2><i>🐝</i>{{ 'Hmyz.it', 'Hmyziště' |_}}</h2>
       <div>
         © 2019
       </div>
-      <h3>Game design</h3>
+      <h3>{{ 'Game design & impelementation', 'Design a implementace' |_}}</h3>
       <div>
         <strong>Drahoslav Bednář</strong> (<a href="https://draho.cz" target="_blank">draho.cz</a>)
       </div>
       <div>
-        <h3>Music</h3>
-        <p>
+        <h3>{{ 'Music', 'Hudba' |_}}</h3>
+        <p v-if="lang === 'en'">
           Main menu: <strong>Relaxing Piano Music</strong><br/>
           Waiting: <strong>Leopard Print Elevator</strong><br/>
           Multiplayer: <strong>Unwritten Return</strong><br/>
@@ -473,24 +477,49 @@ input[type=radio] {
           Training: <strong>Fretless</strong><br/>
           Demonstration: <strong>Severe Tire Damage</strong><br/>
         </p>
-        <p>
+        <p v-if="lang === 'cs'">
+          Hlavní menu: <strong>Relaxing Piano Music</strong><br/>
+          Čekání na hráče: <strong>Leopard Print Elevator</strong><br/>
+          Hra s někým: <strong>Unwritten Return</strong><br/>
+          Proti hře: <strong>Beauty Flow</strong><br/>
+          Trénink: <strong>Fretless</strong><br/>
+          Ukázka: <strong>Severe Tire Damage</strong><br/>
+        </p>
+        <p v-if="lang === 'en'">
           All by <strong>Kevin MacLeod</strong> (<a href="https://incompetech.com" target="_blank">incompetech.com</a>)<br />
           License: <a href="http://creativecommons.org/licenses/by/3.0/" target="_blank">Creative Commons: By Attribution 3.0</a>
         </p>
-        <h3>Fonts</h3>
-        <p>
+        <p v-if="lang === 'cs'">
+          Vše od <strong>Kevin MacLeod</strong> (<a href="https://incompetech.com" target="_blank">incompetech.com</a>)<br />
+          Licence: <a href="http://creativecommons.org/licenses/by/3.0/" target="_blank">Creative Commons: By Attribution 3.0</a>
+        </p>
+        <h3>{{ 'Fonts', 'Písma' |_}}</h3>
+        <p v-if="lang === 'en'">
           Icons: <strong>Symbola</strong> by <strong>George Douros</strong><br/>
           License: <a href="http://users.teilar.gr/~g1951d/" target="_blank">Freeware</a>
         </p>
-        <p>
+        <p v-if="lang === 'cs'">
+          Ikonky: <strong>Symbola</strong> od <strong>George Douros</strong><br/>
+          Licence: <a href="http://users.teilar.gr/~g1951d/" target="_blank">Freeware</a>
+        </p>
+        <p v-if="lang === 'en'">
           Headlines: <strong>Titan One</strong> by <strong>Rodrigo Fuenzalida</strong><br/>
           License: <a href="http://scripts.sil.org/cms/scripts/page.php?site_id=nrsi&id=OFL_web" target="_blank">Open Font License</a>
         </p>
-        <h3>Concept</h3>
-        <p>
+        <p v-if="lang === 'cs'">
+          Nadpisy: <strong>Titan One</strong> od <strong>Rodrigo Fuenzalida</strong><br/>
+          Licence: <a href="http://scripts.sil.org/cms/scripts/page.php?site_id=nrsi&id=OFL_web" target="_blank">Open Font License</a>
+        </p>
+        <h3>{{ 'Concept', 'Koncept' |_}}</h3>
+        <p v-if="lang === 'en'">
           Highly inspired by table-top game <strong>Hive</strong><br/>
           designed by <strong>John Yianni</strong><br/>
           published in 2001 by <strong>Gen42 Games</strong><br/>
+        </p>
+        <p v-if="lang === 'cs'">
+          Silně inspirováno stolní hrou <strong>Hive</strong><br/>
+          kterou vytvořil <strong>John Yianni</strong><br/>
+          a v roce 2001 publikovalo <strong>Gen42 Games</strong><br/>
         </p>
       </div>
     </div>
@@ -508,3 +537,4 @@ input[type=radio] {
   <script nomodule src="hive-bundle.js"></script>
 </body>
 </html>
+html>

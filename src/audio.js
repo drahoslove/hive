@@ -1,9 +1,10 @@
 import * as settings from './settings.js'
 import { onceEvent } from './common.js'
 
-const SAVE_DATA = navigator.connection &&
+const SAVE_DATA = navigator.connection && (
   navigator.connection.type === 'cellular' ||
   navigator.connection.saveData
+)
 
 const synth = new Tone.Synth({
   envelope: {
@@ -91,7 +92,7 @@ export const menu = () => {
 
 export const beep = (note) => {
   if (settings.get('sound') === 'on') {
-    synth.triggerAttackRelease(note || "C3", 0.01)
+    // synth.triggerAttackRelease(note || "C3", 0.01)
   }
 }
 
