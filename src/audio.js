@@ -1,10 +1,5 @@
 import * as settings from './settings.js'
-import { onceEvent } from './common.js'
-
-const SAVE_DATA = navigator.connection && (
-  navigator.connection.type === 'cellular' ||
-  navigator.connection.saveData
-)
+import { onceEvent, isMobile, shouldSaveData } from './common.js'
 
 const synth = new Tone.Synth({
   envelope: {
@@ -22,14 +17,17 @@ synth.volume.value = -10
 
 let active = ''
 let bufferLoaded = false
-const trackNames = ['menu', 'wait', 'pvp', 'pva', 'p', 'ava']
-const tracks = new Tone.Players({
+const trackNames = [/*'menu',*/ 'wait', 'pvp', 'pva', 'p', 'ava']
+if (!isMobile()) {
+  trackNames.push('menu')
+}
+const tracks = new Tone.Players(shouldSaveData() ? {} : {
   ...(trackNames.reduce((obj, name) => ({
     ...obj,
-    [name]: SAVE_DATA ? null : `/audio/${name}.mp3`,
+    [name]: `/audio/${name}.mp3`,
   }), {}))
 }, () => {
-  if (settings.get('music') === 'on' && active === name) {
+  if (settings.get('music') === 'on' && active === name && tracks.has(active)) {
     tracks.get(active).start()
   }
 }) // .toMaster()
@@ -37,12 +35,14 @@ tracks.loop = true
 tracks.fadeOut = 0.1
 
 ;['p', 'ava'].forEach(name => { // lower voume a bit
-  tracks.get(name).volume.value = -5
+  if (tracks.has(name)) {
+    tracks.get(name).volume.value = -5
+  }
 })
 
 Tone.Buffer.on('load', (e) => {
   bufferLoaded = true
-  if (settings.get('music') === 'on' && active) {
+  if (settings.get('music') === 'on' && active && tracks.has(active)) {
     tracks.get(active).start()
   }
 })
@@ -82,8 +82,9 @@ export const track = async (name) => {
     return
   }
   stop()
-  const track = tracks.get(name)
-  track.start()
+  if (tracks.has(name)){
+    tracks.get(name).start()
+  }
 }
 
 export const menu = () => {
@@ -92,7 +93,7 @@ export const menu = () => {
 
 export const beep = (note) => {
   if (settings.get('sound') === 'on') {
-    // synth.triggerAttackRelease(note || "C3", 0.01)
+    synth.triggerAttackRelease(note || "C3", 0.01)
   }
 }
 

@@ -2,6 +2,14 @@ export function rand(n) {
   return Math.floor(Math.random()*n)
 }
 
+export const shouldSaveData = () =>
+  navigator.connection && (
+    navigator.connection.type === 'cellular' ||
+    navigator.connection.saveData
+  )
+
+export const isMobile = () =>
+  window.orientation !== undefined
 
 export class PriorityQueue {
   constructor () {
@@ -20,7 +28,7 @@ export class PriorityQueue {
     }
   }
 
-  // lover prio first
+  // lower prio first
   pop() {
     let [item, _] = this._que.shift()
     return item
@@ -31,16 +39,17 @@ export class PriorityQueue {
   }
 }
 
-export function uncolorEmoji(txt) {
-  return txt
+export const uncolorEmoji = (txt) =>
+  txt
     .split(/([\uD800-\uDBFF][\uDC00-\uDFFF])/)
     .map(ch => ch.charCodeAt() > 255
       ? ch + '\uFE0E'
       : ch
     )
     .join('')
-}
 
+// creates array of numbers given by inclusive interval <a ; b>
+// or sequence from 0 excluding a if b is not defined
 export function seq(a, b) {
   if (b === undefined) {
     b = a
