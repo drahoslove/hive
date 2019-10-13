@@ -394,8 +394,19 @@ input[type=radio] {
   <div id="settings" class="drawer">
     <div class="close">›</div>
     <div class="content">
-        <h2><i>⚙</i>{{ 'Settings', 'Nastavení' |_ }}</h2>
-        <fieldset>
+      <h2><i>⚙</i>{{ 'Settings', 'Nastavení' |_ }}</h2>
+      <fieldset>
+        <legend>{{ 'Music', 'Hudba' |_ }}</legend>
+        <input type="radio" name="music" value="on" id="music-on" v-model="music" />
+        <label for="music-on">
+          &ensp;&nbsp;<i>♪</i> &emsp; {{ 'On', 'Zapnutá' |_}}
+        </label>
+        <input type="radio" name="music" value="off" id="music-off" v-model="music" />
+        <label for="music-off">
+          &ensp;&nbsp;<i><s>♪</s></i> &emsp; {{ 'Off', 'Vypnutá' |_}}
+        </label>
+      </fieldset>
+      <fieldset>
         <legend>{{ 'Sounds', 'Zvuky' |_ }}</legend>
         <input type="radio" name="sound" value="on" id="sound-on" v-model="sound" />
         <label for="sound-on">

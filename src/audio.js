@@ -28,7 +28,7 @@ const tracks = new Tone.Players({
     [name]: SAVE_DATA ? null : `/audio/${name}.mp3`,
   }), {}))
 }, () => {
-  if (settings.get('sound') === 'on' && active === name) {
+  if (settings.get('music') === 'on' && active === name) {
     tracks.get(active).start()
   }
 }) // .toMaster()
@@ -41,7 +41,7 @@ tracks.fadeOut = 0.1
 
 Tone.Buffer.on('load', (e) => {
   bufferLoaded = true
-  if (settings.get('sound') === 'on' && active) {
+  if (settings.get('music') === 'on' && active) {
     tracks.get(active).start()
   }
 })
@@ -77,7 +77,7 @@ export const stop = () => {
 
 export const track = async (name) => {
   active = name
-  if (!bufferLoaded || settings.get('sound') !== 'on') {
+  if (!bufferLoaded || settings.get('music') !== 'on') {
     return
   }
   stop()
@@ -95,8 +95,8 @@ export const beep = (note) => {
   }
 }
 
-settings.subscribe(({ sound }) => {
-  if (sound !== 'on') {
+settings.subscribe(({ music }) => {
+  if (music !== 'on') {
     stop()
   } else {
     track(active)

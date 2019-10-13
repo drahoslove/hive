@@ -1,8 +1,9 @@
-const SETTINGS_KEY = 'hive-settings'
+const SETTINGS_KEY = 'hive_settings'
 const langs = navigator.languages || navigator.language || ''
 const defaults = {
   lang: (langs.includes('cs') && !langs.includes('en')) ? 'cs' : 'en',
   sound: 'on',
+  music: 'on',
   color: 'black',
   fps: 60,
 }
