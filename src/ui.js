@@ -5,7 +5,7 @@ import { PriorityQueue, rand, seq } from './common.js'
 import { Hex } from './board.js'
 import { Queen } from './bugs.js'
 import { __ } from './lang.js'
-import { analyze } from './audio.js'
+import { beep, analyze } from './audio.js'
 
 export const hsl = (hue) => (sat) => (lig) => `hsl(${hue}, ${sat}%, ${lig}%)`;
 
@@ -69,6 +69,8 @@ export default function uiOf(game) {
 
   let _beeRot = 0
 
+  let _wasPointer = false
+
   return new class Ui {
     constructor() {
       document.fonts && document.fonts.load(`normal 1em 'Titan One'`, TITLE()).then(font => {
@@ -103,6 +105,15 @@ export default function uiOf(game) {
       }
 
       canvas.addEventListener('mousemove', this.mouseMove)
+      canvas.addEventListener('mousemove', () => {
+        if (!_wasPointer && _canvas.style.cursor === 'pointer') {
+          _wasPointer = true
+          beep()
+        }
+        if (_canvas.style.cursor !== 'pointer') {
+          _wasPointer = false
+        }
+      })
       canvas.addEventListener('mousedown', this.mouseClick)
       canvas.addEventListener('mousewheel', this.mouseWheel)
       // document.addEventListener('keypress', this.keyPress)
@@ -233,7 +244,7 @@ export default function uiOf(game) {
         const mouseHex = eventToExactHex(event)
         game.menu.forEach(({pos, action}, i) => {
           if (game.menu[i].active = action && mouseHex.distance(pos) <= 1) {
-            _canvas.style.cursor = 'pointer'
+                 _canvas.style.cursor = 'pointer'
           }
         })
         const up = new Hex(1,-2)
@@ -248,7 +259,7 @@ export default function uiOf(game) {
       if (game.sideMenu.some(button =>
         button.active = button.pos.add(sideMenuPos).distance(eventToExactHex(event)) <= .75
       )) {
-        _canvas.style.cursor = 'pointer'
+         _canvas.style.cursor = 'pointer'
         return
       }
       if (_disabledPlayers.includes(game._activePlayerIndex)) {
@@ -263,7 +274,7 @@ export default function uiOf(game) {
           : spaceTarget
 
       if (game.isClickable(target)) {
-        _canvas.style.cursor = 'pointer'
+         _canvas.style.cursor = 'pointer'
         _target = target
       } else {
         _canvas.style.cursor = 'default'

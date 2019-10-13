@@ -1,95 +1,98 @@
 import * as settings from './settings.js'
 import { onceEvent } from './common.js'
 
-let active = ''
-const tracks = {}
+const SAVE_DATA = navigator.connection &&
+  navigator.connection.type === 'cellular' ||
+  navigator.connection.saveData
 
-// init audio tracks only if not on mobile data
-if (!navigator.connection || (navigator.connection.type !== 'cellular' && !navigator.connection.daveData)) {
-  ;['menu', 'wait', 'pvp', 'pva', 'p', 'ava'].forEach((mode) => {
-    const track = tracks[mode] =  new Audio()
-    track._src = `/audio/${mode}.mp3`
-    track.loop = true
-    if (mode === 'p') {
-      track.volume = .8
-    }
-    if (mode === 'ava') {
-      track.volume = .5
-    }
+const synth = new Tone.MembraneSynth({
+  envelope: {
+    // attack: 2,
+    // decay: 1,
+    // sustain: 0.4,
+    // release: 4,
+    attack: 0.001,
+    decay: 0.1,
+    sustain: 0.1,
+    release: 0.1
+  }
+})
+synth.volume.value = -10
+
+let active = ''
+let bufferLoaded = false
+const trackNames = ['menu', 'wait', 'pvp', 'pva', 'p', 'ava']
+const tracks = new Tone.Players({
+  ...(trackNames.reduce((obj, name) => (SAVE_DATA ? {} : {
+    ...obj,
+    [name]: `/audio/${name}.mp3`,
+  }), {}))
+}, () => {
+  if (settings.get('sound') === 'on' && active === name) {
+    tracks.get(active).start()
+  }
+}) // .toMaster()
+tracks.loop = true
+tracks.fadeOut = 0.1
+
+;['p', 'ava'].forEach(name => { // lower voume a bit
+  tracks.get(name).volume.value = -5
+})
+
+Tone.Buffer.on('load', (e) => {
+  bufferLoaded = true
+  if (settings.get('sound') === 'on' && active) {
+    tracks.get(active).start()
+  }
+})
+
+// resume context on user gesture interaction
+
+// resume context on user gesture interaction
+if (Tone.context.state === 'suspended') {
+  onceEvent('mousedown', () => {
+    Tone.context.resume()
   })
 }
 
 // analyzer
-const context = new AudioContext()
-const analyser = context.createAnalyser()
-analyser.fftSize = 256
+const analyser = new Tone.Analyser('fft', 256).toMaster()
 
-Object.values(tracks).forEach(track => { // connect tracs to analyzer
-  const src = context.createMediaElementSource(track)
-  src.connect(analyser)
-})
-analyser.connect(context.destination) // output to speakers
+tracks.connect(analyser)
+// synth.connect(analyser)
+synth.toMaster()
 
 // prapare byte array for analysis storage
 const bufferLength = analyser.frequencyBinCount
 const dataArray = new Uint8Array(bufferLength)
-
-// resume context on user gesture interaction
-if (context.state === 'suspended') {
-  onceEvent('mousedown', () => {
-    context.resume()
-  })
-}
 
 export function analyze() {
   analyser.getByteFrequencyData(dataArray)
   return dataArray
 }
 
-async function play(track) {
-  try {
-    await track.play()
-  } catch(e) {
-    onceEvent('mousedown', () => {
-      play(tracks[active])
-    })
-  }
-}
-
 export const stop = () => {
-  Object.keys(tracks).forEach(name => {
-    const track = tracks[name]
-    if (!track.paused) {
-      if (name !== 'menu') {
-        track.currentTime = 0
-      }
-      track.pause()
-    }
-  })
+  tracks.stopAll()
 }
 
 export const track = async (name) => {
   active = name
-  stop()
-  if (!(name in tracks) || settings.get('sound') !== 'on') {
+  if (!bufferLoaded || settings.get('sound') !== 'on') {
     return
   }
-  const track = tracks[name]
-  if (!track.src) {
-    track.src = track._src
-  }
-  if (track.readyState >= track.HAVE_ENOUGH_DATA) {
-    play(track)
-  } else {
-    track.addEventListener('canplaythrough', function oncanplaytrough () {
-      play(track)
-      track.removeEventListener('canplaythrough', oncanplaytrough)
-    })
-  }
+  stop()
+  const track = tracks.get(name)
+  track.start()
 }
 
 export const menu = () => {
   track('menu')
+}
+
+export const beep = (note) => {
+  if (settings.get('sound') === 'on') {
+    synth.triggerAttackRelease(note || "C3", 0.2)
+  }
 }
 
 settings.subscribe(({ sound }) => {
