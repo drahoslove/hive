@@ -191,9 +191,15 @@ const formatDateTime = (time) =>
 const formatDuration = (duration) => {
   duration -= duration % 1
   const s = duration % 60
-  const m = ((duration - s) / 60) % 60
-  const h = ((duration - m*60 - s) / 60) % 24
-  const d = (duration - h*60*60 - m*60 - s) / 24
+  duration -= s
+  duration /= 60
+  const m = duration % 60
+  duration -= m
+  duration /= 60
+  const h = duration % 24
+  duration -= h
+  duration /= 24
+  const d = duration
   return `${d}d ${h}h ${m}m ${s}s`
 }
 
