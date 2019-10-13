@@ -8,6 +8,7 @@ const SALT = process.env.SALT || 'SALT'
 const PASS = process.env.PASS || 'PASS'
 
 const crypto = require('crypto')
+const ioClient = require('socket.io-client')
 const io = require('socket.io')(PORT, { serveClient: false })
 io.origins((origin, callback) => {
   if (!ORIGINS.includes(origin)) {
@@ -133,6 +134,14 @@ const updateAdmin = () => {
 	})
 }
 
+// Slap yourself to prevent sleep
+if (process.env.PORT) {
+  (function ping () {
+		const BACKEND = 'https://gamsoc.draho.cz'
+		const socket = ioClient(`${BACKEND}/admin`)
+	  setTimeout(ping, 1000 * 60 * (5 + Math.random() * 5)) // 5 to 10 minutes
+	})()
+}
 
 // utilis:
 
