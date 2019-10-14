@@ -101,9 +101,10 @@ export const beep = (note) => {
 }
 
 settings.subscribe(({ music }) => {
-  if (music !== 'on') {
+  if (music == 'off') {
     stop()
-  } else {
+  }
+  if (music === 'on') {
     track(active)
   }
 })

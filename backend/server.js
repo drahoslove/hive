@@ -23,7 +23,7 @@ const rooms = {
 	//   actions: 0,
 	//	 startTime: timestamp,
 	//   lastTime: timestamp,
-	// } 
+	// }
 }
 
 console.log('listening', PORT)
@@ -139,7 +139,7 @@ if (process.env.PORT) {
   (function ping () {
 		const BACKEND = 'https://gamsoc.draho.cz'
 		ioClient(`${BACKEND}/admin`)
-	  setTimeout(ping, 1000 * 60 * (5 + Math.random() * 5)) // 5 to 10 minutes
+	  setTimeout(ping, 1000 * 60 * (5 + Math.random() * 20)) // 5 to 25 minutes
 	})()
 }
 

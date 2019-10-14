@@ -27,22 +27,23 @@ function loadSettings() {
   }
 }
 
-function saveSettings() {
+function saveSettings(chagne) {
   window.localStorage[SETTINGS_KEY] = JSON.stringify({
     ...defaults,
     ...settings,
-  })
-  handlers.forEach(handler => {
-    handler(settings)
   })
 }
 
 export const get = (key) => settings[key]
 
-
 export const set = key => val => {
   settings[key] = val
   saveSettings()
+  handlers.forEach(handler => {
+    handler({
+      [key]: val,
+    })
+  })
 }
 
 export function getAll() {

@@ -20,8 +20,8 @@ const config = new Vue({
   filters: { _ },
 })
 
-settings.subscribe((settings) => {
-  help.lang = settings.lang
-  config.lang = settings.lang
-  about.lang = settings.lang
+settings.subscribe(({ lang }) => {
+  help.lang = lang || help.lang
+  config.lang = lang || config.lang
+  about.lang = lang || about.lang
 })
