@@ -39,7 +39,7 @@ a {
   color: #4b99bf;
 }
 .emoji{
-   display: none; 
+   display: none;
   font-size: 50px;
   font-family: emoji-symbols;
 }
@@ -137,11 +137,14 @@ h2 i {
 fieldset {
   display: flex;
   flex-direction: column;
-  margin: 1rem 0;
+  margin: 0rem 0;
   border: none;
 }
 legend {
-  margin: .5rem 0;
+  margin: 0 0 0 0;
+}
+legend h3 {
+  margin: 0.75em 0 0.5em;
 }
 label {
   cursor: pointer;
@@ -266,18 +269,18 @@ input[type=radio] {
     <div class="content" v-if="lang === 'cs'" lang="cs">
       <!-- help content start -->
       <h2><i>❓</i>Pravidla</h2>
-      <i>🞋</i> Cíl:
+      <h3><i>🞋</i> Cíl</h3>
       <ul>
         <li>Cílem hry je obklopit ze všech šesti stran včelí královnu spoluhráče <i>🐝</i>.</li>
         <li>Nemusí to být jen vlastními kameny.</li>
       </ul>
 
-      <i>☯</i> Pravidlo jedné kolonie:
+      <h3><i>☯</i> Pravidlo jedné kolonie</h3>
       <ul>
         <li>Všechny vyložené kameny musí vždy tvořit jednotný, nedělitelný útvar.</li>
       </ul>
 
-      <i>⬊</i> Vykládání:
+      <h3><i>⬊</i> Vykládání</h3>
       <ul>
         <li>Nové kameny můžeš umístit pouze do sousedství těch svých. První kámen umísti libovolně.</li>
         <li>Nové kameny nesmíš umístit do sousedství těch protihráčových. S výjimkou druhého tahu.</li>
@@ -285,7 +288,7 @@ input[type=radio] {
         <li>Královna musí být umístěna nejpozději ve 4. kole.</li>
       </ul>
 
-      <i>⬌</i> Přesouvání:
+      <h3><i>⬌</i> Přesouvání</h3>
       <ul>
         <li>Kameny můžeš přesouvat až poté, co umístíš královnu.</li>
         <li>Přesouváním kamenů nesmíš porušit pravidlo jedné kolonie <i>☯</i>, a to po celou dobu přesunu.</li>
@@ -308,7 +311,6 @@ input[type=radio] {
           <ul>
             <li>může se pohybovat jen o 1 krok</li>
             <li>navíc může vlézt na jiný kámen, a tím ho zablokovat</li>
-            <li>pro účely pravidla vykládání <i>⬊</i> se takové políčko bere jako tvé
           </ul>
           <i>🦗</i> Kobylka:
           <ul>
@@ -316,7 +318,7 @@ input[type=radio] {
           </ul>
       </ul>
 
-      <i>⚠</i> Volnost pohybu:
+      <h3><i>⚠</i> Volnost pohybu</h3>
       <ul>
         <li>Kameny nelze vmáčknout tam, kam se fyzicky neprocpou při posunu po zemi.</li>
         <li>Neplatí pro:</li>
@@ -332,18 +334,18 @@ input[type=radio] {
     <div class="content" v-if="lang === 'en'" lang="en">
         <!-- help content start -->
         <h2><i>❓</i>Rules</h2>
-        <i>🞋</i> Target:
+        <h3><i>🞋</i> Target</h3>
         <ul>
           <li>The objection of the game is to surround the Bee queen <i>🐝</i> of your opponent from all six sides.</li>
           <li>Those do not have to be only by your own stones.</li>
         </ul>
 
-        <i>☯</i> One hive rule:
+        <h3><i>☯</i> One hive rule</h3>
         <ul>
           <li>All placed stones have to be always interconnected into one single unbreakable group - the hive.</li>
         </ul>
 
-        <i>⬊</i> Placing:
+        <h3><i>⬊</i> Placing</h3>
         <ul>
           <li>New stones can only be placed in the neighborhood of your own stones. First stone can be placed arbitrarily.</li>
           <li>New stones can not be placed in the neighborhood of your enemies stones. The exception is a second round.</li>
@@ -351,7 +353,7 @@ input[type=radio] {
           <li>Queen must be placed no later than the fourth round of the game.</li>
         </ul>
 
-        <i>⬌</i> Moving:
+        <h3><i>⬌</i> Moving</h3>
         <ul>
           <li>You can only move the stones after you place the queen.</li>
           <li>By moving the stones you must not break the One hive rule <i>☯</i>, for the entire duration of the movement.</li>
@@ -381,7 +383,7 @@ input[type=radio] {
             </ul>
         </ul>
 
-        <i>⚠</i> Freedom of movement:
+        <h3><i>⚠</i> Freedom of movement</h3>
         <ul>
           <li>Stones cannot be squeezed to places where they do not physically fit by sliding on the ground.</li>
           <li>Exceptions:</li>
@@ -400,56 +402,56 @@ input[type=radio] {
     <div class="content">
       <h2><i>⚙</i>{{ 'Settings', 'Nastavení' |_ }}</h2>
       <fieldset>
-        <legend>{{ 'Music', 'Hudba' |_ }}</legend>
-        <input type="radio" name="music" value="on" id="music-on" v-model="music" />
+        <legend><h3>{{ 'Music', 'Hudba' |_ }}</h3></legend>
+        <input type="radio" value="on" id="music-on" v-model="music" />
         <label for="music-on">
           &ensp;&nbsp;<i>♪</i> &emsp; {{ 'On', 'Zapnutá' |_}}
         </label>
-        <input type="radio" name="music" value="off" id="music-off" v-model="music" />
+        <input type="radio" value="off" id="music-off" v-model="music" />
         <label for="music-off">
           &ensp;&nbsp;<i><s>♪</s></i> &emsp; {{ 'Off', 'Vypnutá' |_}}
         </label>
       </fieldset>
       <fieldset>
-        <legend>{{ 'Sounds', 'Zvuky' |_ }}</legend>
-        <input type="radio" name="sound" value="on" id="sound-on" v-model="sound" />
+        <legend><h3>{{ 'Sounds', 'Zvuky' |_ }}</h3></legend>
+        <input type="radio" value="on" id="sound-on" v-model="sound" />
         <label for="sound-on">
           &ensp;&nbsp;<i>🔊</i> &emsp; {{ 'On', 'Zapnuté' |_}}
         </label>
-        <input type="radio" name="sound" value="off" id="sound-off" v-model="sound" />
+        <input type="radio" value="off" id="sound-off" v-model="sound" />
         <label for="sound-off">
           &ensp;&nbsp;<i>🔈</i> &emsp; {{ 'Off', 'Vypnuté' |_}}
         </label>
       </fieldset>
       <fieldset>
-        <legend>{{ 'Language', 'Jazyk' |_ }}</legend>
-        <input type="radio" name="lang" value="cs" id="lang-cs" v-model="lang" />
+        <legend><h3>{{ 'Language', 'Jazyk' |_ }}</h3></legend>
+        <input type="radio" value="cs" id="lang-cs" v-model="lang" />
         <label for="lang-cs">
           &ensp;&nbsp;<i><img src="/img/cs.png"/></i> &emsp; {{ 'Czech', 'Čeština' |_}}
         </label>
-        <input type="radio" name="lang" value="en" id="lang-en" v-model="lang" />
+        <input type="radio" value="en" id="lang-en" v-model="lang" />
         <label for="lang-en">
           &ensp;&nbsp;<i><img src="/img/en-GB.png"/></i> &emsp; {{ 'English', 'Angličtina' |_}}
         </label>
       </fieldset>
       <fieldset>
-        <legend>{{ 'Color', 'Barva' |_ }}</legend>
-        <input type="radio" name="color" value="black" id="color-black" v-model="color" />
+        <legend><h3>{{ 'Color', 'Barva' |_ }}</h3></legend>
+        <input type="radio" value="black" id="color-black" v-model="color" />
         <label for="color-black">
           &ensp;&nbsp;<i>⚫</i> &emsp; {{ 'Black', 'Černá' |_}}
         </label>
-        <input type="radio" name="color" value="white" id="color-white" v-model="color" />
+        <input type="radio" value="white" id="color-white" v-model="color" />
         <label for="color-white">
           &ensp;&nbsp;<i>⚪</i> &emsp; {{ 'White', 'Bílá' |_}}
         </label>
       </fieldset>
       <fieldset>
-        <legend>{{ 'Animations', 'Animace' |_ }}</legend>
-        <input type="radio" name="fps" value="60" id="fps-h" v-model="fps" />
+        <legend><h3>{{ 'Animations', 'Animace' |_ }}</h3></legend>
+        <input type="radio" value="60" id="fps-h" v-model="fps" />
         <label for="fps-h">
           &ensp;&nbsp;<i>🐇</i> &emsp; {{ 'Nice & smooth', 'Hezky plynulé' |_}} (60 fps)
         </label>
-        <input type="radio" name="fps" value="12" id="fps-l" v-model="fps" />
+        <input type="radio" value="12" id="fps-l" v-model="fps" />
         <label for="fps-l">
           &ensp;&nbsp;<i>🐌</i> &emsp; {{ 'Battery saving', 'Šetřící baterii' |_}} (12 fps)
         </label>
