@@ -401,27 +401,33 @@ input[type=radio] {
     <div class="close">›</div>
     <div class="content">
       <h2><i>⚙</i>{{ 'Settings', 'Nastavení' |_ }}</h2>
-      <fieldset>
-        <legend><h3>{{ 'Music', 'Hudba' |_ }}</h3></legend>
-        <input type="radio" value="on" id="music-on" v-model="music" />
-        <label for="music-on">
-          &ensp;&nbsp;<i>♪</i> &emsp; {{ 'On', 'Zapnutá' |_}}
-        </label>
-        <input type="radio" value="off" id="music-off" v-model="music" />
-        <label for="music-off">
-          &ensp;&nbsp;<i><s>♪</s></i> &emsp; {{ 'Off', 'Vypnutá' |_}}
-        </label>
-      </fieldset>
-      <fieldset>
-        <legend><h3>{{ 'Sounds', 'Zvuky' |_ }}</h3></legend>
-        <input type="radio" value="on" id="sound-on" v-model="sound" />
-        <label for="sound-on">
-          &ensp;&nbsp;<i>🔊</i> &emsp; {{ 'On', 'Zapnuté' |_}}
-        </label>
-        <input type="radio" value="off" id="sound-off" v-model="sound" />
-        <label for="sound-off">
-          &ensp;&nbsp;<i>🔈</i> &emsp; {{ 'Off', 'Vypnuté' |_}}
-        </label>
+      <template v-if="Tone.supported">
+        <fieldset>
+          <legend><h3>{{ 'Music', 'Hudba' |_ }}</h3></legend>
+          <input type="radio" value="on" id="music-on" v-model="music" />
+          <label for="music-on">
+            &ensp;&nbsp;<i>♪</i> &emsp; {{ 'On', 'Zapnutá' |_}}
+          </label>
+          <input type="radio" value="off" id="music-off" v-model="music" />
+          <label for="music-off">
+            &ensp;&nbsp;<i><s>♪</s></i> &emsp; {{ 'Off', 'Vypnutá' |_}}
+          </label>
+        </fieldset>
+        <fieldset>
+          <legend><h3>{{ 'Sounds', 'Zvuky' |_ }}</h3></legend>
+          <input type="radio" value="on" id="sound-on" v-model="sound" />
+          <label for="sound-on">
+            &ensp;&nbsp;<i>🔊</i> &emsp; {{ 'On', 'Zapnuté' |_}}
+          </label>
+          <input type="radio" value="off" id="sound-off" v-model="sound" />
+          <label for="sound-off">
+            &ensp;&nbsp;<i>🔈</i> &emsp; {{ 'Off', 'Vypnuté' |_}}
+          </label>
+        </fieldset>
+      </template>
+      <fieldset v-else>
+        <legend><h3>{{ 'Sound', 'Zvuk' |_ }}</h3></legend>
+        <label>{{ 'Not supporeted by this browser', 'Tento prohlížeč neumožňuje' |_}}</label>
       </fieldset>
       <fieldset>
         <legend><h3>{{ 'Language', 'Jazyk' |_ }}</h3></legend>
