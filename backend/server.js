@@ -138,7 +138,7 @@ const updateAdmin = () => {
 if (process.env.PORT) {
   (function ping () {
 		const BACKEND = 'https://gamsoc.draho.cz'
-		ioClient(`${BACKEND}/admin`)
+		ioClient(`${BACKEND}/admin`, { reconnection: false })
 	  setTimeout(ping, 1000 * 60 * (5 + Math.random() * 20)) // 5 to 25 minutes
 	})()
 }
