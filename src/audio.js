@@ -1,74 +1,94 @@
 import * as settings from './settings.js'
 import { onceEvent, isMobile, shouldSaveData } from './common.js'
 
-const synth = new Tone.Synth({
-  oscillator : {
-    type: 'sine',
-  },
-  envelope: {
-    // attack: 2,
-    // decay: 1,
-    // sustain: 0.4,
-    // release: 4,
-    attack: .02,
-    decay: .08,
-    sustain: .1,
-    release: 1,
+let _synth
+let _active
+let _bufferLoaded = false
+let _tracks
+
+
+if (Tone.supported) {
+  // init synth
+  _synth = new Tone.Synth({
+    oscillator : {
+      type: 'sine',
+    },
+    envelope: {
+      // attack: 2,
+      // decay: 1,
+      // sustain: 0.4,
+      // release: 4,
+      attack: .02,
+      decay: .08,
+      sustain: .5,
+      release: 1,
+    }
+  })
+  _synth.volume.value = -10
+
+  // init tracks
+  _active = ''
+  const trackNames = [/*'menu',*/ 'wait', 'pvp', 'pva', 'p', 'ava']
+  if (!isMobile()) {
+    trackNames.push('menu')
   }
-})
-synth.volume.value = -10
+  _tracks = new Tone.Players(shouldSaveData() ? {} : {
+    ...(trackNames.reduce((obj, name) => ({
+      ...obj,
+      [name]: `/audio/${name}.mp3`,
+    }), {}))
+  }, () => {
+    if (settings.get('music') === 'on' && active === name && tracks.has(active)) {
+      _tracks.get(active).start()
+    }
+  }) // .toMaster()
+  _tracks.loop = true
+  _tracks.fadeOut = 0.1
 
-let active = ''
-let bufferLoaded = false
-const trackNames = [/*'menu',*/ 'wait', 'pvp', 'pva', 'p', 'ava']
-if (!isMobile()) {
-  trackNames.push('menu')
-}
-const tracks = new Tone.Players(shouldSaveData() ? {} : {
-  ...(trackNames.reduce((obj, name) => ({
-    ...obj,
-    [name]: `/audio/${name}.mp3`,
-  }), {}))
-}, () => {
-  if (settings.get('music') === 'on' && active === name && tracks.has(active)) {
-    tracks.get(active).start()
+  ;['p', 'ava'].forEach(name => { // lower voume a bit
+    if (_tracks.has(name)) {
+      _tracks.get(name).volume.value = -5
+    }
+  })
+
+  Tone.Buffer.on('load', (e) => {
+    _bufferLoaded = true
+    if (settings.get('music') === 'on' && active && _tracks.has(active)) {
+      _tracks.get(active).start()
+    }
+  })
+
+  // resume context on user gesture interaction
+
+  // resume context on user gesture interaction
+  if (Tone.context.state === 'suspended') {
+    onceEvent('mousedown', () => {
+      Tone.context.resume()
+    })
   }
-}) // .toMaster()
-tracks.loop = true
-tracks.fadeOut = 0.1
 
-;['p', 'ava'].forEach(name => { // lower voume a bit
-  if (tracks.has(name)) {
-    tracks.get(name).volume.value = -5
-  }
-})
+  // analyzer
+  const analyser = new Tone.Analyser('fft', 256).toMaster()
 
-Tone.Buffer.on('load', (e) => {
-  bufferLoaded = true
-  if (settings.get('music') === 'on' && active && tracks.has(active)) {
-    tracks.get(active).start()
-  }
-})
+  _tracks.connect(analyser)
+  // synth.connect(analyser)
+  _synth.toMaster()
 
-// resume context on user gesture interaction
+  // prapare byte array for analysis storage
+  const bufferLength = analyser.frequencyBinCount
+  const dataArray = new Uint8Array(bufferLength)
 
-// resume context on user gesture interaction
-if (Tone.context.state === 'suspended') {
-  onceEvent('mousedown', () => {
-    Tone.context.resume()
+
+  // subscribe for settings change
+  settings.subscribe(({ music }) => {
+    if (music == 'off') {
+      stop()
+    }
+    if (music === 'on') {
+      track(_active)
+    }
   })
 }
-
-// analyzer
-const analyser = new Tone.Analyser('fft', 256).toMaster()
-
-tracks.connect(analyser)
-// synth.connect(analyser)
-synth.toMaster()
-
-// prapare byte array for analysis storage
-const bufferLength = analyser.frequencyBinCount
-const dataArray = new Uint8Array(bufferLength)
 
 export function analyze() {
   analyser.getByteFrequencyData(dataArray)
@@ -76,17 +96,17 @@ export function analyze() {
 }
 
 export const stop = () => {
-  tracks.stopAll()
+  _tracks.stopAll()
 }
 
 export const track = async (name) => {
-  active = name
-  if (!bufferLoaded || settings.get('music') !== 'on') {
+  _active = name
+  if (!_bufferLoaded || settings.get('music') !== 'on') {
     return
   }
   stop()
-  if (tracks.has(name)){
-    tracks.get(name).start()
+  if (_tracks.has(name)){
+    _tracks.get(name).start()
   }
 }
 
@@ -95,16 +115,8 @@ export const menu = () => {
 }
 
 export const beep = (note) => {
-  if (settings.get('sound') === 'on') {
-    synth.triggerAttackRelease(note || "C3", .01)
+  if (Tone.supported && settings.get('sound') === 'on') {
+    _synth.triggerAttackRelease(note || "C3", .2, "+0.02")
   }
 }
 
-settings.subscribe(({ music }) => {
-  if (music == 'off') {
-    stop()
-  }
-  if (music === 'on') {
-    track(active)
-  }
-})
