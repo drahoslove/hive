@@ -2,15 +2,18 @@ import * as settings from './settings.js'
 import { onceEvent, isMobile, shouldSaveData } from './common.js'
 
 const synth = new Tone.Synth({
+  oscillator : {
+    type: 'sine',
+  },
   envelope: {
     // attack: 2,
     // decay: 1,
     // sustain: 0.4,
     // release: 4,
-    attack: 0.01,
-    decay: 0.1,
-    sustain: 0.1,
-    release: 1
+    attack: .02,
+    decay: .08,
+    sustain: .1,
+    release: 1,
   }
 })
 synth.volume.value = -10
@@ -93,7 +96,7 @@ export const menu = () => {
 
 export const beep = (note) => {
   if (settings.get('sound') === 'on') {
-    synth.triggerAttackRelease(note || "C3", 0.01)
+    synth.triggerAttackRelease(note || "C3", .01)
   }
 }
 
