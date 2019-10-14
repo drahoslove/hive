@@ -3,18 +3,12 @@
 <head>
 <meta charset="utf-8" />
 <title>Hmyziště - admin</title>
-<meta name="viewport" content="width=device-width" />
+<meta name="viewport" content="width=1000px" />
 <meta name="author" content="Drahoslav Bednář, Draho.cz" />
 <meta name="application-name" content="Hmyziště" />
 <link rel="icon" href="/img/favicon.png" />
 <style>
 @import url('https://fonts.googleapis.com/css?family=Titan+One&subset=latin-ext');
-@font-face {
-  font-family: "emoji-symbols";
-  src:
-    url("font/Symbola.woff") format("woff"),
-    url("font/Symbola.ttf") format("truetype");
-}
 body, html {
   margin: 0;
   display: flex;
@@ -41,25 +35,25 @@ img {
 }
 section {
   border-radius: 12px;
-  background: hsla(0, 0%, 90%, 0.75);
+  background: hsla(0, 0%, 90%, 0.666);
   width: 1000px;
   margin: 3em auto;
   padding: 1em 2em;
-  font-family: 'Arial'; 
+  font-family: 'Arial';
   position: relative;
   z-index: 2;
+  box-sizing: border-box;
 }
 a {
   color: #4b99bf;
 }
-.emoji{
-  display: none; 
-  font-size: 50px;
-  font-family: emoji-symbols;
-}
 
 h1, h2, h3 {
   font-family: 'Titan one';
+  font-weight: normal;
+}
+code {
+  font-size: 125%;
 }
 
 table {
@@ -148,7 +142,7 @@ a[target="_blank"]::after {
             {{ room.lastTime | formatTime }}
           </small>
         </td>
-        <td>{{ room.hash }}</td>
+        <td><code>{{ room.hash }}</code></td>
         <template v-for="user in (([a, b]) => [a, b])(room.users || [])">
           <td v-if="user">
             {{ user.nick || '???' }} ({{ user.gender || '?' }})
