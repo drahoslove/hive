@@ -109,6 +109,10 @@ a[target="_blank"]::after {
   margin: 0 3px 0 5px;
 }
 
+[v-cloak] {
+  display: none;
+}
+
 </style>
 </head>
 <body>
@@ -118,7 +122,7 @@ a[target="_blank"]::after {
     <h1>Hmyziště</h1>
     <h2><a href="/" target="_blank"]>Game</a></h2>
   </div>
-  <div id="stats" hidden :hidden="false">
+  <div id="stats" v-cloak>
     <table>
       <thead>
         <tr>
