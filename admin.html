@@ -57,7 +57,7 @@ code {
 }
 
 table {
-  width: 100%
+  width: 100%;
 }
 
 thead {
@@ -75,16 +75,22 @@ thead {
 }
 
 #stats {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+}
+.middle {
+  flex-grow: 1;
   overflow-y: auto;
   max-height: calc(100% - 5em);
 }
-
 .footer {
-  position: absolute;
-  width: calc(100% - 4em);
-  bottom: 2em;
+  width: 100%;
+  margin: 0.5em 0;
 }
-
 .header, .footer {
   display: flex;
   flex-direction: row;
@@ -118,47 +124,49 @@ a[target="_blank"]::after {
 <body>
 <img src="/img/background.png" />
 <section>
-  <div class="header">
-    <h1>Hmyziště</h1>
-    <h2><a href="/" target="_blank"]>Game</a></h2>
-  </div>
   <div id="stats" v-cloak>
-    <table>
-      <thead>
-        <tr>
-          <td>Date</td>
-          <td>Time</td>
-          <td>Room</td>
-          <td>Creator</td>
-          <td>Opponent</td>
-          <td>Actions</td>
-          <td>On</td>
-        </tr>
-      </thead>
-      <tr v-for="room in rooms">
-        <td>
-          <small>{{ room.startTime | formatDate }}</small>
-        </td>
-        <td>
-          <small>
-            {{ room.startTime | formatTime }}
-            –
-            {{ room.lastTime | formatTime }}
-          </small>
-        </td>
-        <td><code>{{ room.hash }}</code></td>
-        <template v-for="user in (([a, b]) => [a, b])(room.users || [])">
-          <td v-if="user">
-            {{ user.nick || '???' }} ({{ user.gender || '?' }})
+    <div class="header">
+      <h1>Hmyziště</h1>
+      <h2><a href="/" target="_blank">Game</a></h2>
+    </div>
+    <div class="middle">
+      <table>
+        <thead>
+          <tr>
+            <td>Date</td>
+            <td>Time</td>
+            <td>Room</td>
+            <td>Creator</td>
+            <td>Opponent</td>
+            <td>Actions</td>
+            <td>On</td>
+          </tr>
+        </thead>
+        <tr v-for="room in rooms">
+          <td>
+            <small>{{ room.startTime | formatDate }}</small>
           </td>
-        <td v-else> × </td>
-        </template>
-        <td>{{ room.actions }}</td>
-        <td :class="{ online: room.connected === 2, semionline: room.connected === 1 }">
-          {{ room.connected || 0 }}/{{room.users.length}}
-        </td>
-      </tr>      
-    </table>
+          <td>
+            <small>
+              {{ room.startTime | formatTime }}
+              –
+              {{ room.lastTime | formatTime }}
+            </small>
+          </td>
+          <td><code>{{ room.hash }}</code></td>
+          <template v-for="user in (([a, b]) => [a, b])(room.users || [])">
+            <td v-if="user">
+              {{ user.nick || '???' }} ({{ user.gender || '?' }})
+            </td>
+          <td v-else> × </td>
+          </template>
+          <td>{{ room.actions }}</td>
+          <td :class="{ online: room.connected === 2, semionline: room.connected === 1 }">
+            {{ room.connected || 0 }}/{{room.users.length}}
+          </td>
+        </tr>
+      </table>
+    </div>
     <div class="footer">
       <div>
         Uptime: <b>{{ uptime | formatDuration }}
@@ -177,10 +185,10 @@ a[target="_blank"]::after {
 <script src="lib/socket.io.js"></script>
 <script>
 
-const formatDate = (time) => 
+const formatDate = (time) =>
   time ? new Date(time).toLocaleDateString() : '-'
 
-const formatTime = (time) => 
+const formatTime = (time) =>
   time ? new Date(time).toLocaleTimeString() : '-'
 
 const formatDateTime = (time) =>
@@ -229,7 +237,7 @@ const socket = io(`${BACKEND}/admin`, {
 
 socket.on('stats', (stats) => {
   console.log('stats', stats)
-  model.rooms = stats.rooms
+  model.rooms = stats.rooms.reverse()
   model.uptime = stats.uptime
 })
 
