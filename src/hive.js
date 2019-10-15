@@ -243,7 +243,7 @@ function vAI() {
 }
 
 function setGetHashRoom(room) {
-  const origHashdata = window.location.hash.substr(1)
+  const origHashdata = decodeURI(window.location.hash.substr(1))
   const [ origRoom, ...rest ] = origHashdata.split(';')
   const hashdata = [room, ...rest].join(';')
   window.parent.postMessage({ room }, '*')
@@ -272,7 +272,7 @@ function getParentLink(room) {
 }
 
 function startMultiplayer(onConnect) {
-  const origHashdata = window.location.hash.substr(1)
+  const origHashdata = decodeURI(window.location.hash.substr(1))
   const origRoom = setGetHashRoom('')
   connect(origHashdata, async (
     room,
