@@ -233,7 +233,7 @@ const socket = io(`${BACKEND}/admin`, {
 
 socket.on('stats', (stats) => {
   console.log('stats', stats)
-  model.rooms = stats.rooms
+  model.rooms = stats.rooms.reverse()
   model.uptime = stats.uptime
 })
 
