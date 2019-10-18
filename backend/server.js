@@ -51,6 +51,8 @@ gameNamespace.on('connect', (socket) => {
 		socket.emit('new_secret', secret)
 	}
 
+	const justReBooted = process.uptime() < 8000
+
 	if (!room) { // create new room
 		do {
 			room = randomToken(8)
@@ -63,12 +65,20 @@ gameNamespace.on('connect', (socket) => {
 		}
 	} else { // join existing room
 		if (!(room in rooms)) {
-			return socket.emit('err', `Room ${room} does not exist`)
+			if (!justReBooted) {
+				return err(socket, `Room ${room} does not exist`)
+			} else {
+				rooms[room] = {
+					users: [],
+					actions: 0,
+					lastTime: Date.now(),
+				}
+			}
 		}
 		const myself = rooms[room].users.find(({secret: s}) => secret === s)
 		if (!myself) {
-				if (rooms[room].users.length >= 2) {
-				return socket.emit('err', `Room ${room} is full`)
+			if (rooms[room].users.length >= 2) {
+				return err(socket, `Room ${room} is full`)
 			}
 			rooms[room].users.push({ secret, nick, gender }) // take your place in a room
 		} else { // update me
@@ -111,6 +121,12 @@ gameNamespace.on('connect', (socket) => {
 		})
 	})
 })
+
+const err = (socket, msg) => {
+	socket.emit('err', msg)
+	socket.disconnect()
+}
+
 
 // admin io:
 

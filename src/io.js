@@ -24,12 +24,19 @@ export function connect (hashdata, driver) {
   if (socket) {
     socket.close()
   }
+
+  const query = {
+    hashdata,
+    secret: localStorage['user_secret'] || '',
+  }
+
   socket = io(`${BACKEND}/game`, {
-    query: {
-      hashdata,
-      secret: localStorage['user_secret'] || '',
-    }
+    query,
   })
+
+  socket.on('reconnect_attempt', () => {
+    socket.io.opts.query = query
+  });
 
   resetChat()
 
@@ -43,6 +50,7 @@ export function connect (hashdata, driver) {
 
   socket.on('new_secret', (secret) => {
     localStorage['user_secret'] = secret
+    query.secret = secret
     console.log('new_secret', secret)
   })
 
@@ -50,12 +58,15 @@ export function connect (hashdata, driver) {
     console.warn('err', ...data)
   })
 
-  socket.on('room_joined', (room, playerIndex, ack) => {
+  const onJoin = (room, playerIndex, ack) => {
     let lastActionIndex
     console.log('room_joined', room)
     driver(
       room,
       playerIndex,
+      (newHashdata) => {
+        query.hashdata = newHashdata
+      },
       (action) => {
         socket.emit('action', action, (actionIndex) => {
           lastActionIndex = actionIndex
@@ -65,13 +76,20 @@ export function connect (hashdata, driver) {
         socket.on('action', (action, actionIndex) => {
           if (actionIndex !== lastActionIndex) {
             handleAction(action)
-          } 
+          }
         })
       },
-      (handlePlayerInfo) => { socket.on('player_info', handlePlayerInfo) },
+      (handlePlayerInfo) => {
+        socket.on('player_info', handlePlayerInfo)
+      },
+      (handleRejoin) => {
+        socket.on('room_joined', handleRejoin)
+      }
     )
     ack && ack()
-  })
+  }
+
+  socket.once('room_joined', onJoin)
 
   socket.on('chat', (msg) => {
     chatEl.classList.remove('disabled')
@@ -115,7 +133,7 @@ chatEl.addEventListener('click', () => {
 
 // focus on key
 window.addEventListener('keypress', ({ key }) => {
-  if (!socket) { 
+  if (!socket) {
     return
   }
   chatEl.classList.remove('disabled')

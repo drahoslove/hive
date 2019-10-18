@@ -277,10 +277,12 @@ function startMultiplayer(onConnect) {
   connect(origHashdata, async (
     room,
     playerIndex,
+    updateHashdata,
     sendAction,
     onIncomingAction,
     onPlayerInfo,
-    ) => {
+    onRejoin,
+  ) => {
     audio.track('wait')
     ui.disableInputFor([0, 1]) // disable all input until ready/go
     game.message = _('Wait for the opponent', 'Čekej na spoluhráče')
@@ -302,7 +304,12 @@ function startMultiplayer(onConnect) {
       }
     })
 
+    onRejoin((room, playerIndex) => {
+      console.log('player rejoined', playerIndex)
+    })
+
     setGetHashRoom(room)
+    updateHashdata(decodeURI(window.location.hash.substr(1)))
     if (!origRoom) {
       const inFrame = window.parent !== window
       const link = inFrame
