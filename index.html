@@ -45,25 +45,6 @@ a {
   font-size: 50px;
   font-family: emoji-symbols;
 }
-#loader{
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 50px;
-  color: #888;
-  z-index: -1;
-}
-@media only screen and (min-width: 600px) {
-  #loader {
-    width: 100vw;
-    height: 100vh;
-  }
-}
 .drawer {
   position: absolute;
   width: 500px;
@@ -259,7 +240,6 @@ input[type=radio] {
   </div>
   <canvas id="hiveCanvas" width="685" height="auto">
   </canvas>
-  <div id="loader">🕛</div>
   <div id="chat" class="disabled">
     <div class="chat-log-wrapper">
       <div id="chat-log"></div>

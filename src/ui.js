@@ -267,7 +267,7 @@ export default function uiOf(game) {
       if (game.sideMenu.some(button => {
         const buttonPos = button.pos.add(sideMenuPos)
         if (buttonPos.distance(eventToExactHex(event)) <= .75) {
-          button.active = true 
+          button.active = true
           hover(buttonPos)
           return true
         } else {
@@ -1005,10 +1005,11 @@ export default function uiOf(game) {
 
 
   function drawLoader(t, pos, player) {
+    const isOffline = 'online' in player && !player.online
     const playerColor = base[settings.get('color') === 'black'
       ? player.color
       : inverted[player.color]]
-    t /= 2000
+    t /= (isOffline ? 6000 : 2000)
     const showNames = _showNames || CNW > 900
     const a = (t%1 * Math.PI*4) - Math.PI/2
     const b = (t/2%1 * Math.PI*4) - Math.PI/2
@@ -1049,10 +1050,10 @@ export default function uiOf(game) {
     }
 
     // rotating circle
-    if (player === game.activePlayer() && game.state === 'started') {
+    if (isOffline || player === game.activePlayer() && game.state === 'started') {
       _ctx.beginPath()
       _ctx.arc(x, y, r*SQRT2_3 +2, a, b, a<b)
-      _ctx.strokeStyle = hsl((t*200)%360)(75)(50)
+      _ctx.strokeStyle = hsl((t*200)%360)(isOffline ? 0 : 75)(50)
       _ctx.lineCap = 'round'
       _ctx.lineWidth = 10
       _ctx.stroke()
@@ -1078,7 +1079,10 @@ export default function uiOf(game) {
       return
     }
 
-    x += txtOfst + r
+    x += txtOfst + r - 2
+    if (isOffline) {
+      x += 20
+    }
     { // name label
       let r = s/2 - 12
       _ctx.beginPath()
@@ -1091,6 +1095,7 @@ export default function uiOf(game) {
       // _ctx.lineTo(x+txtW, y+r)
       // _ctx.lineTo(x, y+r)
       _ctx.lineTo(x-SQRT3_2*r,  y + SQRT2_3 * r*1.75)
+      _ctx.lineTo(x-SQRT3_2*r+r/2, y                )
       _ctx.closePath()
       _ctx.save()
       _ctx.clip()

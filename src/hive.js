@@ -160,7 +160,6 @@ window.onload = () => {
   ui.on(canvas)
   console.timeEnd("")
   setTimeout(() => {
-    document.getElementById("loader").innerHTML = ''
     if (window.location.hash && window.location.hash.substr(1)[0] !== ';') {
       startMultiplayer()
     }
@@ -271,11 +270,13 @@ function startMultiplayer(onConnect) {
     if (playerIndex === 1) { // swap the sides to ensure "you" is always at bottom
       [ game.players[1], game.players[0] ] = [ game.players[0], game.players[1] ]
     }
-    game.players[playerIndex].name = '!!!'
-    game.players[+!playerIndex].name = '???'
+    game.players[playerIndex].name = _('You', 'Ty')
+    game.players[playerIndex].gender = '2'
+    game.players[+!playerIndex].name = '…'
+    game.players[+!playerIndex].online = false
     let lastSentAction = ''
 
-    onPlayerInfo(({playerIndex: i, nick, gender}) => {
+    onPlayerInfo(({playerIndex: i, nick, gender, online}) => {
       const player = game.players[i]
       if (nick) {
         player.name = nick
@@ -283,10 +284,17 @@ function startMultiplayer(onConnect) {
       if (gender) {
         player.gender = gender
       }
-    })
-
-    onRejoin((room, playerIndex) => {
-      console.log('player rejoined', playerIndex)
+      player.online = online
+      ui.touch()
+      if (i === +!playerIndex) {
+        if (!online) {
+          ui.disableInputFor([0, 1]) // disable all input
+          // game.message = _('Opponent disconnected', 'Spoluhráč nepřipojen')
+        } else {
+          ui.disableInputFor([i]) // disable opponent input
+          // game.message = ''
+        }
+      }
     })
 
     setGetHashRoom(room)

@@ -132,7 +132,7 @@ const emitPlayerInfo = (room) => {
 			playerIndex: i,
 			nick: player.nick,
 			gender: player.gender,
-			onine: player.online
+			online: player.online
 		})
 	})
 }
