@@ -261,7 +261,6 @@ function startMultiplayer(onConnect) {
     sendAction,
     onIncomingAction,
     onPlayerInfo,
-    onRejoin,
   ) => {
     audio.track('wait')
     ui.disableInputFor([0, 1]) // disable all input until ready/go
@@ -285,16 +284,12 @@ function startMultiplayer(onConnect) {
         player.gender = gender
       }
       player.online = online
-      ui.touch()
-      if (i === +!playerIndex) {
-        if (!online) {
-          ui.disableInputFor([0, 1]) // disable all input
-          // game.message = _('Opponent disconnected', 'Spoluhráč nepřipojen')
-        } else {
-          ui.disableInputFor([i]) // disable opponent input
-          // game.message = ''
-        }
+      if (game.players.some(({online}) => !online)) {
+        ui.disableInputFor([0, 1]) // disable all input
+      } else {
+        ui.disableInputFor([+!playerIndex]) // disable opponent input
       }
+      ui.touch()
     })
 
     setGetHashRoom(room)

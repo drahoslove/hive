@@ -81,10 +81,19 @@ export function connect (hashdata, driver) {
       },
       (handlePlayerInfo) => {
         socket.on('player_info', handlePlayerInfo)
+        socket.on('disconnect', () => {
+          handlePlayerInfo({
+            playerIndex,
+            online: false,
+          })
+        })
+        socket.on('room_joined', () => {
+          handlePlayerInfo({
+            playerIndex,
+            online: true,
+          })
+        })
       },
-      (handleRejoin) => {
-        socket.on('room_joined', handleRejoin)
-      }
     )
     ack && ack()
   })

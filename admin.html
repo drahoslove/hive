@@ -156,7 +156,8 @@ a[target="_blank"]::after {
           <template v-for="user in (([a, b]) => [a, b])(room.users || [])">
             <td v-if="user">
               <small>{{ user.online ? '🔵' : '⚫'}}</small>
-              {{ user.nick || '???' }} {{ user.gender | gender }}
+              {{ user.nick || '???' }} <sup>{{ user.gender | gender }}</sup>
+              <sup v-if="user.secret === localStorage.user_secret">ᵐᵉ</sup>
             </td>
           <td v-else> × </td>
           </template>
@@ -183,13 +184,13 @@ a[target="_blank"]::after {
 <script>
 
 const formatDate = (time) =>
-  time ? new Date(time).toLocaleDateString() : '-'
+  time ? new Date(time).toLocaleDateString() : '???'
 
 const formatTime = (time) =>
-  time ? new Date(time).toLocaleTimeString() : '-'
+  time ? new Date(time).toLocaleTimeString() : '???'
 
 const formatDateTime = (time) =>
-  time ? new Date(time).toLocaleString() : '-'
+  time ? new Date(time).toLocaleString() : '???'
 
 const gender = (gender) => ({
   M: '♂️',

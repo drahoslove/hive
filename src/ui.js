@@ -659,7 +659,7 @@ export default function uiOf(game) {
     // const hues = [-10, 128, 318, 258]
     const hues = [0,1,2,3].map(i => -10 + i*360/4)
     menu.forEach(({pos, label, title, active, waiting, activeish}, i) => {
-      title = title()
+      title = title() + ' ➜ '
       pos = sideMenuPos.add(pos)
       const r = S/1.75
       const textColor = '#444'
@@ -686,7 +686,7 @@ export default function uiOf(game) {
         // _ctx.fillStyle = bkg(80)
         // _ctx.fillText(title, x-S-w-.5, y+4-.5)
         _ctx.fillStyle = game.state === 'end' ? '#eee' : '#111' // bkg(50)
-        _ctx.fillText(title, x-S-w, y+4)
+        _ctx.fillText(title, x-S/2-w, y+4)
       }
     })
   }
@@ -1050,7 +1050,7 @@ export default function uiOf(game) {
     }
 
     // rotating circle
-    if (isOffline || player === game.activePlayer() && game.state === 'started') {
+    if (isOffline || (player === game.activePlayer() && game.state === 'started')) {
       _ctx.beginPath()
       _ctx.arc(x, y, r*SQRT2_3 +2, a, b, a<b)
       _ctx.strokeStyle = hsl((t*200)%360)(isOffline ? 0 : 75)(50)
