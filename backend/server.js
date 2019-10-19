@@ -51,7 +51,7 @@ gameNamespace.on('connect', (socket) => {
 	}
 	socket.secret = secret
 
-	const justReBooted = process.uptime() < 5
+	const justReBooted = process.uptime() < 15
 
 	if (!room) { // create new room
 		do {

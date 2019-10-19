@@ -93,6 +93,12 @@ export function connect (hashdata, driver) {
             online: true,
           })
         })
+        socket.on('connect', () => {
+          handlePlayerInfo({
+            playerIndex,
+            online: true,
+          })
+        })
       },
     )
     ack && ack()
