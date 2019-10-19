@@ -139,7 +139,6 @@ a[target="_blank"]::after {
             <td>Creator</td>
             <td>Opponent</td>
             <td>Actions</td>
-            <td>On</td>
           </tr>
         </thead>
         <tr v-for="room in rooms">
@@ -156,27 +155,25 @@ a[target="_blank"]::after {
           <td><code>{{ room.hash }}</code></td>
           <template v-for="user in (([a, b]) => [a, b])(room.users || [])">
             <td v-if="user">
-              {{ user.nick || '???' }} ({{ user.gender || '?' }})
+              <small>{{ user.online ? '🔵' : '⚫'}}</small>
+              {{ user.nick || '???' }} {{ user.gender | gender }}
             </td>
           <td v-else> × </td>
           </template>
           <td>{{ room.actions }}</td>
-          <td :class="{ online: room.connected === 2, semionline: room.connected === 1 }">
-            {{ room.connected || 0 }}/{{room.users.length}}
-          </td>
         </tr>
       </table>
     </div>
     <div class="footer">
       <div>
-        Uptime: <b>{{ uptime | formatDuration }}
-        {{ !connected ? '???' : ''}}</b>
-      </div>
-      <div>
         Status:
         <b :class="{online: connected, offline: !connected}">
           {{ connected ? 'ONLINE' : 'OFFLINE' }}
         </b>
+      </div>
+      <div>
+        Uptime: <b>{{ uptime | formatDuration }}
+        {{ !connected ? '???' : ''}}</b>
       </div>
     </div>
   </div>
@@ -193,6 +190,11 @@ const formatTime = (time) =>
 
 const formatDateTime = (time) =>
   time ? new Date(time).toLocaleString() : '-'
+
+const gender = (gender) => ({
+  M: '♂️',
+  F: '♀️'
+}[gender] || '⚬')
 
 const formatDuration = (duration) => {
   duration -= duration % 1
@@ -221,6 +223,7 @@ const model = new Vue({
     formatDate,
     formatTime,
     formatDateTime,
+    gender,
   },
 })
 
@@ -237,7 +240,10 @@ const socket = io(`${BACKEND}/admin`, {
 
 socket.on('stats', (stats) => {
   console.log('stats', stats)
-  model.rooms = stats.rooms.reverse()
+  model.rooms = Object.entries(stats.rooms).map(([hash, room]) => ({
+    hash,
+    ...room,
+  })).reverse()
   model.uptime = stats.uptime
 })
 

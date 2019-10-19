@@ -58,7 +58,7 @@ export function connect (hashdata, driver) {
     console.warn('err', ...data)
   })
 
-  const onJoin = (room, playerIndex, ack) => {
+  socket.once('room_joined', (room, playerIndex, ack) => {
     let lastActionIndex
     console.log('room_joined', room)
     driver(
@@ -87,9 +87,7 @@ export function connect (hashdata, driver) {
       }
     )
     ack && ack()
-  }
-
-  socket.once('room_joined', onJoin)
+  })
 
   socket.on('chat', (msg) => {
     chatEl.classList.remove('disabled')

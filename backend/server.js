@@ -1,7 +1,6 @@
 const ORIGINS = [
 	'http://localhost:8080',
 	'https://hive.draho.cz',
-	'https://www.alik.cz',
 ]
 const PORT = process.env.PORT || 3003
 const SALT = process.env.SALT || 'SALT'
@@ -19,7 +18,7 @@ io.origins((origin, callback) => {
 
 const rooms = {
 	// [room]: {
-	//   users: [{ nick, gender, secret }, [secret]: { nick, gender, secret}],
+	//   users: [{ nick, gender, online, secret }, [secret]: { nick, gender, online, secret}],
 	//   actions: 0,
 	//	 startTime: timestamp,
 	//   lastTime: timestamp,
@@ -50,15 +49,16 @@ gameNamespace.on('connect', (socket) => {
 		secret = randomToken(16) // client will store for auth on subsequent connects
 		socket.emit('new_secret', secret)
 	}
+	socket.secret = secret
 
-	const justReBooted = process.uptime() < 8000
+	const justReBooted = process.uptime() < 5
 
 	if (!room) { // create new room
 		do {
 			room = randomToken(8)
 		} while(room in rooms)
 		rooms[room] = {
-			users: [{ secret, nick, gender }], // seat yourself
+			users: [{ secret, nick, gender, online: true }], // seat yourself
 			actions: 0,
 			startTime: Date.now(),
 			lastTime: Date.now(),
@@ -80,23 +80,18 @@ gameNamespace.on('connect', (socket) => {
 			if (rooms[room].users.length >= 2) {
 				return err(socket, `Room ${room} is full`)
 			}
-			rooms[room].users.push({ secret, nick, gender }) // take your place in a room
+			rooms[room].users.push({ secret, nick, gender, online: true }) // take your place in a room
 		} else { // update me
 			myself.nick = nick
 			myself.gender = gender
+			myself.online = true
 		}
 	}
 
 	socket.join(room, () => { // start listening in room
 		const playerIndex = rooms[room].users.map(({secret}) => secret).indexOf(secret)
 		socket.emit('room_joined', room, playerIndex, () => {
-			rooms[room].users.forEach((player, i) => {
-				gameNamespace.to(room).emit('player_info', {
-					playerIndex: i,
-					nick: player.nick,
-					gender: player.gender,
-				})
-			})
+			emitPlayerInfo(room)
 		})
 
 		socket.on('chat', (data) => {
@@ -117,10 +112,30 @@ gameNamespace.on('connect', (socket) => {
 		})
 
 		socket.on('disconnect', () => {
+			rooms[room].users.forEach(user => {
+				if (user.secret === secret) {
+					user.online = Object.values(io.sockets.connected||{}).some(socket =>
+						Object.keys(socket.rooms||{}).includes(room) &&
+							socket.secret === secret
+					)
+				}
+			})
+			emitPlayerInfo(room)
 			updateAdmin()
 		})
 	})
 })
+
+const emitPlayerInfo = (room) => {
+	rooms[room].users.forEach((player, i) => {
+		gameNamespace.to(room).emit('player_info', {
+			playerIndex: i,
+			nick: player.nick,
+			gender: player.gender,
+			onine: player.online
+		})
+	})
+}
 
 const err = (socket, msg) => {
 	socket.emit('err', msg)
@@ -141,11 +156,7 @@ adminNamespace.on('connect', socket => {
 
 const updateAdmin = () => {
 	adminNamespace.emit('stats', {
-		rooms: Object.entries(rooms).map(([room, data]) => ({
-			hash: room,
-			...data,
-			connected: (gameNamespace.adapter.rooms[room]||{}).length,
-		})),
+		rooms,
 		uptime: process.uptime(),
 	})
 }

@@ -8,20 +8,6 @@ import { connect, disconnect } from './io.js'
 import { rand, uncolorEmoji } from './common.js'
 import { Hex } from './board.js'
 
-let loaderInterval = 0
-{
-  const cp = document.getElementById("loader").innerText.codePointAt(0)
-  const spinLoader = (i) => {
-    loaderInterval = requestAnimationFrame(() => {
-      document.getElementById("loader").innerText = String.fromCodePoint(
-        cp+(i%12)
-      )
-      spinLoader(i+1)
-    })
-  }
-  spinLoader(0)
-}
-
 console.log("Hive loaded")
 console.time("")
 audio.menu()
@@ -174,7 +160,6 @@ window.onload = () => {
   ui.on(canvas)
   console.timeEnd("")
   setTimeout(() => {
-    cancelAnimationFrame(loaderInterval)
     document.getElementById("loader").innerHTML = ''
     if (window.location.hash && window.location.hash.substr(1)[0] !== ';') {
       startMultiplayer()
@@ -182,8 +167,6 @@ window.onload = () => {
     document.getElementById('footer').classList.add('visible')
   }, 100)
 }
-// ui.off(canvas)
-// setTimeout(()=>ui.on(canvas), 1500)
 
 const autoMove = (players) => () => {
   if (!players.includes(game._activePlayerIndex)) {
@@ -202,8 +185,6 @@ const autoMove = (players) => () => {
       )
     : game.click(game.__bestishLandingPos())
 
-  // console.clear()
-  // console.log(String(game.space))
   ui.touch()
   if (game.state === 'end') {
     clearInterval(aiInterval)
@@ -221,8 +202,8 @@ function training () {
 function AIvAI() {
   gameMode = 'AIvAI'
   audio.track('ava')
-  game.players[0].name = uncolorEmoji(_("Dumber 👽", "Blbější 👽"))
-  game.players[1].name = uncolorEmoji(_("Dumb 👽", "Blbý 👽"))
+  game.players[0].name = uncolorEmoji(_("AI 1", "UI 1"))
+  game.players[1].name = uncolorEmoji(_("AI 2", "UI 2"))
   ui.hideMenu()
   ui.disableInputFor([0,1])
   game.start()
@@ -234,7 +215,7 @@ function vAI() {
   audio.track('pva')
   game.players[0].name = _("You", "Ty")
   game.players[0].gender = '2'
-  game.players[1].name = uncolorEmoji(_("👽", "Hra 👽"))
+  game.players[1].name = uncolorEmoji(_("Hra", "Game"))
   game.players[1].gender = 'F'
   ui.hideMenu()
   ui.disableInputFor([1])
