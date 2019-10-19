@@ -214,8 +214,8 @@ function vAI() {
   audio.track('pva')
   game.players[0].name = _("You", "Ty")
   game.players[0].gender = '2'
-  game.players[1].name = uncolorEmoji(_("Hra", "Game"))
-  game.players[1].gender = 'F'
+  game.players[1].name = uncolorEmoji(_("Game", "Hra"))
+  game.players[1].gender = _('M', 'F')
   ui.hideMenu()
   ui.disableInputFor([1])
   game.start()
