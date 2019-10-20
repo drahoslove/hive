@@ -17,13 +17,18 @@ const base = {
   white: '#eed',
   black: '#112',
 }
-const ligher = {
+const lighter = {
   white: '#fff',
   black: '#666',
 }
 const darker = {
   white: '#999',
   black: '#000',
+}
+
+const grayer = {
+  white: '#ccc',
+  black: '#333',
 }
 
 
@@ -915,7 +920,7 @@ export default function uiOf(game) {
       ? inverted[bug.color]
       : bug.color
 
-    drawStone(x, y, r, base[bugColor], [ ligher[bugColor], darker[bugColor] ])
+    drawStone(x, y, r, base[bugColor], [ lighter[bugColor], darker[bugColor] ])
 
     { // text
       const txt = bug.symbol
@@ -1006,9 +1011,9 @@ export default function uiOf(game) {
 
   function drawLoader(t, pos, player) {
     const isOffline = 'online' in player && !player.online
-    const playerColor = base[settings.get('color') === 'black'
+    const playerColor = settings.get('color') === 'black'
       ? player.color
-      : inverted[player.color]]
+      : inverted[player.color]
     t /= (isOffline ? 6000 : 2000)
     const showNames = _showNames || CNW > 900
     const a = (t%1 * Math.PI*4) - Math.PI/2
@@ -1049,6 +1054,13 @@ export default function uiOf(game) {
       _ctx.restore()
     }
 
+    // background:
+    {
+      hexPath(_ctx, x, y, r - 1.5)
+      _ctx.fillStyle = grayer[playerColor]
+      _ctx.fill()
+    }
+
     // rotating circle
     if (isOffline || (player === game.activePlayer() && game.state === 'started')) {
       _ctx.beginPath()
@@ -1062,17 +1074,10 @@ export default function uiOf(game) {
     // hex:
     {
       hexPath(_ctx, x, y, r - 0.5)
-      _ctx.strokeStyle = playerColor
+      _ctx.strokeStyle = base[playerColor]
       _ctx.lineCap = 'round'
       _ctx.lineWidth = 7
       _ctx.stroke()
-
-      hexPath(_ctx, x, y, r + 2.5)
-      _ctx.strokeStyle = '#808080'
-      _ctx.lineCap = 'round'
-      _ctx.lineWidth = 1
-      // _ctx.stroke()
-
     }
 
     if (!showNames) {
@@ -1100,7 +1105,7 @@ export default function uiOf(game) {
       _ctx.save()
       _ctx.clip()
       drawBackground(true)
-      _ctx.fillStyle = playerColor
+      _ctx.fillStyle = base[playerColor]
       // _ctx.fillStyle = '#808080'
       _ctx.lineCap = 'round'
       _ctx.fill()
