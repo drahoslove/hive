@@ -1,7 +1,10 @@
 const SETTINGS_KEY = 'hive_settings'
-const langs = navigator.languages || navigator.language || ''
+const langs = (navigator.languages || [navigator.language] || []).reverse()
+const preferredLang = langs.findIndex(lang => lang.includes('cs')) > langs.findIndex(lang => lang.includes('en'))
+  ? 'cs'
+  : 'en'
 const defaults = {
-  lang: (langs.includes('cs') && !langs.includes('en')) ? 'cs' : 'en',
+  lang: preferredLang,
   sound: 'on',
   music: 'on',
   color: 'black',
