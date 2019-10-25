@@ -20,6 +20,7 @@ const rooms = {
 	// [room]: {
 	//   users: [{ nick, gender, online, secret }, [secret]: { nick, gender, online, secret}],
 	//   actions: 0,
+	//   firstGoes: 0/1,
 	//	 startTime: timestamp,
 	//   lastTime: timestamp,
 	// }
@@ -62,6 +63,7 @@ gameNamespace.on('connect', (socket) => {
 			actions: 0,
 			startTime: Date.now(),
 			lastTime: Date.now(),
+			firstGoes: rand(2),
 		}
 	} else { // join existing room
 		if (!(room in rooms)) {
@@ -72,6 +74,7 @@ gameNamespace.on('connect', (socket) => {
 					users: [],
 					actions: 0,
 					lastTime: Date.now(),
+					firstGoes: rand(2),
 				}
 			}
 		}
@@ -90,8 +93,17 @@ gameNamespace.on('connect', (socket) => {
 
 	socket.join(room, () => { // start listening in room
 		const playerIndex = rooms[room].users.map(({secret}) => secret).indexOf(secret)
-		socket.emit('room_joined', room, playerIndex, () => {
+		const { firstGoes } = rooms[room]
+		socket.emit('init', room, playerIndex, firstGoes, () => {
 			emitPlayerInfo(room)
+		})
+
+		socket.on('restart', () => {
+			const firstGoes = +!rooms[room].firstGoes
+			rooms[room].firstGoes = firstGoes
+			rooms[room].actions += 1000
+			socket.emit('init', room, playerIndex, firstGoes)
+			socket.to(room).emit('init', room, +!playerIndex, firstGoes)
 		})
 
 		socket.on('chat', (data) => {
@@ -103,6 +115,7 @@ gameNamespace.on('connect', (socket) => {
 			const actionIndex = rooms[room].actions++
 			rooms[room].lastTime = Date.now()
 			ack(actionIndex)
+			console.log('action', data)
 			// broadcast incoming game actions to everyone in room except own socket
 			socket.to(room).emit('action', data, actionIndex)
 			// note: same user can connect with multiple socket by opening multiple windows
@@ -185,4 +198,8 @@ function randomToken(n) {
 
 function md5(txt) {
   return crypto.createHash('md5').update(txt).digest('hex')
+}
+
+function rand(n) {
+	return Math.floor(Math.random()*n)
 }

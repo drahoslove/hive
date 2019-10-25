@@ -20,6 +20,13 @@ export function disconnect() {
   socket = null
 }
 
+export function restart() {
+  if (!socket) {
+    return
+  }
+  socket.emit('restart')
+}
+
 export function connect (hashdata, driver) {
   if (socket) {
     socket.close()
@@ -58,12 +65,13 @@ export function connect (hashdata, driver) {
     console.warn('err', ...data)
   })
 
-  socket.once('room_joined', (room, playerIndex, ack) => {
+  socket.once('init', (room, playerIndex, firstGoes, ack) => {
     let lastActionIndex
-    console.log('room_joined', room)
+    console.log('init', room)
     driver(
       room,
       playerIndex,
+      firstGoes,
       (newHashdata) => {
         query.hashdata = newHashdata
       },
@@ -87,12 +95,6 @@ export function connect (hashdata, driver) {
             online: false,
           })
         })
-        socket.on('room_joined', () => {
-          handlePlayerInfo({
-            playerIndex,
-            online: true,
-          })
-        })
         socket.on('connect', () => {
           handlePlayerInfo({
             playerIndex,
@@ -100,6 +102,12 @@ export function connect (hashdata, driver) {
           })
         })
       },
+      (handleReset) => {
+        socket.on('init', (room, playerIndex, firstGoes, ack) => {
+          handleReset(playerIndex, firstGoes)
+          ack && ack()
+        })
+      }
     )
     ack && ack()
   })
