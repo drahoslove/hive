@@ -345,7 +345,7 @@ function startMultiplayer(onConnect) {
       ui.touch()
     }
 
-    onRestart((pIndex, firstGoes) => {
+    onRestart((firstGoes) => {
       console.log('onRestart')
       initGame(playerIndex, firstGoes, onClick)
       game.message = _('Game is being restarted', 'Hra se restartuje')
@@ -357,24 +357,8 @@ function startMultiplayer(onConnect) {
     })
 
     onIncomingAction((action) => {
-      if (action.match(/ready|go/)) {
-        if (action === 'ready'+ +!playerIndex) {
-          if (game.state === 'wait') {
-            sendAction('go')
-            go()
-          } else { // restart game
-            console.error('desync -> restart')
-            // restart() // TODO sync
-            return
-          }
-        }
-        if (action === 'go') { // go mean everyone goes
-          go()
-        }
-        // ready from my other socket is ignored
-        return
-      }
-      if (game.state !== 'started') {
+      if (action === 'ready'+ +!playerIndex) {
+        go()
         return
       }
 
@@ -385,12 +369,14 @@ function startMultiplayer(onConnect) {
           const i = Number(action.substr(2))
           const handBug = game.activePlayer().hand.at(i)
           hex = handBug.pos
-        }
+        } else
         if (action[1] === 'S') { // space click
           hex = Hex.fromString(action.substr(2))
-        }
+        } else
         if (action[1] === 'P') { // pass button click
           hex = game.passButton.pos
+        } else {
+          return // invalid action
         }
       }
       game.click(hex, true)

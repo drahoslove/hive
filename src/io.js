@@ -32,6 +32,9 @@ export function connect (hashdata, driver) {
     socket.close()
   }
 
+  // store actions returned from backend (including own)
+  const actions = []
+
   const query = {
     hashdata,
     secret: localStorage['user_secret'] || '',
@@ -68,48 +71,60 @@ export function connect (hashdata, driver) {
   socket.once('init', (room, playerIndex, firstGoes, ack) => {
     let lastActionIndex
     console.log('init', room)
-    driver(
-      room,
-      playerIndex,
-      firstGoes,
-      (newHashdata) => {
-        query.hashdata = newHashdata
-      },
-      (action) => {
-        socket.emit('action', action, (actionIndex) => {
-          lastActionIndex = actionIndex
-        })
-      },
-      (handleAction) => {
-        socket.on('action', (action, actionIndex) => {
-          if (actionIndex !== lastActionIndex) {
+    socket.emit('sync_actions', actions.length, (newActions) => {
+      driver(
+        room,
+        playerIndex,
+        firstGoes,
+        (newHashdata) => {
+          query.hashdata = newHashdata
+        },
+        (action) => {
+          socket.emit('action', action, (actionIndex) => {
+            lastActionIndex = actionIndex
+            if (actionIndex !== actions.length) {
+              console.error('Action sent before synced')
+            }
+          })
+        },
+        (handleAction) => {
+          newActions.forEach(action => {
+            actions.push(action)
             handleAction(action)
-          }
-        })
-      },
-      (handlePlayerInfo) => {
-        socket.on('player_info', handlePlayerInfo)
-        socket.on('disconnect', () => {
-          handlePlayerInfo({
-            playerIndex,
-            online: false,
           })
-        })
-        socket.on('connect', () => {
-          handlePlayerInfo({
-            playerIndex,
-            online: true,
+          socket.on('action', (action, actionIndex) => {
+            actions.push(action)
+            if (actionIndex !== lastActionIndex) {
+              handleAction(action)
+            }
+            lastActionIndex = actionIndex
           })
-        })
-      },
-      (handleReset) => {
-        socket.on('init', (room, playerIndex, firstGoes, ack) => {
-          handleReset(playerIndex, firstGoes)
-          ack && ack()
-        })
-      }
-    )
-    ack && ack()
+        },
+        (handlePlayerInfo) => {
+          socket.on('player_info', handlePlayerInfo)
+          socket.on('disconnect', () => {
+            handlePlayerInfo({
+              playerIndex,
+              online: false,
+            })
+          })
+          socket.on('connect', () => {
+            handlePlayerInfo({
+              playerIndex,
+              online: true,
+            })
+          })
+        },
+        (handleRestart) => {
+          socket.on('restart', (firstGoes, ack) => {
+            actions.length = 0
+            handleRestart(firstGoes)
+            ack && ack()
+          })
+        }
+      )
+      ack && ack()
+    })
   })
 
   socket.on('chat', (msg) => {

@@ -138,7 +138,7 @@ a[target="_blank"]::after {
             <td>Room</td>
             <td>Creator</td>
             <td>Opponent</td>
-            <td>Actions</td>
+            <td>Acts/Rest</td>
           </tr>
         </thead>
         <tr v-for="room in rooms">
@@ -161,7 +161,7 @@ a[target="_blank"]::after {
             </td>
           <td v-else> × </td>
           </template>
-          <td>{{ room.actions }}</td>
+          <td>{{ room.actions.length }} / {{ room.restarts || 0 }}</td>
         </tr>
       </table>
     </div>
