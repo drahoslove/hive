@@ -335,13 +335,18 @@ export default function uiOf(game) {
     }
 
     onFrame(t) {
-      if (_frames++ % skipFrame(settings.get('fps')) === 0)
+      if (_frames++ % skipFrame(settings.get('fps')) === 0) {
         this.redraw(t)
-      if (!this.stop)
+      }
+      if (!this.stop) {
         requestAnimationFrame(this.onFrame.bind(this))
+      }
     }
 
     redraw(t) {
+      if (settings.get('music') === 'on') { // audio visualisation
+        _invalidated = true
+      }
       if (_showMenu) {
         if (_invalidated) {
           drawBackground()
@@ -380,7 +385,7 @@ export default function uiOf(game) {
               game.message = futureMessage
               game.space.centralize(focusTo[++i % focusTo.length].pos.add(new Hex(4, 0)))
               setTimeout(endScreen, 600)
-            } else {
+            } else if(!_showMenu) {
               document.body.classList.add('dark')
             }
           }
@@ -610,7 +615,24 @@ export default function uiOf(game) {
     const OY = S*SQRT3_2
     const SX = (CNW-CNW/z)/2
     const SY = (CNH-CNH/z)/2
-    noclear || _ctx.clearRect(-CNW, -CNH, +CNW*3, +CNH*3)
+    if (!noclear) {
+      _ctx.clearRect(-CNW, -CNH, +CNW*3, +CNH*3)
+      { // audio visualisation
+        const anal = analyze()
+        const step = 1
+        for (let i = 0; i < anal.length - anal.length % 6; i+=step) {
+          let val = 0
+          for (let ii = i; ii < i+step; ii++) {
+            val += anal[ii]
+          }
+          val /= step
+          val /= 40
+          const hex = new Hex(1.5-val+(i-i%6)/6, 0).rotate(i/step)
+          drawTile(null, hex, _ctx)
+        }
+      }
+    } 
+
     try {
       _ctx.drawImage(_cachedBackground,
         // some magic here
@@ -622,11 +644,6 @@ export default function uiOf(game) {
       _zoom = 1
       _zoomStart = 1
     }
-    // const hex = new Hex(5, 0)
-    // const biteArray = analyze()
-    // TODO awesome audio visualization
-    // drawTile(null, hex, _ctx)
-
   }
 
   function drawPassButton({pos, label, active}) {
@@ -734,7 +751,7 @@ export default function uiOf(game) {
       title = title()
       const base = hsl(-60*(i-5.3)) // set hue
       const bkg = base(active ? 80 : 50) // set saturation
-      _ctx.filter = (action) ? 'none' : 'brightness(150%) grayscale(95%) opacity(30%)'
+      _ctx.filter = (action) ? 'none' : 'brightness(150%) grayscale(95%) opacity(25%)'
 
       const {x, y} = hexToScreen(pos)
 
@@ -787,7 +804,7 @@ export default function uiOf(game) {
     } else {
       // bee
       if (!game.menu.some(({ active }) => active)) {
-        _beeRot += (11-rand(23))
+        _beeRot += (11-rand(23))/12
         _beeRot %= 360
 
         const bee = new Queen()
@@ -852,15 +869,18 @@ export default function uiOf(game) {
     ctx = ctx || _ctx
     const {x, y} = hexToScreen(hex)
 
+
     const delta = hex.distance(new Hex(0,0))
+    const opacity = tile ? 1 : .3
+    const radius = tile ? S/2 : S/4 * (+delta/2)
     const cube = hex.toCube()
     const [r,g,b] = 'xzy'.split('').map(axis => Math.abs(cube[axis] * 20 + 150))
 
-    ctx.strokeStyle = ctx.fillStyle = `rgba(${r},${g},${b},${0.2 + 0.08*delta})`
+    ctx.strokeStyle = ctx.fillStyle = `rgba(${r},${g},${b},${(0.2 + 0.08*delta) * opacity})`
     ctx.lineWidth = 2
-    hexPath(ctx, x, y, S/2)
+    hexPath(ctx, x, y, radius)
     ctx.fill()
-    ctx.stroke()
+    // ctx.stroke()
   }
 
   function drawBugsOftile(tile, hex, t) {

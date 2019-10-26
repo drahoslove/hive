@@ -5,7 +5,7 @@ let _synth
 let _active
 let _bufferLoaded = false
 let _tracks
-
+let _analyser
 
 if (Tone.supported) {
   // init synth
@@ -68,16 +68,12 @@ if (Tone.supported) {
   }
 
   // analyzer
-  const analyser = new Tone.Analyser('fft', 256).toMaster()
+  _analyser = new Tone.Analyser('fft', 32).toMaster()
+  _analyser.smoothing = .9
 
-  _tracks.connect(analyser)
-  // synth.connect(analyser)
-  _synth.toMaster()
-
-  // prapare byte array for analysis storage
-  const bufferLength = analyser.frequencyBinCount
-  const dataArray = new Uint8Array(bufferLength)
-
+  _tracks.connect(_analyser)
+  _synth.connect(_analyser)
+  // _synth.toMaster()
 
   // subscribe for settings change
   settings.subscribe(({ music }) => {
@@ -91,8 +87,7 @@ if (Tone.supported) {
 }
 
 export function analyze() {
-  analyser.getByteFrequencyData(dataArray)
-  return dataArray
+  return _analyser.getValue()
 }
 
 export const stop = () => {
@@ -116,7 +111,7 @@ export const menu = () => {
 
 export const beep = (note) => {
   if (Tone.supported && settings.get('sound') === 'on') {
-    _synth.triggerAttackRelease(note || "C3", .2, "+0.02")
+    _synth.triggerAttackRelease(note || "C3", .2)
   }
 }
 
