@@ -87,7 +87,7 @@ if (Tone.supported) {
 }
 
 export function analyze() {
-  return _analyser.getValue()
+  return Tone.supported ? _analyser.getValue() : []
 }
 
 export const stop = () => {
