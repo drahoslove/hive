@@ -515,10 +515,12 @@ input[type=radio] {
     </div>
   </div>
   <span id="footer">©</span>
+  <script src="https://browser.sentry-cdn.com/5.7.1/bundle.min.js" integrity="sha384-KMv6bBTABABhv0NI+rVWly6PIRvdippFEgjpKyxUcpEmDWZTkDOiueL5xW+cztZZ" crossorigin="anonymous"></script>
   <script>
   if (window.parent === window && !window.location.origin.match('localhost')) {
     window.location = 'https://hmyz.it/' + window.location.hash
   }
+  Sentry.init({ dsn: 'https://6f5d333282a74765ac2efb466134fac6@sentry.io/1797459' });
   </script>
   <script src="lib/vue.js"></script>
   <script src="lib/socket.io.js"></script>
