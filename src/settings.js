@@ -21,7 +21,7 @@ function loadSettings() {
   let stored = {}
   try {
     stored = JSON.parse(window.localStorage[SETTINGS_KEY])
-  } catch {
+  } catch (e) {
     stored = defaults
   };
   settings = {
