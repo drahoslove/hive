@@ -87,11 +87,11 @@ if (Tone.supported) {
 }
 
 export function analyze() {
-  return Tone.supported ? _analyser.getValue() : []
+  return _analyser ? _analyser.getValue() : []
 }
 
 export const stop = () => {
-  _tracks.stopAll()
+  _tracks && _tracks.stopAll()
 }
 
 export const track = async (name) => {
@@ -100,7 +100,7 @@ export const track = async (name) => {
     return
   }
   stop()
-  if (_tracks.has(name)){
+  if (_tracks && _tracks.has(name)){
     _tracks.get(name).start()
   }
 }
@@ -110,7 +110,7 @@ export const menu = () => {
 }
 
 export const beep = (note) => {
-  if (Tone.supported && settings.get('sound') === 'on') {
+  if (_synth && settings.get('sound') === 'on') {
     _synth.triggerAttackRelease(note || "C3", .2)
   }
 }
