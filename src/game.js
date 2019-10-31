@@ -13,12 +13,18 @@ import { _, __, verb } from './lang.js'
 // class carring state of the game and prviding commands for game interaction
 export default class Game {
   constructor(size=5) {
-    this.reset(size)
+    this.reset({size})
   }
 
-  reset(size=this._size) {
+  reset({
+    size=this._size,
+    message='',
+    state='init',
+    firstGoes=0,
+    onClick=null,
+  }) {
     this._size = size
-    this.state = 'init'
+    this.state = state
     this.space = new Space(size)
     this.selected = null
     this.landings = []
@@ -32,9 +38,9 @@ export default class Game {
       player.hand = new Hand(Game.basicBugPack.map(Bug => new Bug(color, player)), !i)
       return player
     })
-    this._activePlayerIndex = 0
-    this.message = ""
-    this.onClick = null
+    this._activePlayerIndex = firstGoes
+    this.message = message
+    this.onClick = onClick
     this.canPass = false
     this.passButton = {
       label: __('Pass', 'Předat'),

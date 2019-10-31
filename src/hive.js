@@ -4,7 +4,7 @@ import * as audio from './audio.js'
 import { _, __ } from './lang.js'
 import Game from './game.js'
 import uiOf from './ui.js'
-import { connect, disconnect } from './io.js'
+import { connect, disconnect, restart } from './io.js'
 import { rand, uncolorEmoji } from './common.js'
 import { Hex } from './board.js'
 
@@ -117,7 +117,7 @@ game.sideMenu = [
       gameMode = ''
       audio.menu()
       ui.off()
-      game.reset()
+      game.reset({})
       ui.on(canvas)
     }),
     pos: new Hex(.5, -1),
@@ -129,11 +129,13 @@ game.sideMenu = [
     },
     action: confirmedAction(() => game.state === 'end', () => {
       if (!gameMode) {
-        window.location.reload()
+        if (game.state !== 'wait') {
+          restart()
+        }
       } else {
         ui.off()
         clearInterval(aiInterval)
-        game.reset()
+        game.reset({})
         audio.stop()
         eval(`${gameMode}()`)
         ui.on(canvas)
@@ -252,29 +254,58 @@ function getParentLink(room) {
 }
 
 function startMultiplayer(onConnect) {
-  const origHashdata = decodeURI(window.location.hash.substr(1))
-  const origRoom = setGetHashRoom('')
-  connect(origHashdata, async (
-    room,
-    playerIndex,
-    updateHashdata,
-    sendAction,
-    onIncomingAction,
-    onPlayerInfo,
-  ) => {
+  const initGame = (playerIndex, firstGoes, onClick) => {
+    ui.off()
     audio.track('wait')
     ui.disableInputFor([0, 1]) // disable all input until ready/go
-    game.message = _('Wait for the opponent', 'Čekej na spoluhráče')
-    game.state = 'wait'
+    game.reset({
+      message: _('Wait for the opponent', 'Čekej na spoluhráče'),
+      state: 'wait',
+      firstGoes,
+      onClick: onClick(playerIndex),
+    })
     if (playerIndex === 1) { // swap the sides to ensure "you" is always at bottom
       [ game.players[1], game.players[0] ] = [ game.players[0], game.players[1] ]
     }
     game.players[playerIndex].name = _('You', 'Ty')
     game.players[playerIndex].gender = '2'
-    game.players[+!playerIndex].name = '…'
+    game.players[+!playerIndex].name = _('Opponent', 'Soupeř')
+    game.players[+!playerIndex].gemder = 'M'
     game.players[+!playerIndex].online = false
-    let lastSentAction = ''
+    ui.on(canvas)
+    ui.touch()
+  }
+  const origHashdata = decodeURI(window.location.hash.substr(1))
+  const origRoom = setGetHashRoom('')
+  connect(origHashdata, async (
+    room,
+    playerIndex,
+    firstGoes,
+    updateHashdata,
+    sendAction,
+    onIncomingAction,
+    onPlayerInfo,
+    onRestart,
+  ) => {
+    const onClick = (playerIndex) => (hex) => {
+      let action
+      { // encode click to action
+        const pi = playerIndex
+        const handBug = game.activePlayer().hand.find(({pos}, i) => pos.eq(hex))
+        if (handBug) {
+          const i = game.activePlayer().hand.indexOf(handBug)
+          action =`${pi}H${i}` // hand click
+        } else if (game.passButton.pos.eq(hex)) {
+          action =`${pi}P` // pass
+        } else {
+          action = `${pi}S${hex}` // space click
+        }
+      }
+      sendAction(action)
+    }
 
+    initGame(playerIndex, firstGoes, onClick)
+  
     onPlayerInfo(({playerIndex: i, nick, gender, online}) => {
       const player = game.players[i]
       if (nick) {
@@ -284,10 +315,12 @@ function startMultiplayer(onConnect) {
         player.gender = gender
       }
       player.online = online
-      if (game.players.some(({online}) => !online)) {
-        ui.disableInputFor([0, 1]) // disable all input
-      } else {
-        ui.disableInputFor([+!playerIndex]) // disable opponent input
+      if (game.state !== 'wait') {
+        if (game.players.some(({online}) => !online)) {
+          ui.disableInputFor([0, 1]) // disable all input
+        } else {
+          ui.disableInputFor([+!playerIndex]) // disable opponent input
+        }
       }
       ui.touch()
     })
@@ -305,52 +338,27 @@ function startMultiplayer(onConnect) {
 
     onConnect && onConnect()
 
-
-    game.onClick = (hex) => {
-      let action
-      { // encode click to action
-        const pi  = game._activePlayerIndex
-        const handBug = game.activePlayer().hand.find(({pos}, i) => pos.eq(hex))
-        if (handBug) {
-          const i = game.activePlayer().hand.indexOf(handBug)
-          action =`${pi}H${i}` // hand click
-        } else if (game.passButton.pos.eq(hex)) {
-          action =`${pi}P` // pass
-        } else {
-          action = `${pi}S${hex}` // space click
-        }
-      }
-      sendAction(action)
-    }
-
     const go = () => {
-      game.message = ''
       game.start()
       audio.track('pvp')
       ui.disableInputFor([+!playerIndex]) // game can start => allow input
+      ui.touch()
     }
 
+    onRestart((firstGoes) => {
+      console.log('onRestart')
+      initGame(playerIndex, firstGoes, onClick)
+      game.message = _('Game is being restarted', 'Hra se restartuje')
+      ui.disableInputFor([0, 1])
+      ui.touch()
+      setTimeout(() => {
+        sendAction('ready'+playerIndex)
+      }, 1500)
+    })
+
     onIncomingAction((action) => {
-      if (action.match(/ready|go/)) {
-        if (action === 'ready'+ +!playerIndex) {
-          if (game.state === 'wait') {
-            sendAction('go')
-            go()
-          } else {
-            game.message = _("Opponent restarted the game", "Soupeř restartoval hru")
-            ui.touch()
-            setTimeout(() => {
-              window.location.reload()
-            }, 1500)
-          }
-        }
-        if (action === 'go') { // go mean everyone goes
-          go()
-        }
-        // ready from my other socket is ignored
-        return
-      }
-      if (game.state !== 'started') {
+      if (action === 'ready'+ +!playerIndex) {
+        go()
         return
       }
 
@@ -361,12 +369,14 @@ function startMultiplayer(onConnect) {
           const i = Number(action.substr(2))
           const handBug = game.activePlayer().hand.at(i)
           hex = handBug.pos
-        }
+        } else
         if (action[1] === 'S') { // space click
           hex = Hex.fromString(action.substr(2))
-        }
+        } else
         if (action[1] === 'P') { // pass button click
           hex = game.passButton.pos
+        } else {
+          return // invalid action
         }
       }
       game.click(hex, true)

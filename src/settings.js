@@ -1,5 +1,5 @@
 const SETTINGS_KEY = 'hive_settings'
-const langs = (navigator.languages || [navigator.language] || []).reverse()
+const langs = [...(navigator.languages || [navigator.language])].reverse()
 const preferredLang = langs.findIndex(lang => lang.includes('cs')) > langs.findIndex(lang => lang.includes('en'))
   ? 'cs'
   : 'en'
@@ -21,7 +21,7 @@ function loadSettings() {
   let stored = {}
   try {
     stored = JSON.parse(window.localStorage[SETTINGS_KEY])
-  } catch {
+  } catch (e) {
     stored = defaults
   };
   settings = {

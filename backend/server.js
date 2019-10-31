@@ -19,7 +19,8 @@ io.origins((origin, callback) => {
 const rooms = {
 	// [room]: {
 	//   users: [{ nick, gender, online, secret }, [secret]: { nick, gender, online, secret}],
-	//   actions: 0,
+	//   actions: [],
+	//   firstGoes: 0/1,
 	//	 startTime: timestamp,
 	//   lastTime: timestamp,
 	// }
@@ -59,9 +60,10 @@ gameNamespace.on('connect', (socket) => {
 		} while(room in rooms)
 		rooms[room] = {
 			users: [{ secret, nick, gender, online: true }], // seat yourself
-			actions: 0,
+			actions: [],
 			startTime: Date.now(),
 			lastTime: Date.now(),
+			firstGoes: rand(2),
 		}
 	} else { // join existing room
 		if (!(room in rooms)) {
@@ -70,8 +72,9 @@ gameNamespace.on('connect', (socket) => {
 			} else {
 				rooms[room] = {
 					users: [],
-					actions: 0,
+					actions: [],
 					lastTime: Date.now(),
+					firstGoes: rand(2),
 				}
 			}
 		}
@@ -90,25 +93,41 @@ gameNamespace.on('connect', (socket) => {
 
 	socket.join(room, () => { // start listening in room
 		const playerIndex = rooms[room].users.map(({secret}) => secret).indexOf(secret)
-		socket.emit('room_joined', room, playerIndex, () => {
+		const { firstGoes } = rooms[room]
+		socket.emit('init', room, playerIndex, firstGoes, () => {
 			emitPlayerInfo(room)
+		})
+
+		socket.on('restart', () => {
+			const firstGoes = +!rooms[room].firstGoes
+			rooms[room].firstGoes = firstGoes
+			rooms[room].actions = []
+			rooms[room].restarts = (rooms[room].restarts || 0) + 1
+			gameNamespace.to(room).emit('restart', firstGoes)
+			emitPlayerInfo(room)
+		})
+
+		socket.on('sync_actions', (hasActions, ack) => {
+			const { actions } = rooms[room]
+			ack(actions.filter((_, i) => i >= hasActions))
+		})
+
+		socket.on('action', (action, ack) => {
+			const actionIndex = rooms[room].actions.length // index of action being sended
+			rooms[room].lastTime = Date.now()
+			rooms[room].actions.push(action)
+			ack(actionIndex)
+			console.log('action', action)
+			// broadcast incoming game actions to everyone in room including own socket
+			gameNamespace.to(room).emit('action', action, actionIndex)
+			// it's up to the client to distinguish apart the actions of oponets from your own actions from another window
+			// actionIndex might be helpfull in this
+			updateAdmin()
 		})
 
 		socket.on('chat', (data) => {
 			// broadcast incoming chat messages to everyone in room including own socket
 			gameNamespace.to(room).emit('chat', data)
-		})
-
-		socket.on('action', (data, ack) => {
-			const actionIndex = rooms[room].actions++
-			rooms[room].lastTime = Date.now()
-			ack(actionIndex)
-			// broadcast incoming game actions to everyone in room except own socket
-			socket.to(room).emit('action', data, actionIndex)
-			// note: same user can connect with multiple socket by opening multiple windows
-			// it's up to the client to distinguish apart the actions of oponets from your own actions from another window
-			// actionIndex might be helpfull in this
-			updateAdmin()
 		})
 
 		socket.on('disconnect', () => {
@@ -185,4 +204,8 @@ function randomToken(n) {
 
 function md5(txt) {
   return crypto.createHash('md5').update(txt).digest('hex')
+}
+
+function rand(n) {
+	return Math.floor(Math.random()*n)
 }
