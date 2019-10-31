@@ -93,7 +93,7 @@
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-eval("/* WEBPACK VAR INJECTION */(function(global) {(typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {}).SENTRY_RELEASE = {\n  id: \"e4ff8e21bad767392b2acd34d543703c32285b04\"\n};\n/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./../../../webpack/buildin/global.js */ \"./node_modules/webpack/buildin/global.js\")))\n\n//# sourceURL=webpack:///./node_modules/@sentry/webpack-plugin/src/sentry-webpack.module.js?");
+eval("/* WEBPACK VAR INJECTION */(function(global) {(typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {}).SENTRY_RELEASE = {\n  id: \"7c585f0b3015530d82ce38ed6a56bf0d67c04894\"\n};\n/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./../../../webpack/buildin/global.js */ \"./node_modules/webpack/buildin/global.js\")))\n\n//# sourceURL=webpack:///./node_modules/@sentry/webpack-plugin/src/sentry-webpack.module.js?");
 
 /***/ }),
 
@@ -1641,7 +1641,7 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _set
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-eval("__webpack_require__(/*! /home/drahoslav/hive/node_modules/@sentry/webpack-plugin/src/sentry-webpack.module.js */\"./node_modules/@sentry/webpack-plugin/src/sentry-webpack.module.js\");\nmodule.exports = __webpack_require__(/*! ./src/hive.js */\"./src/hive.js\");\n\n\n//# sourceURL=webpack:///multi_./node_modules/@sentry/webpack-plugin/src/sentry-webpack.module.js_./src/hive.js?");
+eval("__webpack_require__(/*! C:\\web\\www\\x\\js\\hive\\node_modules\\@sentry\\webpack-plugin\\src\\sentry-webpack.module.js */\"./node_modules/@sentry/webpack-plugin/src/sentry-webpack.module.js\");\nmodule.exports = __webpack_require__(/*! ./src/hive.js */\"./src/hive.js\");\n\n\n//# sourceURL=webpack:///multi_./node_modules/@sentry/webpack-plugin/src/sentry-webpack.module.js_./src/hive.js?");
 
 /***/ })
 
