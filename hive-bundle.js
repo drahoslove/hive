@@ -81,10 +81,21 @@
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = "./src/hive.js");
+/******/ 	return __webpack_require__(__webpack_require__.s = 0);
 /******/ })
 /************************************************************************/
 /******/ ({
+
+/***/ "./node_modules/@sentry/webpack-plugin/src/sentry-webpack.module.js":
+/*!**************************************************************************!*\
+  !*** ./node_modules/@sentry/webpack-plugin/src/sentry-webpack.module.js ***!
+  \**************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+eval("/* WEBPACK VAR INJECTION */(function(global) {(typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {}).SENTRY_RELEASE = {\n  id: \"476e91b541d824ac324eee94e9440a664fb5d57e\"\n};\n/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./../../../webpack/buildin/global.js */ \"./node_modules/webpack/buildin/global.js\")))\n\n//# sourceURL=webpack:///./node_modules/@sentry/webpack-plugin/src/sentry-webpack.module.js?");
+
+/***/ }),
 
 /***/ "./node_modules/core-js/modules/_a-function.js":
 /*!*****************************************************!*\
@@ -1480,6 +1491,17 @@ eval("/**\n * Copyright (c) 2014-present, Facebook, Inc.\n *\n * This source cod
 
 /***/ }),
 
+/***/ "./node_modules/webpack/buildin/global.js":
+/*!***********************************!*\
+  !*** (webpack)/buildin/global.js ***!
+  \***********************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+eval("var g; // This works in non-strict mode\n\ng = function () {\n  return this;\n}();\n\ntry {\n  // This works if eval is allowed (see CSP)\n  g = g || new Function(\"return this\")();\n} catch (e) {\n  // This works if the window reference is available\n  if (typeof window === \"object\") g = window;\n} // g can still be undefined, but nothing to do about it...\n// We return undefined, instead of nothing here, so it's\n// easier to handle this case. if(!global) { ...}\n\n\nmodule.exports = g;\n\n//# sourceURL=webpack:///(webpack)/buildin/global.js?");
+
+/***/ }),
+
 /***/ "./src/audio.js":
 /*!**********************!*\
   !*** ./src/audio.js ***!
@@ -1609,6 +1631,17 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) *
 
 "use strict";
 eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _settings_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./settings.js */ \"./src/settings.js\");\n/* harmony import */ var _lang_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./lang.js */ \"./src/lang.js\");\n\n\nvar help = new Vue({\n  el: '#help',\n  data: _settings_js__WEBPACK_IMPORTED_MODULE_0__[\"getAll\"]()\n});\nvar about = new Vue({\n  el: '#about',\n  data: _settings_js__WEBPACK_IMPORTED_MODULE_0__[\"getAll\"](),\n  filters: {\n    _: _lang_js__WEBPACK_IMPORTED_MODULE_1__[\"_\"]\n  }\n});\nvar config = new Vue({\n  el: '#settings',\n  data: _settings_js__WEBPACK_IMPORTED_MODULE_0__[\"getAll\"](),\n  watch: _settings_js__WEBPACK_IMPORTED_MODULE_0__[\"setAll\"](),\n  filters: {\n    _: _lang_js__WEBPACK_IMPORTED_MODULE_1__[\"_\"]\n  }\n});\n_settings_js__WEBPACK_IMPORTED_MODULE_0__[\"subscribe\"](function (_ref) {\n  var lang = _ref.lang;\n  help.lang = lang || help.lang;\n  config.lang = lang || config.lang;\n  about.lang = lang || about.lang;\n});\n\n//# sourceURL=webpack:///./src/vue.js?");
+
+/***/ }),
+
+/***/ 0:
+/*!**********************************************************************************************!*\
+  !*** multi ./node_modules/@sentry/webpack-plugin/src/sentry-webpack.module.js ./src/hive.js ***!
+  \**********************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+eval("__webpack_require__(/*! /home/drahoslav/hive/node_modules/@sentry/webpack-plugin/src/sentry-webpack.module.js */\"./node_modules/@sentry/webpack-plugin/src/sentry-webpack.module.js\");\nmodule.exports = __webpack_require__(/*! ./src/hive.js */\"./src/hive.js\");\n\n\n//# sourceURL=webpack:///multi_./node_modules/@sentry/webpack-plugin/src/sentry-webpack.module.js_./src/hive.js?");
 
 /***/ })
 
