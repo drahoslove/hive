@@ -30,11 +30,14 @@ function loadSettings() {
   }
 }
 
-function saveSettings(chagne) {
-  window.localStorage[SETTINGS_KEY] = JSON.stringify({
-    ...defaults,
-    ...settings,
-  })
+function saveSettings() {
+  try {
+    window.localStorage[SETTINGS_KEY] = JSON.stringify({
+      ...defaults,
+      ...settings,
+    })
+  } catch (e) {
+  }
 }
 
 export const get = (key) => settings[key]
