@@ -11,6 +11,25 @@ const io = window.io
 let socket
 let log
 
+const getStorage = (key) => {
+  let val
+  try {
+    val = localStorage[key]
+  } catch (e) {
+    val = sessionStorage[key]
+  }
+  return key
+}
+
+const setStorate = (key, val) => {
+  try {
+    localStorage[key] = val
+  } catch (e) {
+    sessionStorage[key] = val
+  }
+  return val
+}
+
 
 export function disconnect() {
   if (socket) {
@@ -37,7 +56,7 @@ export function connect (hashdata, driver) {
 
   const query = {
     hashdata,
-    secret: localStorage['user_secret'] || '',
+    secret: getStorage('user_secret'),
   }
 
   socket = io(`${BACKEND}/game`, {
@@ -59,7 +78,7 @@ export function connect (hashdata, driver) {
   })
 
   socket.on('new_secret', (secret) => {
-    localStorage['user_secret'] = secret
+    setStorate('user_secret', secret)
     query.secret = secret
     console.log('new_secret', secret)
   })
