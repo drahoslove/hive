@@ -1,4 +1,4 @@
-import { getStorage, setStorage } from 'common.js'
+import { getStorage, setStorage } from './common.js'
 
 const SETTINGS_KEY = 'hive_settings'
 const langs = [...(navigator.languages || [navigator.language])].reverse()

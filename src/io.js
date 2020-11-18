@@ -1,7 +1,7 @@
 // This module contain no game-specific logic
 
 // import io from './socket.io.dev.js'
-import { getStorage, setStorate } from 'common.js'
+import { getStorage, setStorate } from './common.js'
 
 const BACKEND = window.location.origin.includes('localhost')
   ? 'http://localhost:3003'
