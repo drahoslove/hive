@@ -142,6 +142,13 @@ window.addEventListener('message', function(event) {
       event.source.postMessage({ link: link }, endpoint)
     }
   }
+  const STORAGE_KEY = 'hive-game'
+  if ('getStorage' in event.data) {
+    event.source.postMessage({ storage: localStorage[STORAGE_KEY] }, endpoint)
+  }
+  if ('setStorage' in event.data) {
+    localStorage[STORAGE_KEY] = event.data.setStorage
+  }
 })
 </script>
 </body>

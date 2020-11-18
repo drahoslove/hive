@@ -1,6 +1,7 @@
 // This module contain no game-specific logic
 
 // import io from './socket.io.dev.js'
+import { getStorage, setStorate } from 'common.js'
 
 const BACKEND = window.location.origin.includes('localhost')
   ? 'http://localhost:3003'
@@ -10,25 +11,6 @@ const io = window.io
 
 let socket
 let log
-
-const getStorage = (key) => {
-  let val
-  try {
-    val = localStorage[key]
-  } catch (e) {
-    val = sessionStorage[key]
-  }
-  return key
-}
-
-const setStorate = (key, val) => {
-  try {
-    localStorage[key] = val
-  } catch (e) {
-    sessionStorage[key] = val
-  }
-  return val
-}
 
 
 export function disconnect() {
@@ -46,7 +28,7 @@ export function restart() {
   socket.emit('restart')
 }
 
-export function connect (hashdata, driver) {
+export async function connect (hashdata, driver) {
   if (socket) {
     socket.close()
   }
@@ -56,7 +38,7 @@ export function connect (hashdata, driver) {
 
   const query = {
     hashdata,
-    secret: getStorage('user_secret'),
+    secret: await getStorage('user_secret'),
   }
 
   socket = io(`${BACKEND}/game`, {
@@ -77,8 +59,8 @@ export function connect (hashdata, driver) {
     console.warn('connection error', error)
   })
 
-  socket.on('new_secret', (secret) => {
-    setStorate('user_secret', secret)
+  socket.on('new_secret', async (secret) => {
+    await setStorate('user_secret', secret)
     query.secret = secret
     console.log('new_secret', secret)
   })

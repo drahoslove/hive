@@ -1,3 +1,5 @@
+import { getStorage, setStorage } from 'common.js'
+
 const SETTINGS_KEY = 'hive_settings'
 const langs = [...(navigator.languages || [navigator.language])].reverse()
 const preferredLang = langs.findIndex(lang => lang.includes('cs')) > langs.findIndex(lang => lang.includes('en'))
@@ -17,11 +19,12 @@ let settings = defaults
 loadSettings()
 window.onbeforeunload = saveSettings
 
-function loadSettings() {
+async function loadSettings() {
   let stored = {}
   try {
-    stored = JSON.parse(window.localStorage[SETTINGS_KEY])
+    stored = JSON.parse(await getStorage(SETTINGS_KEY))
   } catch (e) {
+    console.warn('cant load settings, using defaults', e)
     stored = defaults
   };
   settings = {
@@ -30,13 +33,14 @@ function loadSettings() {
   }
 }
 
-function saveSettings() {
+async function saveSettings() {
   try {
-    window.localStorage[SETTINGS_KEY] = JSON.stringify({
+    await setStorage(SETTINGS_KEY, JSON.stringify({
       ...defaults,
       ...settings,
-    })
+    }))
   } catch (e) {
+    console.warn('cant store settings', e)
   }
 }
 

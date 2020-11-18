@@ -69,3 +69,60 @@ export function onceEvent(eventName, callback) {
   }
   window.addEventListener(eventName, handler)
 }
+
+
+const getParentStorage = async () => {
+  window.parent.postMessage({ getStorage: true })
+  return new Promise((resolve, reject) => {
+    const onMsg = (event) => {
+      if (event.data instanceof Object && 'storage' in event.data) {
+        let storage = event.data.storage
+        try {
+          resolve(JSON.parse(storage))
+        } catch (e) {
+          resolve({})
+        } finally {
+          window.removeEventListener('message', onMsg)
+        }
+      }
+    }
+    setTimeout(() => {
+      window.removeEventListener('message', onMsg)
+      reject({})
+    }, 200)
+    window.addEventListener('message', onMsg)
+  })
+}
+
+const setParentStorage = async (storage) => {
+  window.parent.postMessage({ setStorate: JSON.stringify(storage) })
+  return Promise.resolve()
+}
+
+// try to use storage types in order:
+// localStorage > parents storage > local var object
+
+const storage = {}
+export const getStorage = async (key) => {
+  try {
+    return localStorage[key]
+  } catch (e) {
+    console.warn('can not localStorage in cross doamin frame')
+  }
+  try {
+    return await getParentStorage()[key]
+  } catch (e) {
+    return storage[val]
+  }
+}
+
+export const setStorage = async (key, val) => {
+  storage[key] = val
+  await setParentStorage(storage)
+  try {
+    localStorage[key] = val
+  } catch (e) {
+    console.warn('can not localStorage in cross doamin frame')
+  }
+  return val
+}

@@ -253,7 +253,7 @@ function getParentLink(room) {
   })
 }
 
-function startMultiplayer(onConnect) {
+async function startMultiplayer(onConnect) {
   const initGame = (playerIndex, firstGoes, onClick) => {
     ui.off()
     audio.track('wait')
@@ -277,7 +277,7 @@ function startMultiplayer(onConnect) {
   }
   const origHashdata = decodeURI(window.location.hash.substr(1))
   const origRoom = setGetHashRoom('')
-  connect(origHashdata, async (
+  await connect(origHashdata, async (
     room,
     playerIndex,
     firstGoes,
