@@ -1,7 +1,7 @@
 // This module contain no game-specific logic
 
 // import io from './socket.io.dev.js'
-import { getStorage, setStorate } from './common.js'
+import { getStorage, setStorage } from './common.js'
 
 const BACKEND = window.location.origin.includes('localhost')
   ? 'http://localhost:3003'
@@ -60,7 +60,7 @@ export async function connect (hashdata, driver) {
   })
 
   socket.on('new_secret', async (secret) => {
-    await setStorate('user_secret', secret)
+    await setStorage('user_secret', secret)
     query.secret = secret
     console.log('new_secret', secret)
   })

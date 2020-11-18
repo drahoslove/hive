@@ -26,7 +26,7 @@ h1 {
 </head>
 <body>
   <h1>Hmyziště</h1>
-  <iframe src="https://hive.draho.cz" width="100%" height="100%" frameBorder="0" scrolling="no" sandbox="allow-same-origin allow-scripts"></iframe>
+  <iframe src="https://hive.draho.cz" width="100%" height="100%" frameBorder="0" scrolling="no"></iframe>
 <script>
 const identities = 
 [
@@ -144,9 +144,11 @@ window.addEventListener('message', function(event) {
   }
   const STORAGE_KEY = 'hive-game'
   if ('getStorage' in event.data) {
+    console.log('getStorage', event.data)
     event.source.postMessage({ storage: localStorage[STORAGE_KEY] }, endpoint)
   }
   if ('setStorage' in event.data) {
+    console.log('setStorage', event.data)
     localStorage[STORAGE_KEY] = event.data.setStorage
   }
 })

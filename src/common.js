@@ -95,7 +95,7 @@ const getParentStorage = async () => {
 }
 
 const setParentStorage = async (storage) => {
-  window.parent.postMessage({ setStorate: JSON.stringify(storage) })
+  window.parent.postMessage({ setStorage: JSON.stringify(storage) })
   return Promise.resolve()
 }
 
