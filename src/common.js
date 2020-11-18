@@ -72,7 +72,7 @@ export function onceEvent(eventName, callback) {
 
 
 const getParentStorage = async () => {
-  window.parent.postMessage({ getStorage: true })
+  window.parent.postMessage({ getStorage: true }, '*')
   return new Promise((resolve, reject) => {
     const onMsg = (event) => {
       if (event.data instanceof Object && 'storage' in event.data) {
@@ -95,7 +95,7 @@ const getParentStorage = async () => {
 }
 
 const setParentStorage = async (storage) => {
-  window.parent.postMessage({ setStorage: JSON.stringify(storage) })
+  window.parent.postMessage({ setStorage: JSON.stringify(storage) }, '*')
   return Promise.resolve()
 }
 
@@ -104,19 +104,24 @@ const setParentStorage = async (storage) => {
 
 const storage = {}
 export const getStorage = async (key) => {
-  try {
-    return localStorage[key]
-  } catch (e) {
-    console.warn('can not localStorage in cross doamin frame')
-  }
-  try {
-    return await getParentStorage()[key]
-  } catch (e) {
-    return storage[val]
-  }
+  const val = await (async () => {
+      try {
+      return localStorage[key]
+    } catch (e) {
+      console.warn('can not localStorage in cross doamin frame')
+    }
+    try {
+      return (await getParentStorage())[key]
+    } catch (e) {
+      return storage[val]
+    }
+  })()
+  console.log('returning storage', key, val)
+  return val
 }
 
 export const setStorage = async (key, val) => {
+  console.log('setting storage', key, val)
   storage[key] = val
   await setParentStorage(storage)
   try {

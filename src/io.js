@@ -35,7 +35,6 @@ export async function connect (hashdata, driver) {
 
   // store actions returned from backend (including own)
   const actions = []
-
   const query = {
     hashdata,
     secret: await getStorage('user_secret'),

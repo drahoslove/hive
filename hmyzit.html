@@ -145,11 +145,11 @@ window.addEventListener('message', function(event) {
   const STORAGE_KEY = 'hive-game'
   if ('getStorage' in event.data) {
     console.log('getStorage', event.data)
-    event.source.postMessage({ storage: localStorage[STORAGE_KEY] }, endpoint)
+    event.source.postMessage({ storage: window.localStorage[STORAGE_KEY] }, endpoint)
   }
   if ('setStorage' in event.data) {
     console.log('setStorage', event.data)
-    localStorage[STORAGE_KEY] = event.data.setStorage
+    window.localStorage[STORAGE_KEY] = event.data.setStorage
   }
 })
 </script>
