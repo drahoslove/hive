@@ -37,7 +37,7 @@ export async function connect (hashdata, driver) {
   const actions = []
   const query = {
     hashdata,
-    secret: await getStorage('user_secret'),
+    secret: await getStorage('user_secret') || '', // undefined causes mess here
   }
 
   socket = io(`${BACKEND}/game`, {
