@@ -91,7 +91,7 @@ export class Beatle extends Bug {
     super(...props)
     this.speed = 0.3
     this.ease = t => t <.5 ? 2*t*t : -1+(4-2*t)*t // in out quad
-    this.symbol = '🐞'
+    this.symbol = '🪲'
     this.hue = -20
     this.moveShiver = 5
   }
