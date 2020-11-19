@@ -91,7 +91,7 @@ const getParentStorage = async () => {
     timeout = setTimeout(() => {
       window.removeEventListener('message', onMsg)
       console.warn('parent storage not responding')
-      reject({})
+      reject()
     }, 200)
     window.addEventListener('message', onMsg)
   })
@@ -107,7 +107,11 @@ const setParentStorage = async (storage) => {
 
 let storage = {}
 let initLoad = async () => {
-  storage = await getParentStorage()
+  try {
+    storage = await getParentStorage()
+  } catch (e) {
+    storage = {}
+  }
 }
 try {
   storage = JSON.parse(localStorage)
@@ -123,9 +127,10 @@ export const getStorage = async (key) => {
       console.warn('can not localStorage in cross doamin frame')
     }
     try {
-      return (await getParentStorage())[key]
+      storage = await getParentStorage()
+      return storage[key]
     } catch (e) {
-      return storage[val]
+      return storage[key]
     }
   })()
   console.log('returning storage', key, val)
@@ -135,11 +140,11 @@ export const getStorage = async (key) => {
 export const setStorage = async (key, val) => {
   console.log('setting storage', key, val)
   storage[key] = val
-  await setParentStorage(storage)
   try {
     localStorage[key] = val
   } catch (e) {
     console.warn('can not localStorage in cross doamin frame')
   }
+  await setParentStorage(storage)
   return val
 }
