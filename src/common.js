@@ -73,8 +73,10 @@ export function onceEvent(eventName, callback) {
 
 const getParentStorage = async () => {
   window.parent.postMessage({ getStorage: true }, '*')
+  let timeout
   return new Promise((resolve, reject) => {
     const onMsg = (event) => {
+      clearTimeout(timeout)
       if (event.data instanceof Object && 'storage' in event.data) {
         let storage = event.data.storage
         try {
@@ -86,7 +88,7 @@ const getParentStorage = async () => {
         }
       }
     }
-    setTimeout(() => {
+    timeout = setTimeout(() => {
       window.removeEventListener('message', onMsg)
       console.warn('parent storage not responding')
       reject({})
