@@ -88,6 +88,7 @@ const getParentStorage = async () => {
     }
     setTimeout(() => {
       window.removeEventListener('message', onMsg)
+      console.warn('parent storage not responding')
       reject({})
     }, 200)
     window.addEventListener('message', onMsg)
@@ -102,7 +103,16 @@ const setParentStorage = async (storage) => {
 // try to use storage types in order:
 // localStorage > parents storage > local var object
 
-const storage = await getParentStorage()
+let storage = {}
+let initLoad = async () => {
+  storage = await getParentStorage()
+}
+try {
+  storage = JSON.parse(localStorage)
+} catch (e) {
+  initLoad()
+}
+
 export const getStorage = async (key) => {
   const val = await (async () => {
     try {

@@ -127,11 +127,12 @@ const identities =
   "•Zoropsid•;M;3a4bdde3987752354f3cc6303e19fd0f",
 ]
 const identity = identities[Math.floor(Math.random()*identities.length)]
-const endpoint = 'https://hive.draho.cz'
-document.querySelector('iframe').src = endpoint + (window.location.hash || '#') + ';' + identity 
+const ENDPOINT = 'https://hive.draho.cz'
+const STORAGE_KEY = 'hive-game'
+document.querySelector('iframe').src = ENDPOINT + (window.location.hash || '#') + ';' + identity 
 
 window.addEventListener('message', function(event) {
-  if (event.origin !== endpoint || !(event.data instanceof Object)) {
+  if (event.origin !== ENDPOINT || !(event.data instanceof Object)) {
     return
   }
   if ('room' in event.data) {
@@ -139,13 +140,12 @@ window.addEventListener('message', function(event) {
     const link = window.location.origin + window.location.pathname + (room && ('#' + room))
     window.history.replaceState(null, null, link)
     if (room) {
-      event.source.postMessage({ link: link }, endpoint)
+      event.source.postMessage({ link: link }, ENDPOINT)
     }
   }
-  const STORAGE_KEY = 'hive-game'
   if ('getStorage' in event.data) {
     console.log('getStorage', event.data)
-    event.source.postMessage({ storage: window.localStorage[STORAGE_KEY] }, endpoint)
+    event.source.postMessage({ storage: window.localStorage[STORAGE_KEY] }, ENDPOINT)
   }
   if ('setStorage' in event.data) {
     console.log('setStorage', event.data)
