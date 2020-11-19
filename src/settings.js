@@ -31,6 +31,9 @@ async function loadSettings() {
     ...defaults,
     ...stored,
   }
+  handlers.forEach(handler => {
+    handler(settings)
+  })
 }
 
 async function saveSettings() {

@@ -20,8 +20,10 @@ const config = new Vue({
   filters: { _ },
 })
 
-settings.subscribe(({ lang }) => {
-  help.lang = lang || help.lang
-  config.lang = lang || config.lang
-  about.lang = lang || about.lang
+settings.subscribe((data) => {
+  [help, config, about].forEach(vueInstance => {
+    Object.entries(data).forEach(([key, value]) => {
+      vueInstance[key] = value || vueInstance[key]
+    })
+  });
 })
