@@ -140,12 +140,10 @@ export const getStorage = async (key) => {
       return storage[key]
     }
   })()
-  console.log('returning storage', key, val)
   return val
 }
 
 export const setStorage = async (key, val) => {
-  console.log('setting storage', key, val)
   storage[key] = val
   try {
     localStorage[key] = val

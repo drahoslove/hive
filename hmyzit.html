@@ -144,11 +144,9 @@ window.addEventListener('message', function(event) {
     }
   }
   if ('getStorage' in event.data) {
-    console.log('getStorage', event.data)
     event.source.postMessage({ storage: window.localStorage[STORAGE_KEY] }, ENDPOINT)
   }
   if ('setStorage' in event.data) {
-    console.log('setStorage', event.data)
     window.localStorage[STORAGE_KEY] = event.data.setStorage
   }
 })
