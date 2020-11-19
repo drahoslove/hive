@@ -17,7 +17,7 @@ const handlers = []
 let settings = defaults
 
 onStorageReady(loadSettings)
-window.onbeforeunload = saveSettings
+window.onbeforeunload = () => { saveSettings() }
 
 async function loadSettings() {
   let stored = {}
@@ -42,6 +42,7 @@ async function saveSettings() {
   } catch (e) {
     console.warn('cant store settings', e)
   }
+  return true
 }
 
 export const get = (key) => settings[key]
