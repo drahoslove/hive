@@ -821,13 +821,18 @@ export default function uiOf(game) {
     }
   }
 
-  function doRatated(x, y, angle, func) {
+  function doRatated(x, y, angle, func, mirror=true) {
+    angle += 360
+    angle %= 360
+    const flip = !mirror && (angle > 90 && angle < 270) // flip if not mirrored to prevent upside-down
     const a = (Math.PI/180) * angle
     _ctx.translate(x, y)
     _ctx.rotate(a)
+    flip && _ctx.scale(1, -1)
     _ctx.translate(-x, -y)
     typeof func === 'function' && func(Math.sin(a), Math.cos(a))
     _ctx.translate(x, y)
+    flip && _ctx.scale(1, -1)
     _ctx.rotate(-a)
     _ctx.translate(-x, -y)
   }
@@ -952,7 +957,7 @@ export default function uiOf(game) {
       _ctx.fillStyle = bug.hue !== undefined ? `hsla(${bug.hue}, ${highlighted ? 60 : 40}%, 50%, 1)` : '#808080'
       doRatated(x, y, bug.shiver(t), () => {
         _ctx.fillText(txt, x-w/2, y+2)
-      })
+      }, bug.name !== 'Grasshopper')
     }
 
     if (
