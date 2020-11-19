@@ -102,22 +102,29 @@ const setParentStorage = async (storage) => {
   return Promise.resolve()
 }
 
+
+const onReadyCallbacks = []
+export const onStorageReady = (callback) => {
+  onReadyCallbacks.push(callback)
+}
+
 // try to use storage types in order:
 // localStorage > parents storage > local var object
 
 let storage = {}
 let initLoad = async () => {
   try {
-    storage = await getParentStorage()
+    storage = JSON.parse(localStorage)
   } catch (e) {
-    storage = {}
+    try {
+      storage = await getParentStorage()
+    } catch (e) {
+      storage = {}
+    }
   }
+  onReadyCallbacks.forEach(callback => { callback() })
 }
-try {
-  storage = JSON.parse(localStorage)
-} catch (e) {
-  initLoad()
-}
+initLoad()
 
 export const getStorage = async (key) => {
   const val = await (async () => {
