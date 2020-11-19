@@ -102,10 +102,10 @@ const setParentStorage = async (storage) => {
 // try to use storage types in order:
 // localStorage > parents storage > local var object
 
-const storage = {}
+const storage = await getParentStorage()
 export const getStorage = async (key) => {
   const val = await (async () => {
-      try {
+    try {
       return localStorage[key]
     } catch (e) {
       console.warn('can not localStorage in cross doamin frame')
