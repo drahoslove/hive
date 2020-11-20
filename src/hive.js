@@ -71,7 +71,10 @@ const mainMenu = [
     label: '👤×👽',
     title: __('single', 'proti hře'),
     pos: new Hex(+2, -2),
-    action: () => { game.menus.push(aiSubmenu) },
+    action: () => {
+      game.menus.push(aiSubmenu)
+      ui.touch()
+    },
   },
   {
     label: '👤',

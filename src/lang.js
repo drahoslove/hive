@@ -12,7 +12,7 @@ export function verb(key, gender) {
   switch(key) {
     case 'win':
       return {
-        2: _('won', 'jsi vyhrál/a'),
+        2: _('won', 'vyhráváš'),
         M: _('won', 'vyhrál'),
         F: _('won', 'vyhrála'),
         N: _('won', 'vyhrálo'),

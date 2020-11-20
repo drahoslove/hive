@@ -1,5 +1,9 @@
 // Everything what has something to do with producing visual output or handling user input is in this file
 
+// note hex coords:
+// q:  __
+// r:  \
+
 import * as settings from './settings.js'
 import { PriorityQueue, rand, seq } from './common.js'
 import { Hex } from './board.js'
@@ -53,6 +57,8 @@ export default function uiOf(game) {
     bottom: new Hex(-9, 7),
   }
   let sideMenuPos = new Hex(-6, 0)
+  const closerPos = new Hex(+3, -1.5)
+  let closerActive = false
 
   const skipFrame = fps => 60 / +fps
 
@@ -223,9 +229,20 @@ export default function uiOf(game) {
 
     mouseClick(event) {
       if (_showMenu) {
-        game.topMenu().forEach((btn, i) => {
-          btn.action && eventToExactHex(event).distance(btn.pos) <= 1 && btn.action()
+        const fired = game.topMenu().some((btn, i) => {
+          if (btn.action && eventToExactHex(event).distance(btn.pos) <= 1) {
+            btn.action()
+            return true
+          }
         })
+        if (game.hasSubmenu()) {
+          if (
+            eventToExactHex(event).distance(closerPos) <= 0.5
+            || !fired
+          ) {
+            game.menus.pop()
+          }
+        }
         return
       }
       game.sideMenu.forEach(({pos, action}) => {
@@ -260,6 +277,13 @@ export default function uiOf(game) {
             hovered = true
           }
         })
+        if (game.hasSubmenu()) {
+          closerActive = mouseHex.distance(closerPos) <= 0.5
+          if (closerActive) {
+            hover(closerPos)
+            hovered = true
+          }
+        }
         hovered || unhover()
         const up = new Hex(1,-2)
         const mouseAngle = up.angle(mouseHex)
@@ -697,21 +721,12 @@ export default function uiOf(game) {
       // symbol
       _ctx.font = `normal bold ${Sf*6}px emoji-symbols`
       const w = _ctx.measureText(label).width
-      // _ctx.fillStyle = bkg(80)
-      // _ctx.fillText(label, x-r/2.5-w/2+.5, y+2+.5)
-      // _ctx.fillStyle = bkg(20)
-      // _ctx.fillText(label, x-r/2.5-w/2-.5, y+2-.5)
       _ctx.fillStyle = textColor
       _ctx.fillText(label, x-r/2.5-w/2,    y+2   )
       // title
       if (active || activeish || waiting) {
         _ctx.font = `normal ${Sf*5}px monospace`
         const w = _ctx.measureText(title).width
-        _ctx.filter = 'none'
-        // _ctx.fillStyle = bkg(20)
-        // _ctx.fillText(title, x-S-w+.5, y+4+.5)
-        // _ctx.fillStyle = bkg(80)
-        // _ctx.fillText(title, x-S-w-.5, y+4-.5)
         _ctx.fillStyle = game.state === 'end' ? '#eee' : '#111' // bkg(50)
         _ctx.fillText(title, x-S/2-w, y+4)
       }
@@ -749,6 +764,22 @@ export default function uiOf(game) {
         _ctx.fillText('ě', x2, y)
       }
     }
+
+    // if (game.hasSubmenu()) {
+    //   const r = S/3
+    //   const textColor = '#444'
+    //   const base = hsl(-10)
+    //   const bkg = base(closerActive ? 65 : 0)
+    //   const { x, y } = hexToScreen(closerPos)
+    //   drawStone(x, y, r, bkg(50), [bkg(80), bkg(20)])
+
+    //   // symbol
+    //   const label = '✖'
+    //   _ctx.font = `normal bold ${Sf*6}px emoji-symbols`
+    //   const w = _ctx.measureText(label).width
+    //   _ctx.fillStyle = textColor
+    //   _ctx.fillText(label, x-w/2, y+8)
+    // }
 
     game.topMenu().forEach(({pos, label, title, action, active, loading}, i, { length }) => {
       title = active === 'noaction' ? soon() : title()

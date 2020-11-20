@@ -20,6 +20,10 @@ export default class Game {
     return this.menus[this.menus.length-1]
   }
 
+  hasSubmenu() {
+    return this.menus.length > 1
+  }
+
   reset({
     size=this._size,
     message='',
