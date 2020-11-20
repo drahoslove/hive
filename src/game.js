@@ -16,6 +16,10 @@ export default class Game {
     this.reset({size})
   }
 
+  topMenu() {
+    return this.menus[this.menus.length-1]
+  }
+
   reset({
     size=this._size,
     message='',
@@ -50,8 +54,10 @@ export default class Game {
         this.canPass = this.hasToPass()
       },
     }
-    if (Array.isArray(this.menu)) {
-      this.menu.forEach(btn => { btn.active = false })
+    if (Array.isArray(this.menus)) {
+      this.menus.forEach((menu) => {
+          menu.forEach(btn => { btn.active = false })
+      })
     }
     if (Array.isArray(this.sideMenu)) {
       this.sideMenu.forEach(btn => { btn.active = false })

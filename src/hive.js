@@ -37,7 +37,7 @@ const open = (id) => () => {
 
 document.getElementById('footer').onclick = open('about')
 
-game.menu = [
+const mainMenu = [
   {
     label: '⚙',
     title: __('settings', 'nastavení'),
@@ -71,7 +71,7 @@ game.menu = [
     label: '👤×👽',
     title: __('single', 'proti hře'),
     pos: new Hex(+2, -2),
-    action: vAI,
+    action: () => { game.menus.push(aiSubmenu) },
   },
   {
     label: '👤',
@@ -85,6 +85,31 @@ game.menu = [
     pos: new Hex(0, +2),
     action: AIvAI,
   },
+]
+
+const aiSubmenu = [
+  {
+    label: '🦋',
+    title: __('easy', 'lehké'),
+    pos: new Hex(+2/3, -4/3),
+    action: vAI,
+  },
+  {
+    label: '🦂',
+    title: __('hard', 'těžké'),
+    pos: new Hex(-4/3, +2/3),
+    // action: vAI,
+  },
+  {
+    label: '🐝',
+    title: __('medium', 'střední'),
+    pos: new Hex(+2/3, 2/3),
+    // action: vAI,
+  },
+]
+
+game.menus = [
+  mainMenu,
 ]
 
 function confirmedAction(cond, action) {
@@ -144,11 +169,11 @@ game.sideMenu = [
     pos: new Hex(-.5, 1),
   },
   {
-    ...game.menu[0],
+    ...mainMenu[0],
     pos: new Hex(-1.5, 3),
   },
   {
-    ...game.menu[1],
+    ...mainMenu[1],
     pos: new Hex(1.5, -3),
   },
 ].map(item => {
@@ -212,6 +237,9 @@ function AIvAI() {
 }
 
 function vAI() {
+  if (game.menus[game.menus.length-1] === aiSubmenu) {
+    game.menus.pop()
+  }
   gameMode = 'vAI'
   audio.track('pva')
   game.players[0].name = _("You", "Ty")

@@ -35,6 +35,7 @@ const grayer = {
 // returns new Ui class for given space
 export default function uiOf(game) {
   const TITLE = __("Hmyz.it", "Hmyziště")
+  const soon = __('soon', 'brzy')
   const S = 64 // size of stone from point to point
   const Sf = S/16
   let CNW = 685
@@ -61,6 +62,7 @@ export default function uiOf(game) {
   let _frames = 0
   let _target = null
   let _drawQue = new PriorityQueue()
+  let _labelDrawQue = new PriorityQueue()
 
   let _invalidated = true
   let _someAnimating = false
@@ -221,7 +223,7 @@ export default function uiOf(game) {
 
     mouseClick(event) {
       if (_showMenu) {
-        game.menu.forEach((btn, i) => {
+        game.topMenu().forEach((btn, i) => {
           btn.action && eventToExactHex(event).distance(btn.pos) <= 1 && btn.action()
         })
         return
@@ -251,8 +253,9 @@ export default function uiOf(game) {
       if (_showMenu) {
         const mouseHex = eventToExactHex(event)
         let hovered = false
-        game.menu.forEach(({pos, action}, i) => {
-          if (game.menu[i].active = action && mouseHex.distance(pos) <= 1) {
+        game.topMenu().forEach(({pos, action}, i) => {
+          const active = game.topMenu()[i].active = mouseHex.distance(pos) <= 1 && (action || 'noaction')
+          if (active && active !== 'noaction') {
             hover(pos)
             hovered = true
           }
@@ -747,9 +750,10 @@ export default function uiOf(game) {
       }
     }
 
-    game.menu.forEach(({pos, label, title, action, active, loading}, i) => {
-      title = title()
-      const base = hsl(-60*(i-5.3)) // set hue
+    game.topMenu().forEach(({pos, label, title, action, active, loading}, i, { length }) => {
+      title = active === 'noaction' ? soon() : title()
+      const huc = i * 6/length - (+1-6/length)/2 // hue coef
+      const base = hsl(-60*(huc-5.3)) // set hue
       const bkg = base(active ? 80 : 50) // set saturation
       _ctx.filter = (action) ? 'none' : 'brightness(150%) grayscale(95%) opacity(25%)'
 
@@ -775,20 +779,40 @@ export default function uiOf(game) {
       _ctx.fillStyle = textColor
       _ctx.fillText(label, x-w/2, y+12)
 
+      // button title
       if (active && !loading) {
-        _ctx.font = `normal ${Sf*5}px monospace`
-        const w = _ctx.measureText(title).width
-        const {x, y} = hexToScreen(new Hex(0, 0))
-        _ctx.filter = 'none'
-        _ctx.fillStyle = bkg(20)
-        _ctx.fillText(title, x-w/2+1, y+4+1)
-        _ctx.fillStyle = bkg(80)
-        _ctx.fillText(title, x-w/2-1, y+4-1)
-        _ctx.fillStyle = bkg(50)
-        _ctx.fillText(title, x-w/2, y+4)
+        const titlePos = length > 3
+          ? new Hex(0, 0)
+          : pos.scale(2.25)
+        const angle = length > 3
+          ? 0 : [0, +30, -30][i]
+
+        _labelDrawQue.push(() => {
+          _ctx.font = `normal ${Sf*5}px monospace`
+          const w = _ctx.measureText(title).width
+          let {x, y} = hexToScreen(titlePos)
+          doRatated(x, y, angle, () => {
+            if (angle && i === 1) {
+              x += S * 3/5
+            }
+            if (angle && i === 2) {
+              x -= S * 3/5
+            }
+            _ctx.fillStyle = bkg(20)
+            _ctx.fillText(title, x-w/2+1, y+4+1)
+            _ctx.fillStyle = bkg(80)
+            _ctx.fillText(title, x-w/2-1, y+4-1)
+            _ctx.fillStyle = bkg(50)
+            _ctx.fillText(title, x-w/2, y+4)
+          })
+          _ctx.filter = 'none'
+        }, 4)
       }
+
+      _ctx.filter = 'none'
     })
-    if (game.menu.some(({ loading }) => loading)) {
+    // loading
+    if (game.topMenu().some(({ loading }) => loading)) {
       const angle = t / 4 % 360
       const globe = '🌐'
       _ctx.font = `normal ${Sf*20}px emoji-symbols`
@@ -803,7 +827,7 @@ export default function uiOf(game) {
       continueAnimation()
     } else {
       // bee
-      if (!game.menu.some(({ active }) => active)) {
+      if (game.menus.length === 1 && !game.topMenu().some(({ active }) => active)) {
         _beeRot += (11-rand(23))/12
         _beeRot %= 360
 
@@ -818,6 +842,9 @@ export default function uiOf(game) {
           _ctx.fillText(bee.symbol, x-w/2, y+25)
         })
       }
+    }
+    while(_labelDrawQue.len() > 0) {
+      _labelDrawQue.pop()()
     }
   }
 
