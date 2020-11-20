@@ -62,6 +62,7 @@ export class Bug {
       ms,
       ease,
       delay,
+      moveType,
     }
 
   }
@@ -86,7 +87,7 @@ export class Queen extends Bug {
 // only one tile per turn
 // can jump on top of other
 // can fit into slit (but only when descending)
-export class Beatle extends Bug {
+export class Beetle extends Bug {
   constructor(...props) {
     super(...props)
     this.speed = 0.3

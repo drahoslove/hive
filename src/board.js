@@ -249,6 +249,21 @@ export class Space {
     }
   }
 
+  // 1 => up
+  // -1 => down
+  // 0 => same level
+  slope(pos1, pos2, without=null) {
+    const tile1 = this.at(pos1)
+    const tile2 = this.at(pos2)
+    const lvl1 = this.atTop(pos1) === without
+      ? tile1.length-1
+      : tile1.length
+    const lvl2 = this.atTop(pos2) === without
+      ? tile2.length-1
+      : tile2.length
+      return lvl2 - lvl1
+  }
+
   atTop(pos) {
     const tile = this.at(pos)
     if(tile && tile.length > 0) {

@@ -4,7 +4,7 @@ import {
   Bug,
   Queen,
   Spider,
-  Beatle,
+  Beetle,
   Ant,
   Grasshopper,
 } from './bugs.js'
@@ -300,7 +300,7 @@ export default class Game {
 Game.basicBugPack =  [
   Queen,
   Spider, Spider,
-  Beatle, Beatle,
+  Beetle, Beetle,
   Ant, Ant, Ant,
   Grasshopper, Grasshopper, Grasshopper,
 ]

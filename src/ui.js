@@ -947,11 +947,10 @@ export default function uiOf(game) {
   }
 
   function drawBugsOftile(tile, hex, t) {
-    const offset = new Hex(+0.0, -0.2)
     tile.forEach((bug, i) => {
       const isTop = i === tile.length - 1
 
-      const draw = () => drawBug(bug, offset.scale(i), isTop, t)
+      const draw = () => drawBug(bug, i, isTop, t)
 
       const isMoving = Boolean(bug.animation)
       let prio = 0 + // most bugs are grounded
@@ -965,16 +964,14 @@ export default function uiOf(game) {
     })
   }
 
-  function drawBug(bug, offset, isTop, t=0) {
+  function drawBug(bug, elevation, isTop, t=0) {
+    const offset = new Hex(+0.0, -0.2) // per one elevation level
     let r = S/2
 
     let pos = bug.pos
-    if (offset) {
-      pos = pos.add(offset)
-    }
 
     if (bug.animation) { // drawing
-      const  { ms, path, since, ease, delay } = bug.animation
+      const  { ms, path, since, ease, delay, moveType } = bug.animation
       const sofar = performance.now() - since - delay
       const jumps = path.length-1
       const duration = ms*jumps * 1
@@ -990,8 +987,27 @@ export default function uiOf(game) {
           : path[i+1].sub(path[i])
         const tSeg = (t * duration % ms)/ms // 0-1
         pos = path[i].add(diff.scale(tSeg))
+
+        // animate descending / ascending
+        if (moveType === 'move' && bug.name === 'Beetle') {
+          const segSlope = game.space.slope(path[i], path[i+1], bug)
+          const segElev = game.space.at(path[i]).length
+          pos = pos.add(offset.scale(segElev))
+          if (segSlope > 0) {
+            pos = pos.add(offset.scale(segSlope * (tSeg < 1/5 ? tSeg * 5 : 1 )))
+          }
+          if (segSlope < 0) {
+            pos = pos.add(offset.scale(segSlope * (tSeg > 4/5 ? tSeg * 5 - 4 : 0)))
+          }
+        }
+
+      }
+    } else {
+      if (elevation) { // of destination
+        pos = pos.add(offset.scale(elevation))
       }
     }
+
 
     let {x, y} = hexToScreen(pos)
 
