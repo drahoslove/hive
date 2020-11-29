@@ -14,8 +14,11 @@ audio.menu()
 
 const canvas = document.getElementById('hiveCanvas')
 
-let aiInterval
+let aiTimeout = 0
 let gameMode = ''
+let ggetName = () => ''
+let aiMode = 'dumb'
+let thinking = false
 const game = new Game(12)
 
 
@@ -86,28 +89,28 @@ const mainMenu = [
     label: '👽×👽',
     title: __('demo', 'ukázka'),
     pos: new Hex(0, +2),
-    action: AIvAI,
+    action: () => AIvAI('montecarlo', 'dumb'),
   },
 ]
 
 const aiSubmenu = [
   {
     label: '🦋',
-    title: __('easy', 'lehké'),
+    title: __('easy', 'lehká'),
     pos: new Hex(+2/3, -4/3),
-    action: vAI,
+    action: () => vAI('dumb', __('easy', 'lehká')),
   },
   {
     label: '🦂',
-    title: __('hard', 'těžké'),
+    title: __('hard', 'těžká'),
     pos: new Hex(-4/3, +2/3),
-    // action: vAI,
+    // action: IO => vAI('minimax', __('hard', 'těžká')),
   },
   {
     label: '🐝',
     title: __('medium', 'střední'),
     pos: new Hex(+2/3, 2/3),
-    // action: vAI,
+    action: IO => vAI('montecarlo', __('medium', 'střední')),
   },
 ]
 
@@ -139,7 +142,7 @@ game.sideMenu = [
     },
     action: confirmedAction(() => gameMode && game.space.size() === 0, () => {
       disconnect()
-      clearInterval(aiInterval)
+      clearTimeout(aiTimeout)
       ui.showMenu()
       setGetHashRoom('')
       gameMode = ''
@@ -162,10 +165,10 @@ game.sideMenu = [
         }
       } else {
         ui.off()
-        clearInterval(aiInterval)
+        clearTimeout(aiTimeout)
         game.reset({})
         audio.stop()
-        eval(`${gameMode}()`)
+        eval(`${gameMode}('${aiMode}')`)
         ui.on(canvas)
       }
     }),
@@ -197,8 +200,8 @@ window.onload = () => {
   }, 100)
 }
 
-const autoMove = (players) => () => {
-  if (!players.includes(game._activePlayerIndex)) {
+const autoMove = (players) => async () => {
+  if (game.state === 'end' || thinking || players[game._activePlayerIndex] === 'human') {
     return
   }
   if (game.canPass) {
@@ -206,17 +209,35 @@ const autoMove = (players) => () => {
     game.click(game.passButton.pos)
     return
   }
-  !game.selected
-    ? game.click(
-      rand(Math.ceil(game.activePlayer().hand.size()/10+1))
-        ? game.activePlayer().hand.__getRandomBugPos()
-        : game.space.__bestishBugPos(game.activePlayer())
+  if (players[game._activePlayerIndex] === 'dumb') {
+    if (!game.selected) { // select
+      const fromHand = rand(Math.ceil(game.activePlayer().hand.size()/10+1))
+      game.click(
+        fromHand
+          ? game.activePlayer().hand.__getRandomBugPos()
+          : game.space.__bestishBugPos(game.activePlayer())
       )
-    : game.click(game.__bestishLandingPos())
+    } else { // place or move
+      game.click(game.__bestishLandingPos())      
+    }
+  } else if (players[game._activePlayerIndex] === 'random') {
+    const { bug, targetPos } = game.randomMove()
+    game.click(bug.pos)
+    ui.touch()
+    game.click(targetPos)
+  } else if (players[game._activePlayerIndex] === 'montecarlo') {
+    thinking = true
+    ui.touch()
+    const { bug, targetPos } = await game.bestMonteCarloMove()
+    game.click(bug.pos)
+    ui.touch()
+    game.click(targetPos)
+    thinking = false
+  }
 
   ui.touch()
   if (game.state === 'end') {
-    clearInterval(aiInterval)
+    clearTimeout(aiTimeout)
   }
 }
 
@@ -228,18 +249,27 @@ function training () {
   game.start()
 }
 
-function AIvAI() {
+function AIvAI(AImode1=aiMode, AImode2='random') {
+  console.log(AImode1, 'vs', AImode2)
+  aiMode = AImode1 // backup preset to be reused on reload
   gameMode = 'AIvAI'
   audio.track('ava')
-  game.players[0].name = uncolorEmoji(_("AI 1", "UI 1"))
-  game.players[1].name = uncolorEmoji(_("AI 2", "UI 2"))
+  game.players[0].name = uncolorEmoji(_(`ai ${AImode1}`, `ui ${AImode1}`))
+  game.players[1].name = uncolorEmoji(_(`ai ${AImode2}`, `ui ${AImode2}`))
   ui.hideMenu()
   ui.disableInputFor([0,1])
   game.start()
-  aiInterval = setInterval(autoMove([0, 1]), 50)
+  ;(function scheduleMove() {
+    aiTimeout = setTimeout(()=> {
+      autoMove([AImode1, AImode2])()
+      scheduleMove()
+    }, 150)
+  })()
 }
 
-function vAI() {
+function vAI(AImode=aiMode, getName=ggetName) {
+  ggetName = getName
+  aiMode = AImode // backup preset to be reused on reload
   if (game.menus[game.menus.length-1] === aiSubmenu) {
     game.menus.pop()
   }
@@ -247,12 +277,17 @@ function vAI() {
   audio.track('pva')
   game.players[0].name = _("You", "Ty")
   game.players[0].gender = '2'
-  game.players[1].name = uncolorEmoji(_("Game", "Hra"))
+  game.players[1].name = uncolorEmoji(_(`${getName()} game`, `${getName()} hra`))
   game.players[1].gender = _('M', 'F')
   ui.hideMenu()
   ui.disableInputFor([1])
   game.start()
-  aiInterval = setInterval(autoMove([1]), 800)
+  ;(function scheduleMove() {
+    aiTimeout = setTimeout(()=> {
+      autoMove(['human', AImode])()
+      scheduleMove()
+    }, 360)
+  })()
 }
 
 function setGetHashRoom(room) {

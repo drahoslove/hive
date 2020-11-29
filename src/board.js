@@ -6,6 +6,9 @@ export class Hex {
     this.q = q
     this.r = r
   }
+  clone() {
+    return new Hex(this.q, this.r)
+  }
 
   toCube() {
     return new Cube(this.q, this.r, -this.q-this.r)
@@ -312,9 +315,9 @@ export class Space {
         // movement speed
         bug.go(path, 'move')
       } else { // placing
-        bug.placed = true
-        path = [bug.pos, dest]
+        path = [bug.pos, dest]        
         bug.go(path, 'land')
+        bug.placed = true
         this._stones++
       }
 
@@ -404,7 +407,8 @@ export class Space {
   }
 
   isEnemyOf(hex, owner) {
-    const topBug = this.atTop(hex) 
+    const topBug = this.atTop(hex)
+    // topBug && console.log('isEnemyOf', owner, topBug.owner)
     return topBug && topBug.owner !== owner
   }
   
@@ -523,13 +527,14 @@ export class Space {
       .filter(pos => (this.atTop(pos)||{}).owner === owner)
       .filter(pos => !this.isHiveBridge(pos) || this.at(pos).length > 1)
     const rankedPos = positions.map(pos => {
+      const isElevated = this.at(pos).length > 1
       let rank = 0
-      this.posOfNeighbors(pos).forEach(pos => {
-        const bug = this.atBottom(pos)
+      this.posOfNeighbors(pos).forEach(nPos => {
+        const bug = this.atBottom(nPos)
         if (bug.name === 'Queen') {
           bug.owner === owner
             ? rank++ // we want to move from your queen
-            : rank-- // we want to stay at opponents queen 
+            : !isElevated && rank-- // we want to stay at opponents queen 
         }
       })
       return {pos, rank}
@@ -638,6 +643,10 @@ export class Hand {
 
   each(callback) {
     this._hand.filter(Boolean).forEach(callback) 
+  }
+
+  map(callback) {
+    return this._hand.filter(Boolean).map(callback) 
   }
 
   some(callback) {

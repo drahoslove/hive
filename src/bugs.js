@@ -17,6 +17,15 @@ export class Bug {
     this.willShiver = (t) => (t-this.timeshift)%1000 < 500
     this.timeshift = rand(10000)
   }
+  clone(props) {
+    const clone = new this.constructor(this.color, this.owner)
+    clone.pos = this.pos.clone()
+    clone.placed = this.placed
+    props && Object.entries(props).map(([key, val]) => {
+      clone[key] = val
+    })
+    return clone
+  }
   shiver(t) { // randomly change angle +-3 degree
     const d = 3
     return !this.willShiver(t) && !this.animation

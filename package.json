@@ -10,6 +10,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.4.5",
+    "@babel/plugin-proposal-class-properties": "^7.12.1",
     "@babel/polyfill": "^7.4.4",
     "@babel/preset-env": "^7.4.5",
     "@sentry/webpack-plugin": "^1.9.2",
@@ -42,7 +43,11 @@
         }
       ]
     ],
-    "plugins": []
+    "plugins": [
+      [
+        "@babel/plugin-proposal-class-properties"
+      ]
+    ]
   },
   "browserslist": [
     "> .05% in CZ and not ie <= 9"

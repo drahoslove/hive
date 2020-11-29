@@ -1121,7 +1121,7 @@ export default function uiOf(game) {
     const b = (t/2%1 * Math.PI*4) - Math.PI/2
     let {x, y} = hexToScreen(pos)
 
-    const txtLim = 12
+    const txtLim = 13
     const name = player.name.length <= txtLim
        ? player.name
        : player.name.substr(0, txtLim-1) + '…'
