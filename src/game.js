@@ -386,7 +386,7 @@ export default class Game {
       i++
       this.selected = bug
       let bugScores = []
-      const totalPlays = 1200 / destinations.length
+      const totalPlays = 600 / destinations.length
       const maxPlayDepth = 4
       if (shadowWorkers && shadowWorkers.length) {
         const shadowWorker = shadowWorkers[i%THREADS]
@@ -455,10 +455,22 @@ export default class Game {
 
     let sortedMoves = rankedMoves
       .sort((a,b) => b.rank-a.rank) // sort by larger rank first
+      .map(({ move, rank }) => ({ ...move, rank }))
     
-    const topMoves = sortedMoves.filter(({ rank }) => rank === sortedMoves[0].rank) // only choose between the bests ranks
+    const topMoves = sortedMoves
+      .filter(({ rank }) => rank === sortedMoves[0].rank)
+
+    const isImprovement = (({ bug, targetPos }) => {
+      const shadowGame = this.shadowGame()
+      const rankBefore = shadowGame.computeRank()
+      shadowGame.shadowMove(shadowGame.shadowBug(bug.pos), targetPos)
+      const rankAfter = shadowGame.computeRank()
+      return rankAfter > rankBefore
+    })
     
-    const bestMove = topMoves[rand(topMoves.length)].move
+    const improvement = sortedMoves.find(isImprovement)
+
+    const bestMove = improvement || topMoves[rand(topMoves.length)]
     return bestMove
   }
 
