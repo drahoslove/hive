@@ -520,8 +520,8 @@ input[type=radio] {
   <script>
   if (window.parent === window && !window.location.origin.match('localhost')) {
     window.location = 'https://hmyz.it/' + window.location.hash
+    Sentry.init({ dsn: 'https://6f5d333282a74765ac2efb466134fac6@sentry.io/1797459' });
   }
-  Sentry.init({ dsn: 'https://6f5d333282a74765ac2efb466134fac6@sentry.io/1797459' });
   </script>
   <script src="lib/vue.js"></script>
   <script src="lib/socket.io.js"></script>

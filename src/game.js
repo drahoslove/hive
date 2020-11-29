@@ -10,6 +10,8 @@ import {
 } from './bugs.js'
 // NOTE : do not imort lang or other modules depending on window
 
+const THREADS = 16 // number of webWorkers to spawn
+
 // class carring state of the game and prviding commands for game interaction
 export default class Game {
   constructor(size=5) {
@@ -331,27 +333,14 @@ export default class Game {
         })
     }
 
-    return possibleBugs.reduce((moves, bug, i) => {
+    const moves = possibleBugs.reduce((moves, bug, i) => {
       const destinations = this.getDestinationsOf(bug)
       destinations.forEach((dest) => {
         moves.push({ bug, targetPos: dest })
       })
       return moves
     }, [])
-  }
 
-  randomMove() {
-    const moves = this.getAllPossibleMoves()
-    if (moves.length === 0) {
-      // console.log(this.space.toString())
-      throw Error('zero possible moves')
-    }
-    
-    return moves[rand(moves.length)]
-  }
-
-  async bestMonteCarloMove() {
-    const moves = this.getAllPossibleMoves()
     const movesByBugs = moves.reduce((array, move) => {
       const existing = array.find(({ bug }) => bug === move.bug)
       if (existing) {
@@ -364,18 +353,45 @@ export default class Game {
       }
       return array
     }, [])
+
+    return movesByBugs
+  }
+
+  randomMove() {
+    const moves = this.getAllPossibleMoves()
+    if (moves.length === 0) {
+      // console.log(this.space.toString())
+      throw Error('zero possible moves')
+    }
+    const bugMoves = moves[rand(moves.length)]
+    if (bugMoves.destinations.length === 0) {
+      // console.log(this.space.toString())
+      throw Error('zero possible moves')
+    }
+    return {
+      bug: bugMoves.bug,
+      targetPos: bugMoves.destinations[rand(bugMoves.destinations.length)],
+    }
+  }
+
+  async bestMonteCarloMove() {
+    const movesByBugs = this.getAllPossibleMoves()
     const rankedMoves = []
-    let shadowWorker = Worker
-      ? new Worker('/shadowWorker-bundle.js')
+    const shadowWorkers = Worker
+      ? Array.from({length: THREADS}).map(() => new Worker('/shadowWorker-bundle.js'))
       : null
+    let i = 0
+    let workerPromises = []
     for (const { bug, destinations } of movesByBugs) {
+      i++
       this.selected = bug
       let bugScores = []
-      const totalPlays = 20
+      const totalPlays = 1200 / destinations.length
       const maxPlayDepth = 4
-      if (shadowWorker) {
+      if (shadowWorkers && shadowWorkers.length) {
+        const shadowWorker = shadowWorkers[i%THREADS]
         // call worker here for each bug
-        bugScores = await new Promise((resolve) => {
+        workerPromises.push(new Promise((resolve) => {
           shadowWorker.onmessage = (e) => {
             const scores = e.data
             resolve(scores)
@@ -393,33 +409,49 @@ export default class Game {
             totalPlays: totalPlays,
             maxPlayDepth: maxPlayDepth,
           })
-        })
+        }))
       } else { // fallback without worker
         for (const targetPos of destinations) {
           const scores = await Promise.all(Array.from({length: totalPlays}).map(() => {
             return new Promise((resolve) => {
               setTimeout(() => {
                 const shadowGame = this.shadowGame()
+                const originalRank = shadowGame.computeRank()
                 let shadowBug = shadowGame.shadowBug(bug.pos)
                 shadowGame.shadowMove(shadowBug, targetPos)
-                const partScore = shadowGame.shadowPlayUntil(maxPlayDepth)
+                const partScore = shadowGame.shadowPlayUntil(maxPlayDepth, originalRank)
                 resolve(partScore)
               })
             })
           }))
-          const moveScore = scores.reduce((sum, score) => sum+score, 0)
+          const moveScore = scores.reduce((sum, score) => sum+score, 0) / totalPlays // avt
+          // const moveScore = scores.reduce((max, score) => Math.max(max, score), 0) // best
           bugScores.push(moveScore)
         }
-      }
-      destinations.forEach((targetPos, i) => {
-        rankedMoves.push({
-          rank: bugScores[i], // bigger is better
-          move: { bug, targetPos },
+        destinations.forEach((targetPos, i) => {
+          rankedMoves.push({
+            rank: bugScores[i], // bigger is better
+            move: { bug, targetPos },
+          })
         })
-      })
+      }
       this.selected = null
     }
-    shadowWorker.terminate()
+    if (shadowWorkers && shadowWorkers.length) {
+      const bugsScores = await Promise.all(workerPromises) // one worker per bug
+      let j = 0
+      for (const { bug, destinations } of movesByBugs) {
+        const bugScores = bugsScores[j]
+        destinations.forEach((targetPos, i) => {
+          rankedMoves.push({
+            rank: bugScores[i], // bigger is better
+            move: { bug, targetPos },
+          })
+        })
+        j++
+      }
+      shadowWorkers.forEach(worker => worker.terminate())
+    }
 
     let sortedMoves = rankedMoves
       .sort((a,b) => b.rank-a.rank) // sort by larger rank first
@@ -458,6 +490,7 @@ export default class Game {
         .push(...tile
           .map(bug => bug.clone({ owner: shadowOfPlayer(bug.owner)}))
         )
+      shadowGame.space._stones = this.space._stones
     })
     shadowGame.shadowPlayer = shadowGame.players[this._activePlayerIndex] // the one who we want to win in the shadow game
 
@@ -483,17 +516,29 @@ export default class Game {
     this.play(targetPos, true)
   }
 
-  shadowPlayUntil(limit) { // returns 0 for tie -1 for lost and +1 for win
-    for (let round = 1; round <= limit; round++) {
-      if (this.state === "end") {
-        // console.log('shadow play ended before limit', round, this.shadowPlayer.score)
-        return this.shadowPlayer.score
-          ? (limit-round) // 0..+1 // quicker win more positive
-          : -(limit-round) // -1..0 // quicker lost more negative
+  computeRank() {
+    let rank = 0
+    this.space.each((tile, hex) => {
+      const bug = tile[0]
+      if (bug && bug.name === 'Queen') {
+        const overload = (this.space.posOfNeighbors(bug.pos).length) //1..6
+        const isBridge = +this.space.isHiveBridge(bug.pos)
+        bug.owner === this.shadowPlayer
+          ? rank -= (overload) // we dont want to move to our queen
+          : rank += (overload*1.1 + isBridge*0.4) // wa want to move to opponents queen
       }
-      if (this.canPass) {
-        this.switchPlayers()
-        this.canPass = this.hasToPass()
+    })
+    return rank + this.space.size()/12 // it is better to place more stones if the rank would be the same othervise
+  }
+
+  shadowPlayUntil(limit, originalRank=0) { // returns 0 for tie -1 for lost and +1 for win
+    while (limit--) {
+      if (this.state === "end") {
+        // // console.log('shadow play ended before limit', round, this.shadowPlayer.score)
+        // return this.shadowPlayer.score
+        //   ? (limit-round)*limit // 0..+1 // quicker win more positive
+        //   : -(limit-round)*limit // -1..0 // quicker lost more negative
+        break
       }
       try {
         const { bug, targetPos } = this.randomMove()
@@ -502,21 +547,12 @@ export default class Game {
         this.switchPlayers()
       }
     }
+    const left = limit+1 // 0 or more
 
+    
     // evaluate who has better position to win
-    let rank = 0
-    this.space.each((tile, hex) => {
-      const bug = tile[0]
-      if (bug && bug.name === 'Queen') {
-        const overload = (this.space.posOfNeighbors(bug.pos).length-1)/5 // 0..1
-        const isBridge = +this.space.isHiveBridge(bug.pos)
-        bug.owner === this.shadowPlayer
-          ? rank -= (overload) // we dont want to move to our queen
-          : rank += (overload*1.5 + isBridge/2) // wa want to move to opponents queen
-      }
-    })
-
-    return rank/limit/100
+    const rank = this.computeRank()
+    return (rank-originalRank) * (left+1) // to stay positive
   }
 }
 

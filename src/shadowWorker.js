@@ -28,30 +28,35 @@ function playShadowGames({
   const getPlayer = ({ color, name }) => 
     game.players.find(player => player.name === name && player.color === color)
 
+  game.space._stones = 0
   space.tiles.forEach(({ pos, bugs: bs }) => {
     game.space.at(pos)
       .push(...bs
         .map(b => Bugs.Bug.fromSerialized(b, getPlayer(b.owner)))
       )
+    game.space._stones += bs.length
   })
 
   bug = Bugs.Bug.fromSerialized(bug, getPlayer(bug.owner))
   
   // play shadow games!
-  let scores = []
+  let bugScores = []
   for (const pos of destinations) {
     const targetPos = new Hex(pos)
-    const destinationScore = Array.from({length: totalPlays}).map(() => {
+    const moveScore = Array.from({length: totalPlays}).map(() => {
       const shadowGame = game.shadowGame()
       const shadowBug = shadowGame.shadowBug(bug.pos)
       shadowGame.shadowMove(shadowBug, targetPos)
       const partScore = shadowGame.shadowPlayUntil(maxPlayDepth)
       return partScore
-    }).reduce((sum, score) => sum+score, 0)
-    scores.push(destinationScore)
+    })
+      .reduce((sum, score) => sum+score, 0) / totalPlays // avg
+      // .reduce((max, score) => Math.max(max, score), 0) // best
+
+    bugScores.push(moveScore)
   }
 
-  return scores
+  return bugScores
 }
 
 
