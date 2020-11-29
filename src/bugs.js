@@ -17,6 +17,18 @@ export class Bug {
     this.willShiver = (t) => (t-this.timeshift)%1000 < 500
     this.timeshift = rand(10000)
   }
+  serializable() {
+    return this.clone({
+      owner: { name: this.owner.name, color: this.owner.color },
+      ease: undefined,
+      willShiver: undefined,
+    })
+  }
+  static fromSerialized(b, owner) {
+    const bug = new BUGS[b.name](b.color, owner)
+    bug.pos = new Hex(b.pos.q, b.pos.r)
+    return bug
+  }
   clone(props) {
     const clone = new this.constructor(this.color, this.owner)
     clone.pos = this.pos.clone()
@@ -204,6 +216,14 @@ export class Ant extends Bug {
   }
 }
 
+const BUGS = {
+  Bug,
+  Queen,
+  Beetle,
+  Grasshopper,
+  Spider,
+  Ant,
+}
 
 // ease = t => t<.5 ? 2*t*t : -1+(4-2*t)*t // ease in out quad
 // ease = t => t<.5 ? 4*t*t*t : (t-1)*(2*t-2)*(2*t-2)+1  // ease in out cubic

@@ -4,6 +4,7 @@ module.exports = {
   entry: {
 		hive: './src/hive.js',
 		Tone: './lib/Tone.js',
+		shadowWorker: './src/shadowWorker.js'
   },
   output: {
 		filename: '[name]-bundle.js',

@@ -6,6 +6,7 @@
   "author": "draho.cz",
   "license": "ISC",
   "dependencies": {
+    "@babel/plugin-syntax-dynamic-import": "^7.8.3",
     "socket.io-client": "^2.2.0"
   },
   "devDependencies": {
@@ -46,6 +47,9 @@
     "plugins": [
       [
         "@babel/plugin-proposal-class-properties"
+      ],
+      [
+        "@babel/plugin-syntax-dynamic-import"
       ]
     ]
   },

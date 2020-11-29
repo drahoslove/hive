@@ -1,7 +1,7 @@
 import './settings.js'
 import './vue.js'
 import * as audio from './audio.js'
-import { _, __ } from './lang.js'
+import { _, __, verb } from './lang.js'
 import Game from './game.js'
 import uiOf from './ui.js'
 import { connect, disconnect, restart } from './io.js'
@@ -20,6 +20,7 @@ let ggetName = () => ''
 let aiMode = 'dumb'
 let thinking = false
 const game = new Game(12)
+game.verb = verb
 
 
 const closeAll = () => {
@@ -187,6 +188,15 @@ game.sideMenu = [
   item.action = item.action.bind(item)
   return item
 })
+
+game.passButton = {
+  label: __('Pass', 'Předat'),
+  pos: new Hex(6, 0),
+  action: () => {
+    game.switchPlayers()
+    game.canPass = game.hasToPass()
+  },
+}
 
 const ui = uiOf(game)
 window.onload = () => {

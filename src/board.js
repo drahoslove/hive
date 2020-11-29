@@ -3,8 +3,13 @@ import { PriorityQueue, rand } from './common.js'
 // Axial coordinates
 export class Hex {
   constructor(q, r) {
-    this.q = q
-    this.r = r
+    if (q instanceof Object) {
+      this.q = q.q
+      this.r = q.r
+    } else {
+      this.q = q
+      this.r = r
+    }
   }
   clone() {
     return new Hex(this.q, this.r)
@@ -580,6 +585,22 @@ export class Space {
     })
     return str
   }
+
+  serializable() {
+    const tiles = []
+    this.each((tile, hex) => {
+      if (tile.length > 0) {
+        tiles.push({
+          bugs: tile.map(bug => bug.serializable()),
+          pos: hex,
+        })
+      }
+    })
+    return {
+      radius: this._radius,
+      tiles,
+    }
+  }
 }
 Space.fromString = function(string) {
   return new Space()
@@ -591,7 +612,7 @@ export class Hand {
   constructor(bugs, revert, offset=0) {
     this._hand = [...bugs]
     bugs.forEach((bug, i) => {
-      bug.pos = !revert
+      bug.pos = bug.pos || (!revert
       ? new Hex(
        -1 + i,
        -7 + offset, 
@@ -599,7 +620,7 @@ export class Hand {
       : new Hex(
        -8 + i,
        +7 + offset, 
-      )
+      ))
 
     })
   }

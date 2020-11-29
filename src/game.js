@@ -8,7 +8,7 @@ import {
   Ant,
   Grasshopper,
 } from './bugs.js'
-import { _, __, verb } from './lang.js'
+// NOTE : do not imort lang or other modules depending on window
 
 // class carring state of the game and prviding commands for game interaction
 export default class Game {
@@ -38,7 +38,7 @@ export default class Game {
     this.landings = []
     this.players = ['black', 'white'].map((color, i) => {
       const player = {
-        name: _('Player', 'Hráč') + ` ${i+1}`,
+        name: `Player ${i+1}`,
         gender: 'M',
         color,
         pos: i ? 'top' : 'bottom', // for loader & label positioning
@@ -50,14 +50,6 @@ export default class Game {
     this.message = message
     this.onClick = onClick
     this.canPass = false
-    this.passButton = {
-      label: __('Pass', 'Předat'),
-      pos: new Hex(6, 0),
-      action: () => {
-        this.switchPlayers()
-        this.canPass = this.hasToPass()
-      },
-    }
     if (Array.isArray(this.menus)) {
       this.menus.forEach((menu) => {
           menu.forEach(btn => { btn.active = false })
@@ -213,21 +205,21 @@ export default class Game {
     this.dead = dead.filter(Boolean)
     if (dead[0] && dead[1]) {
       this.players[0].score = this.players[1].score = 0 // for monte carlo only
-      this.futureMessage = _("Tie!", "Remíza!")
+      this.futureMessage = "Tie!"
       this.state = 'end'
       return true
     }
     if (dead[this._activePlayerIndex]) {
       const winner = this.players[+!this._activePlayerIndex]
       winner.score = 1 // for monte carlo only
-      this.futureMessage = `${winner.name} ${verb('win', winner.gender)}!`
+      this.futureMessage = this.verb && `${winner.name} ${this.verb('win', winner.gender)}!`
       this.state = 'end'
       return true
     }
     if (dead[+!this._activePlayerIndex]) {
       const winner = this.players[this._activePlayerIndex]
       winner.score = 1 // for monte carlo only
-      this.futureMessage = `${winner.name} ${verb('win', winner.gender)}!`
+      this.futureMessage = this.verb &&  `${winner.name} ${this.verb('win', winner.gender)}!`
       this.state = 'end'
       return true
     }
@@ -360,29 +352,70 @@ export default class Game {
 
   async bestMonteCarloMove() {
     const moves = this.getAllPossibleMoves()
+    const movesByBugs = moves.reduce((array, move) => {
+      const existing = array.find(({ bug }) => bug === move.bug)
+      if (existing) {
+        existing.destinations.push(move.targetPos)
+      } else {
+        array.push({
+          bug: move.bug,
+          destinations: [move.targetPos]
+        })
+      }
+      return array
+    }, [])
     const rankedMoves = []
-    for (const move of moves) {
-      const { bug, targetPos } = move
+    for (const { bug, destinations } of movesByBugs) {
+      this.selected = bug
+      let bugScores = []
       const totalPlays = 20
       const maxPlayDepth = 4
-      this.selected = move.bug
-      const scores = await Promise.all(Array.from({length: totalPlays}).map(() => {
-        return new Promise((resolve) => {
-          setTimeout(() => { // TODO replace with WebWorker
-            const shadowGame = this.shadowGame()
-            let shadowBug = shadowGame.shadowBug(bug.pos)
-            shadowGame.shadowMove(shadowBug, targetPos)
-            const partScore = shadowGame.shadowPlayUntil(maxPlayDepth)
-            resolve(partScore)
+      if (Worker) {
+        // call worker here for each bug
+        bugScores = await new Promise((resolve) => {
+          const shadowWorker = new Worker('/shadowWorker-bundle.js')
+          shadowWorker.onmessage = (e) => {
+            const scores = e.data
+            resolve(scores)
+          }
+          shadowWorker.postMessage({
+            space: this.space.serializable(),
+            players: this.players.map((p, i) => ({
+              isShadowPlayer: i === this._activePlayerIndex,
+              color: p.color,
+              name: p.name,
+              hand: p.hand.map(bug => bug.serializable()),
+            })),
+            bug: bug.serializable(),
+            destinations,
+            totalPlays: totalPlays,
+            maxPlayDepth: maxPlayDepth,
           })
         })
-      }))
-      this.selected = null
-      const score = scores.reduce((sum, score) => sum+score, 0)
-      rankedMoves.push({
-        rank: score, // bigger is better
-        move,
+      } else { // fallback without worker
+        for (const targetPos of destinations) {
+          const scores = await Promise.all(Array.from({length: totalPlays}).map(() => {
+            return new Promise((resolve) => {
+              setTimeout(() => {
+                const shadowGame = this.shadowGame()
+                let shadowBug = shadowGame.shadowBug(bug.pos)
+                shadowGame.shadowMove(shadowBug, targetPos)
+                const partScore = shadowGame.shadowPlayUntil(maxPlayDepth)
+                resolve(partScore)
+              })
+            })
+          }))
+          const moveScore = scores.reduce((sum, score) => sum+score, 0)
+          bugScores.push(moveScore)
+        }
+      }
+      destinations.forEach((targetPos, i) => {
+        rankedMoves.push({
+          rank: bugScores[i], // bigger is better
+          move: { bug, targetPos },
+        })
       })
+      this.selected = null
     }
     
     let sortedMoves = rankedMoves
@@ -399,7 +432,7 @@ export default class Game {
     shadowGame._activePlayerIndex = this._activePlayerIndex
     shadowGame.state = this.state
     // clone players with hands and hand bugs
-    this.players.forEach((player, i) => {
+    shadowGame.players = this.players.map((player, i) => {
       const shadowPlayer = {
         ...player,
         name: i ? 'shadow' : 'shadoww',
@@ -412,11 +445,11 @@ export default class Game {
       shadowPlayer.hand.each((bug, i) => {
         bug.pos = player.hand.map(({ pos }) => pos)[i]
       })
-      shadowGame.players[i] = shadowPlayer
+      return shadowPlayer
     })
     const shadowOfPlayer = (player) => 
       shadowGame.players[this.players.indexOf(player)]
-    // clone space with placed bugh
+    // clone space with placed bughs
     this.space.each((tile, pos) => {
       shadowGame.space.at(pos)
         .push(...tile
@@ -436,6 +469,7 @@ export default class Game {
         bug = tile[tile.length-1]
       } else { 
         bug = null
+        console.log('shadowbug is null', hex, this.activePlayer().hand._hand)
       }
     }
     return bug
