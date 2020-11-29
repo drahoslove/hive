@@ -365,19 +365,20 @@ export default class Game {
       return array
     }, [])
     const rankedMoves = []
+    let shadowWorker = Worker
+      ? new Worker('/shadowWorker-bundle.js')
+      : null
     for (const { bug, destinations } of movesByBugs) {
       this.selected = bug
       let bugScores = []
       const totalPlays = 20
       const maxPlayDepth = 4
-      if (Worker) {
+      if (shadowWorker) {
         // call worker here for each bug
         bugScores = await new Promise((resolve) => {
-          const shadowWorker = new Worker('/shadowWorker-bundle.js')
           shadowWorker.onmessage = (e) => {
             const scores = e.data
             resolve(scores)
-            shadowWorker.terminate()
           }
           shadowWorker.postMessage({
             space: this.space.serializable(),
@@ -418,7 +419,8 @@ export default class Game {
       })
       this.selected = null
     }
-    
+    shadowWorker.terminate()
+
     let sortedMoves = rankedMoves
       .sort((a,b) => b.rank-a.rank) // sort by larger rank first
     
