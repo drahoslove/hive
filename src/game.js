@@ -10,7 +10,7 @@ import {
 } from './bugs.js'
 // NOTE : do not imort lang or other modules depending on window
 
-const THREADS = 16 // number of webWorkers to spawn
+const THREADS = navigator.hardwareConcurrency || 16 // number of webWorkers to spawn
 
 // class carring state of the game and prviding commands for game interaction
 export default class Game {
@@ -386,7 +386,7 @@ export default class Game {
       i++
       this.selected = bug
       let bugScores = []
-      const totalPlays = 600 / destinations.length
+      const totalPlays = 450 / destinations.length
       const maxPlayDepth = 4
       if (shadowWorkers && shadowWorkers.length) {
         const shadowWorker = shadowWorkers[i%THREADS]
@@ -540,7 +540,7 @@ export default class Game {
           : rank += (overload*1.1 + isBridge*0.4) // wa want to move to opponents queen
       }
     })
-    return rank + this.space.size()/12 // it is better to place more stones if the rank would be the same othervise
+    return rank + this.space.size()/24 // it is better to place more stones if the rank would be the same othervise
   }
 
   shadowPlayUntil(limit, originalRank=0) { // returns 0 for tie -1 for lost and +1 for win
