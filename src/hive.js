@@ -259,7 +259,7 @@ function training () {
   game.start()
 }
 
-function AIvAI(AImode1=aiMode, AImode2='random') {
+function AIvAI(AImode1=aiMode, AImode2='dumb') {
   console.log(AImode1, 'vs', AImode2)
   aiMode = AImode1 // backup preset to be reused on reload
   gameMode = 'AIvAI'

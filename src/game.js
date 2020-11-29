@@ -377,6 +377,7 @@ export default class Game {
           shadowWorker.onmessage = (e) => {
             const scores = e.data
             resolve(scores)
+            shadowWorker.terminate()
           }
           shadowWorker.postMessage({
             space: this.space.serializable(),
