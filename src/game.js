@@ -190,7 +190,7 @@ export default class Game {
   }
 
   // place or move selected bug
-  play(hex) {
+  play(hex, isShadow=false) {
     const bug = this.selected
     this.activePlayer().hand.takeBug(bug)
     this.space.putAt(bug, hex)
@@ -198,7 +198,8 @@ export default class Game {
     this.landings = []
     this.checkEnd()
     this.switchPlayers()
-    this.canPass = this.hasToPass()
+    this.canPass = (!isShadow && this.hasToPass())
+
     // console.log(String(this.space))
   }
 
@@ -350,7 +351,7 @@ export default class Game {
   randomMove() {
     const moves = this.getAllPossibleMoves()
     if (moves.length === 0) {
-      console.log(this.space.toString())
+      // console.log(this.space.toString())
       throw Error('zero possible moves')
     }
     
@@ -397,7 +398,6 @@ export default class Game {
     const shadowGame = new Game(this._size)
     shadowGame._activePlayerIndex = this._activePlayerIndex
     shadowGame.state = this.state
-    shadowGame.canPass = this.canPass
     // clone players with hands and hand bugs
     this.players.forEach((player, i) => {
       const shadowPlayer = {
@@ -443,7 +443,7 @@ export default class Game {
 
   shadowMove(bug, targetPos) {
     this.selected = bug
-    this.play(targetPos)
+    this.play(targetPos, true)
   }
 
   shadowPlayUntil(limit) { // returns 0 for tie -1 for lost and +1 for win
@@ -458,8 +458,12 @@ export default class Game {
         this.switchPlayers()
         this.canPass = this.hasToPass()
       }
-      const { bug, targetPos } = this.randomMove()
-      this.shadowMove(bug, targetPos)
+      try {
+        const { bug, targetPos } = this.randomMove()
+        this.shadowMove(bug, targetPos)
+      } catch (e) {
+        this.switchPlayers()
+      }
     }
 
     // evaluate who has better position to win
@@ -468,10 +472,10 @@ export default class Game {
       const bug = tile[0]
       if (bug && bug.name === 'Queen') {
         const overload = (this.space.posOfNeighbors(bug.pos).length-1)/5 // 0..1
-        // const isBridge = +this.space.isHiveBridge(bug.pos)
+        const isBridge = +this.space.isHiveBridge(bug.pos)
         bug.owner === this.shadowPlayer
-          ? rank -= (overload ) // we dont want to move to our queen
-          : rank += (overload*1.5) // wa want to move to opponents queen
+          ? rank -= (overload) // we dont want to move to our queen
+          : rank += (overload*1.5 + isBridge/2) // wa want to move to opponents queen
       }
     })
 

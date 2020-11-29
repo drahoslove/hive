@@ -185,6 +185,7 @@ export class Space {
 
   // moves bug closer to the center
   centralize(midpoint = null) {
+    this.cachedArticulations = null
     if (!midpoint) {
       const max = new Cube(-Infinity, -Infinity, -Infinity)
       const min = new Cube(+Infinity, +Infinity, +Infinity)
@@ -300,6 +301,7 @@ export class Space {
   }
 
   putAt(bug, dest) {
+    this.cachedArticulations = null
     const tile = this.at(dest)
 
     if (tile) {
@@ -424,8 +426,13 @@ export class Space {
     return this.articulations().some(cut => cut.eq(hex))
   }
 
+  cachedArticulations = null
+
   // Unbreakable 'core' of the hive
   articulations() {
+    if (this.cachedArticulations) {
+      return this.cachedArticulations
+    }
     const hive = this.hivePositions()
     const M = []
     const IN = {}
@@ -458,6 +465,7 @@ export class Space {
     if (hive.length)
       dfs(hive[0], undefined)
 
+    this.cachedArticulations = M
     return M
   }
 
