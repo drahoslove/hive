@@ -386,8 +386,8 @@ export default class Game {
       i++
       this.selected = bug
       let bugScores = []
-      const totalPlays = 450 / destinations.length
-      const maxPlayDepth = 4
+      const totalPlays = 120 / destinations.length
+      const maxPlayDepth = 2
       if (shadowWorkers && shadowWorkers.length) {
         const shadowWorker = shadowWorkers[i%THREADS]
         // call worker here for each bug
