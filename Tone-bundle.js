@@ -105,7 +105,7 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* WEBPACK VAR INJECTION */(f
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-eval("/* WEBPACK VAR INJECTION */(function(global) {(typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {}).SENTRY_RELEASE = {\n  id: \"d9b8649cfa5513d9c69206c272ce6c699f8e304f\"\n};\n/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./../../../webpack/buildin/global.js */ \"./node_modules/webpack/buildin/global.js\")))\n\n//# sourceURL=webpack:///./node_modules/@sentry/webpack-plugin/src/sentry-webpack.module.js?");
+eval("/* WEBPACK VAR INJECTION */(function(global) {(typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {}).SENTRY_RELEASE = {\n  id: \"cc09ac454ce7dc2ea8520dac2d301085459b110d\"\n};\n/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./../../../webpack/buildin/global.js */ \"./node_modules/webpack/buildin/global.js\")))\n\n//# sourceURL=webpack:///./node_modules/@sentry/webpack-plugin/src/sentry-webpack.module.js?");
 
 /***/ }),
 

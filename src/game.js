@@ -386,17 +386,21 @@ export default class Game {
       i++
       this.selected = bug
       let bugScores = []
-      const totalPlays = 450 / destinations.length
+      const totalPlays = 300 / destinations.length
       const maxPlayDepth = 4
       if (shadowWorkers && shadowWorkers.length) {
         const shadowWorker = shadowWorkers[i%THREADS]
         // call worker here for each bug
         workerPromises.push(new Promise((resolve) => {
-          shadowWorker.onmessage = (e) => {
-            const scores = e.data
-            resolve(scores)
-          }
+          let ii = i
+          shadowWorker.addEventListener('message', (e) => {
+            const { scores, i } = e.data
+            if (i === ii) {
+              resolve(scores)
+            }
+          })
           shadowWorker.postMessage({
+            i,
             space: this.space.serializable(),
             players: this.players.map((p, i) => ({
               isShadowPlayer: i === this._activePlayerIndex,

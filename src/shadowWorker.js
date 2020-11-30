@@ -61,6 +61,6 @@ function playShadowGames({
 
 
 onmessage = function(e) {
-  const score = playShadowGames(e.data)
-  postMessage(score)
+  const scores = playShadowGames(e.data)
+  postMessage({ scores, i: e.data.i })
 }

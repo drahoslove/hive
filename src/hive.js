@@ -266,6 +266,7 @@ function AIvAI(AImode1=aiMode, AImode2='dumb') {
   audio.track('ava')
   game.players[0].name = uncolorEmoji(_(`ai ${AImode1}`, `ui ${AImode1}`))
   game.players[1].name = uncolorEmoji(_(`ai ${AImode2}`, `ui ${AImode2}`))
+  game._activePlayerIndex = rand(2)
   ui.hideMenu()
   ui.disableInputFor([0,1])
   game.start()
@@ -289,6 +290,7 @@ function vAI(AImode=aiMode, getName=ggetName) {
   game.players[0].gender = '2'
   game.players[1].name = uncolorEmoji(_(`${getName()} game`, `${getName()} hra`))
   game.players[1].gender = _('M', 'F')
+  game._activePlayerIndex = rand(2)
   ui.hideMenu()
   ui.disableInputFor([1])
   game.start()
