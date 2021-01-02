@@ -239,7 +239,7 @@ export default class Game {
         const bug = tile[tile.length-1]
         if (
           bug.owner === player &&
-          !this.space.isHiveBridge(bug.pos) &&
+          (tile.length > 1 || !this.space.isHiveBridge(bug.pos)) && // can be bridge if beatle on top
           bug.reachablePlaces(this.space).length > 0
         ) {
           canMove = true
